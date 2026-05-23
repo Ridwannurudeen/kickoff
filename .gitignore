@@ -1,0 +1,27 @@
+# env / secrets
+.env
+.env.*
+!.env.example
+
+# node
+node_modules/
+.next/
+out/
+dist/
+build/
+*.log
+npm-debug.log*
+
+# foundry
+contracts/out/
+contracts/cache/
+contracts/broadcast/
+
+# runtime-generated, deployment-specific (regenerate via scripts/)
+/data/deployed-markets.json
+/data/results.json
+/scripts/data/
+
+# os
+.DS_Store
+Thumbs.db

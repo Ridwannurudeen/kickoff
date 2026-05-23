@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  background: #0a0e0a;
+  color: #e9f2e9;
+}
+
+body {
+  background-image:
+    radial-gradient(circle at 15% -10%, rgba(22, 192, 96, 0.12), transparent 40%),
+    radial-gradient(circle at 90% 0%, rgba(60, 240, 138, 0.08), transparent 35%);
+  min-height: 100vh;
+}
+
+/* thin scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: #23302a;
+  border-radius: 4px;
+}
+
+@layer components {
+  .card {
+    @apply rounded-xl border border-pitch-border bg-pitch-card;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply btn bg-grass text-black hover:bg-grass-glow;
+  }
+  .btn-ghost {
+    @apply btn border border-pitch-border bg-transparent text-white hover:bg-white/5;
+  }
+  .pill {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-pitch-border bg-pitch-panel px-3 py-1 text-xs font-medium;
+  }
+  .input {
+    @apply w-full rounded-lg border border-pitch-border bg-pitch-bg px-3 py-2.5 text-sm text-white outline-none placeholder:text-muted focus:border-grass/60;
+  }
+}

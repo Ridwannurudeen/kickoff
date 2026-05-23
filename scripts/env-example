@@ -1,0 +1,62 @@
+# Kickoff off-chain scripts — copy to .env and fill in. NEVER commit .env.
+# Rename this file:  cp env-example .env   (it is named env-example because a
+# pre-commit hook blocks writing dotfiles named .env*; the content is the template.)
+# Private keys are read from here at runtime and never logged.
+
+# --- Network (env-driven; never hardcode the testnet id) ---
+# X Layer mainnet: CHAIN_ID=196, RPC_URL=https://rpc.xlayer.tech
+# X Layer testnet: CHAIN_ID is ambiguous (195 vs 1952) — set whatever your RPC reports.
+RPC_URL=https://rpc.xlayer.tech
+CHAIN_ID=196
+
+# --- Deployed contract addresses (fill after contracts are deployed) ---
+# v3 X Layer testnet (chainId 1952, RPC https://testrpc.xlayer.tech/terigon):
+#   USDC=0xd347711C142720D949c2D96C3DD486F2423cEAF1
+#   CONDITIONAL_TOKENS=0x846AA1261148F2b96f1f9E8441c25CDA8D9fcF58
+#   FACTORY=0x08A349C2e18Fb76AE022995A69fBB89c22d1c248
+#   OPTIMISTIC_ORACLE=0xA82075EBEcDBe9B8478a75e764B4A465d2403fF9
+FACTORY=0x0000000000000000000000000000000000000000
+USDC=0x0000000000000000000000000000000000000000
+CONDITIONAL_TOKENS=0x0000000000000000000000000000000000000000
+# OptimisticOracle — used by the resolution keeper to propose/settle results.
+# Its bond token is the USDC collateral; the proposer (ORACLE_PK) must hold and
+# approve `bondAmount` USDC for the OO before proposing (the keeper auto-approves).
+OPTIMISTIC_ORACLE=0x0000000000000000000000000000000000000000
+
+# --- Keys (hex, with or without 0x prefix) ---
+# Deployer: owns the factory; creates markets + seeds opening lines.
+DEPLOYER_PK=
+# Oracle: the OptimisticOracle proposer/settler used by the resolution keeper. Must
+# hold USDC to post the OO bond (the keeper approves the OO for bondAmount).
+ORACLE_PK=
+# Sim wallets: comma-separated private keys used to generate trading volume.
+SIM_PKS=
+
+# --- API-FOOTBALL (production resolution mode only) ---
+# Get a key at https://www.api-football.com/ . Without it, production mode refuses to run.
+APIFOOTBALL_KEY=
+
+# --- Optional tuning (sensible defaults if unset) ---
+# lib/gen-markets.mjs (full World Cup coverage generator)
+# MATCH_LIMIT: how many matches get per-match (1X2/OU2.5/BTTS) markets. 0 = all 104.
+MATCH_LIMIT=8
+# MATCH_MARKETS: which per-match markets to emit (comma-sep of 1x2,ou25,btts).
+MATCH_MARKETS=1x2,ou25,btts
+# create-markets.mjs
+SEED_LIQUIDITY_USDC=1000
+# OPENING_BUY_USDC: total per-market opening budget, split across outcomes by target dist.
+OPENING_BUY_USDC=50
+# MINT_TEST_USDC=1 mints MockUSDC to the deployer (testnet only; leave unset on mainnet).
+MINT_TEST_USDC=
+# simulate-activity.mjs
+SIM_ROUNDS=6
+SIM_MINT_USDC=500
+SIM_MIN_TRADE_USDC=2
+SIM_MAX_TRADE_USDC=25
+SIM_DELAY_MS=1500
+# resolve.mjs (keeper): MODE=simulated (default) | production
+MODE=simulated
+# ACTION=propose (default) posts results to the OO; ACTION=settle finalizes after liveness.
+ACTION=propose
+# DRY_RUN=1 disables all broadcasting (or pass --dry-run on the CLI)
+DRY_RUN=

@@ -1,0 +1,23 @@
+{
+  "name": "kickoff-scripts",
+  "version": "0.1.0",
+  "description": "Off-chain data, market seeding, activity simulation and resolution keeper for Kickoff (FIFA World Cup 2026 prediction dApp on X Layer).",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "gen:markets": "node lib/gen-markets.mjs",
+    "fetch:worldcup": "node fetch-worldcup.mjs",
+    "create:markets": "node create-markets.mjs",
+    "create:markets:dry": "node create-markets.mjs --dry-run",
+    "simulate": "node simulate-activity.mjs",
+    "simulate:dry": "node simulate-activity.mjs --dry-run",
+    "resolve": "node keeper/resolve.mjs",
+    "resolve:dry": "node keeper/resolve.mjs --dry-run",
+    "check": "node --check fetch-worldcup.mjs && node --check create-markets.mjs && node --check simulate-activity.mjs && node --check keeper/resolve.mjs && node --check lib/chain.mjs && node --check lib/abis.mjs && node --check lib/gen-markets.mjs"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "viem": "^2.50.4"
+  }
+}

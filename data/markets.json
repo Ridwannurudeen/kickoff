@@ -1,0 +1,952 @@
+{
+  "description": "Kickoff seed market definitions for the FIFA World Cup 2026 (v2 categorical contracts). questionId = keccak256(utf8(seed)). openingDistribution is the target opening line per outcome (approx implied probability; not strictly normalized for binary book lines). Outcome conventions: 1X2 [Home,Draw,Away]; OU2.5 [Over,Under]; BTTS [Yes,No]; group-winner one outcome per team; outright/golden-boot binary [Yes,No].",
+  "collateralDecimals": 6,
+  "generatedFrom": "scripts/lib/gen-markets.mjs (deterministic, from data/worldcup-2026.json)",
+  "config": {
+    "matchLimit": 8,
+    "matchMarkets": [
+      "1x2",
+      "ou25",
+      "btts"
+    ],
+    "totalMatchesAvailable": 104
+  },
+  "counts": {
+    "1x2": 8,
+    "over-under-2.5": 8,
+    "btts": 8,
+    "group-winner": 12,
+    "outright": 6,
+    "golden-boot": 6
+  },
+  "markets": [
+    {
+      "seed": "Kickoff:WC2026:1X2:Matchday 1:Mexico:South Africa",
+      "questionId": "0x64af39721cfe6f00e5b49268eaef49eaae8ba44899cf6d5a0c01300f72f658ee",
+      "category": "1x2",
+      "outcomeSlotCount": 3,
+      "outcomeLabels": [
+        "Mexico",
+        "Draw",
+        "South Africa"
+      ],
+      "title": "Mexico vs South Africa — match result",
+      "fixture": "Mexico vs South Africa",
+      "round": "Matchday 1",
+      "group": "Group A",
+      "openingDistribution": [
+        0.3333333333333333,
+        0.3333333333333333,
+        0.3333333333333333
+      ],
+      "metadataURI": "kickoff://market/1x2/matchday-1-mexico-south-africa"
+    },
+    {
+      "seed": "Kickoff:WC2026:OU25:Matchday 1:Mexico:South Africa",
+      "questionId": "0x2e5d656fecfaa3a051ddd4f74d0d18b79cfa0ac7459ff3094df8b3e2c78bfdd0",
+      "category": "over-under-2.5",
+      "outcomeSlotCount": 2,
+      "outcomeLabels": [
+        "Over",
+        "Under"
+      ],
+      "title": "Mexico vs South Africa — total goals Over/Under 2.5",
+      "fixture": "Mexico vs South Africa",
+      "round": "Matchday 1",
+      "group": "Group A",
+      "openingDistribution": [
+        0.5,
+        0.5
+      ],
+      "metadataURI": "kickoff://market/ou25/matchday-1-mexico-south-africa"
+    },
+    {
+      "seed": "Kickoff:WC2026:BTTS:Matchday 1:Mexico:South Africa",
+      "questionId": "0xcad5126f432cef895b25627cba964f2b64affcda9b71bea5e75fabbb5dbf3150",
+      "category": "btts",
+      "outcomeSlotCount": 2,
+      "outcomeLabels": [
+        "Yes",
+        "No"
+      ],
+      "title": "Mexico vs South Africa — both teams to score",
+      "fixture": "Mexico vs South Africa",
+      "round": "Matchday 1",
+      "group": "Group A",
+      "openingDistribution": [
+        0.5,
+        0.5
+      ],
+      "metadataURI": "kickoff://market/btts/matchday-1-mexico-south-africa"
+    },
+    {
+      "seed": "Kickoff:WC2026:1X2:Matchday 1:South Korea:Czech Republic",
+      "questionId": "0x8fb215546230a65b1540fa0a955332de4bf45cc3eb2b80bab93aaf8fef06591d",
+      "category": "1x2",
+      "outcomeSlotCount": 3,
+      "outcomeLabels": [
+        "South Korea",
+        "Draw",
+        "Czech Republic"
+      ],
+      "title": "South Korea vs Czech Republic — match result",
+      "fixture": "South Korea vs Czech Republic",
+      "round": "Matchday 1",
+      "group": "Group A",
+      "openingDistribution": [
+        0.3333333333333333,
+        0.3333333333333333,
+        0.3333333333333333
+      ],
+      "metadataURI": "kickoff://market/1x2/matchday-1-south-korea-czech-republic"
+    },
+    {
+      "seed": "Kickoff:WC2026:OU25:Matchday 1:South Korea:Czech Republic",
+      "questionId": "0xa522e33f4943e40b0933c82286c764dda010d974a75b28535c7007d758f2e900",
+      "category": "over-under-2.5",
+      "outcomeSlotCount": 2,
+      "outcomeLabels": [
+        "Over",
+        "Under"
+      ],
+      "title": "South Korea vs Czech Republic — total goals Over/Under 2.5",
+      "fixture": "South Korea vs Czech Republic",
+      "round": "Matchday 1",
+      "group": "Group A",
+      "openingDistribution": [
+        0.5,
+        0.5
+      ],
+      "metadataURI": "kickoff://market/ou25/matchday-1-south-korea-czech-republic"
+    },
+    {
+      "seed": "Kickoff:WC2026:BTTS:Matchday 1:South Korea:Czech Republic",
+      "questionId": "0x32d3844822292d6d0318792162daf2b75db31ea33f6ed656bacc4bb3a2cda1c0",
+      "category": "btts",
+      "outcomeSlotCount": 2,
+      "outcomeLabels": [
+        "Yes",
+        "No"
+      ],
+      "title": "South Korea vs Czech Republic — both teams to score",
+      "fixture": "South Korea vs Czech Republic",
+      "round": "Matchday 1",
+      "group": "Group A",
+      "openingDistribution": [
+        0.5,
+        0.5
+      ],
+      "metadataURI": "kickoff://market/btts/matchday-1-south-korea-czech-republic"
+    },
+    {
+      "seed": "Kickoff:WC2026:1X2:Matchday 8:Czech Republic:South Africa",
+      "questionId": "0xf37f55c662d7ffb1876c577a771a648afa4f7bf01e71be96165e997ad18703f6",
+      "category": "1x2",
+      "outcomeSlotCount": 3,
+      "outcomeLabels": [
+        "Czech Republic",
+        "Draw",
+        "South Africa"
+      ],
+      "title": "Czech Republic vs South Africa — match result",
+      "fixture": "Czech Republic vs South Africa",
+      "round": "Matchday 8",
+      "group": "Group A",
+      "openingDistribution": [
+        0.3333333333333333,
+        0.3333333333333333,
+        0.3333333333333333
+      ],
+      "metadataURI": "kickoff://market/1x2/matchday-8-czech-republic-south-africa"
+    },
+    {
+      "seed": "Kickoff:WC2026:OU25:Matchday 8:Czech Republic:South Africa",
+      "questionId": "0xdda6150ad6a4e8643105189c078a2e6186dd6b46ebdccdb5dc599e7f6412948c",
+      "category": "over-under-2.5",
+      "outcomeSlotCount": 2,
+      "outcomeLabels": [
+        "Over",
+        "Under"
+      ],
+      "title": "Czech Republic vs South Africa — total goals Over/Under 2.5",
+      "fixture": "Czech Republic vs South Africa",
+      "round": "Matchday 8",
+      "group": "Group A",
+      "openingDistribution": [
+        0.5,
+        0.5
+      ],
+      "metadataURI": "kickoff://market/ou25/matchday-8-czech-republic-south-africa"
+    },
+    {
+      "seed": "Kickoff:WC2026:BTTS:Matchday 8:Czech Republic:South Africa",
+      "questionId": "0x84759295711f4a1859ad5927cc3198bcdee1e63ecba7ab433d68aa409516af8e",
+      "category": "btts",
+      "outcomeSlotCount": 2,
+      "outcomeLabels": [
+        "Yes",
+        "No"
+      ],
+      "title": "Czech Republic vs South Africa — both teams to score",
+      "fixture": "Czech Republic vs South Africa",
+      "round": "Matchday 8",
+      "group": "Group A",
+      "openingDistribution": [
+        0.5,
+        0.5
+      ],
+      "metadataURI": "kickoff://market/btts/matchday-8-czech-republic-south-africa"
+    },
+    {
+      "seed": "Kickoff:WC2026:1X2:Matchday 8:Mexico:South Korea",
+      "questionId": "0xd6dbd2ccecdbf10897b46dc05ff3a2e7835638f3e8dcdeaf71d6f9983c0be989",
+      "category": "1x2",
+      "outcomeSlotCount": 3,
+      "outcomeLabels": [
+        "Mexico",
+        "Draw",
+        "South Korea"
+      ],
+      "title": "Mexico vs South Korea — match result",
+      "fixture": "Mexico vs South Korea",
+      "round": "Matchday 8",
+      "group": "Group A",
+      "openingDistribution": [
+        0.3333333333333333,
+        0.3333333333333333,
+        0.3333333333333333
+      ],
+      "metadataURI": "kickoff://market/1x2/matchday-8-mexico-south-korea"
+    },
+    {
+      "seed": "Kickoff:WC2026:OU25:Matchday 8:Mexico:South Korea",
+      "questionId": "0xb36a4e0b3e1e8d372c54178f10c8a873ad6c697ba0cd81997f5ded75ba1990b4",
+      "category": "over-under-2.5",
+      "outcomeSlotCount": 2,
+      "outcomeLabels": [
+        "Over",
+        "Under"
+      ],
+      "title": "Mexico vs South Korea — total goals Over/Under 2.5",
+      "fixture": "Mexico vs South Korea",
+      "round": "Matchday 8",
+      "group": "Group A",
+      "openingDistribution": [
+        0.5,
+        0.5
+      ],
+      "metadataURI": "kickoff://market/ou25/matchday-8-mexico-south-korea"
+    },
+    {
+      "seed": "Kickoff:WC2026:BTTS:Matchday 8:Mexico:South Korea",
+      "questionId": "0xf789cd9e6113737cd130c359c09942bf2485010a5370b0564bff5d182e5f19e9",
+      "category": "btts",
+      "outcomeSlotCount": 2,
+      "outcomeLabels": [
+        "Yes",
+        "No"
+      ],
+      "title": "Mexico vs South Korea — both teams to score",
+      "fixture": "Mexico vs South Korea",
+      "round": "Matchday 8",
+      "group": "Group A",
+      "openingDistribution": [
+        0.5,
+        0.5
+      ],
+      "metadataURI": "kickoff://market/btts/matchday-8-mexico-south-korea"
+    },
+    {
+      "seed": "Kickoff:WC2026:1X2:Matchday 14:Czech Republic:Mexico",
+      "questionId": "0xeb23b9882d0c1807680492db69f430b1351087ea707d8b8e087f767a18715bc5",
+      "category": "1x2",
+      "outcomeSlotCount": 3,
+      "outcomeLabels": [
+        "Czech Republic",
+        "Draw",
+        "Mexico"
+      ],
+      "title": "Czech Republic vs Mexico — match result",
+      "fixture": "Czech Republic vs Mexico",
+      "round": "Matchday 14",
+      "group": "Group A",
+      "openingDistribution": [
+        0.3333333333333333,
+        0.3333333333333333,
+        0.3333333333333333
+      ],
+      "metadataURI": "kickoff://market/1x2/matchday-14-czech-republic-mexico"
+    },
+    {
+      "seed": "Kickoff:WC2026:OU25:Matchday 14:Czech Republic:Mexico",
+      "questionId": "0xd4b6d75505aa2c58757e8befd8fb645845604dd2f7e49bc00f71c4dc4b2ee488",
+      "category": "over-under-2.5",
+      "outcomeSlotCount": 2,
+      "outcomeLabels": [
+        "Over",
+        "Under"
+      ],
+      "title": "Czech Republic vs Mexico — total goals Over/Under 2.5",
+      "fixture": "Czech Republic vs Mexico",
+      "round": "Matchday 14",
+      "group": "Group A",
+      "openingDistribution": [
+        0.5,
+        0.5
+      ],
+      "metadataURI": "kickoff://market/ou25/matchday-14-czech-republic-mexico"
+    },
+    {
+      "seed": "Kickoff:WC2026:BTTS:Matchday 14:Czech Republic:Mexico",
+      "questionId": "0x2cabf8db8e942bb6f8f2881ea0ebc15b383fdac77f989ce23a6b52eda62f23fd",
+      "category": "btts",
+      "outcomeSlotCount": 2,
+      "outcomeLabels": [
+        "Yes",
+        "No"
+      ],
+      "title": "Czech Republic vs Mexico — both teams to score",
+      "fixture": "Czech Republic vs Mexico",
+      "round": "Matchday 14",
+      "group": "Group A",
+      "openingDistribution": [
+        0.5,
+        0.5
+      ],
+      "metadataURI": "kickoff://market/btts/matchday-14-czech-republic-mexico"
+    },
+    {
+      "seed": "Kickoff:WC2026:1X2:Matchday 14:South Africa:South Korea",
+      "questionId": "0xba7864d66a9a8fe7fd299ec5caab36f70153d7f2e06e3bbeeece218b06f19ab6",
+      "category": "1x2",
+      "outcomeSlotCount": 3,
+      "outcomeLabels": [
+        "South Africa",
+        "Draw",
+        "South Korea"
+      ],
+      "title": "South Africa vs South Korea — match result",
+      "fixture": "South Africa vs South Korea",
+      "round": "Matchday 14",
+      "group": "Group A",
+      "openingDistribution": [
+        0.3333333333333333,
+        0.3333333333333333,
+        0.3333333333333333
+      ],
+      "metadataURI": "kickoff://market/1x2/matchday-14-south-africa-south-korea"
+    },
+    {
+      "seed": "Kickoff:WC2026:OU25:Matchday 14:South Africa:South Korea",
+      "questionId": "0x5b95f62f9291d50b4374f5d19e9266bb190eb0f11315c1e69efd5767b1d166c3",
+      "category": "over-under-2.5",
+      "outcomeSlotCount": 2,
+      "outcomeLabels": [
+        "Over",
+        "Under"
+      ],
+      "title": "South Africa vs South Korea — total goals Over/Under 2.5",
+      "fixture": "South Africa vs South Korea",
+      "round": "Matchday 14",
+      "group": "Group A",
+      "openingDistribution": [
+        0.5,
+        0.5
+      ],
+      "metadataURI": "kickoff://market/ou25/matchday-14-south-africa-south-korea"
+    },
+    {
+      "seed": "Kickoff:WC2026:BTTS:Matchday 14:South Africa:South Korea",
+      "questionId": "0x838245a366f415fa7678737affbacbb0d23a803bb98be27074d856a33b7e697f",
+      "category": "btts",
+      "outcomeSlotCount": 2,
+      "outcomeLabels": [
+        "Yes",
+        "No"
+      ],
+      "title": "South Africa vs South Korea — both teams to score",
+      "fixture": "South Africa vs South Korea",
+      "round": "Matchday 14",
+      "group": "Group A",
+      "openingDistribution": [
+        0.5,
+        0.5
+      ],
+      "metadataURI": "kickoff://market/btts/matchday-14-south-africa-south-korea"
+    },
+    {
+      "seed": "Kickoff:WC2026:1X2:Matchday 2:Canada:Bosnia & Herzegovina",
+      "questionId": "0x5b7be58c201a27f9f90892968ebe7f889a49fa31892d57cda7893bc7f6db105a",
+      "category": "1x2",
+      "outcomeSlotCount": 3,
+      "outcomeLabels": [
+        "Canada",
+        "Draw",
+        "Bosnia & Herzegovina"
+      ],
+      "title": "Canada vs Bosnia & Herzegovina — match result",
+      "fixture": "Canada vs Bosnia & Herzegovina",
+      "round": "Matchday 2",
+      "group": "Group B",
+      "openingDistribution": [
+        0.3333333333333333,
+        0.3333333333333333,
+        0.3333333333333333
+      ],
+      "metadataURI": "kickoff://market/1x2/matchday-2-canada-bosnia-herzegovina"
+    },
+    {
+      "seed": "Kickoff:WC2026:OU25:Matchday 2:Canada:Bosnia & Herzegovina",
+      "questionId": "0xdd5829d3a88be5059c253abfa72ceff1b58dfccfee1c0055f84f73dc17ae8e3a",
+      "category": "over-under-2.5",
+      "outcomeSlotCount": 2,
+      "outcomeLabels": [
+        "Over",
+        "Under"
+      ],
+      "title": "Canada vs Bosnia & Herzegovina — total goals Over/Under 2.5",
+      "fixture": "Canada vs Bosnia & Herzegovina",
+      "round": "Matchday 2",
+      "group": "Group B",
+      "openingDistribution": [
+        0.5,
+        0.5
+      ],
+      "metadataURI": "kickoff://market/ou25/matchday-2-canada-bosnia-herzegovina"
+    },
+    {
+      "seed": "Kickoff:WC2026:BTTS:Matchday 2:Canada:Bosnia & Herzegovina",
+      "questionId": "0xb7e6db22cb61b5c8ee5bc759ceb826c08d3d77d3fb9d41d4989a3dfd8897507f",
+      "category": "btts",
+      "outcomeSlotCount": 2,
+      "outcomeLabels": [
+        "Yes",
+        "No"
+      ],
+      "title": "Canada vs Bosnia & Herzegovina — both teams to score",
+      "fixture": "Canada vs Bosnia & Herzegovina",
+      "round": "Matchday 2",
+      "group": "Group B",
+      "openingDistribution": [
+        0.5,
+        0.5
+      ],
+      "metadataURI": "kickoff://market/btts/matchday-2-canada-bosnia-herzegovina"
+    },
+    {
+      "seed": "Kickoff:WC2026:1X2:Matchday 3:Qatar:Switzerland",
+      "questionId": "0x68f5a397f635469d29751d5ca600a3848ddda54d5169568a052840e3279928d1",
+      "category": "1x2",
+      "outcomeSlotCount": 3,
+      "outcomeLabels": [
+        "Qatar",
+        "Draw",
+        "Switzerland"
+      ],
+      "title": "Qatar vs Switzerland — match result",
+      "fixture": "Qatar vs Switzerland",
+      "round": "Matchday 3",
+      "group": "Group B",
+      "openingDistribution": [
+        0.3333333333333333,
+        0.3333333333333333,
+        0.3333333333333333
+      ],
+      "metadataURI": "kickoff://market/1x2/matchday-3-qatar-switzerland"
+    },
+    {
+      "seed": "Kickoff:WC2026:OU25:Matchday 3:Qatar:Switzerland",
+      "questionId": "0xd6e9ac5571898c7ae3e77fe74ffdfc7e9b82dc4cfac92938164bd2b6ae4b5c39",
+      "category": "over-under-2.5",
+      "outcomeSlotCount": 2,
+      "outcomeLabels": [
+        "Over",
+        "Under"
+      ],
+      "title": "Qatar vs Switzerland — total goals Over/Under 2.5",
+      "fixture": "Qatar vs Switzerland",
+      "round": "Matchday 3",
+      "group": "Group B",
+      "openingDistribution": [
+        0.5,
+        0.5
+      ],
+      "metadataURI": "kickoff://market/ou25/matchday-3-qatar-switzerland"
+    },
+    {
+      "seed": "Kickoff:WC2026:BTTS:Matchday 3:Qatar:Switzerland",
+      "questionId": "0x97a4d7c7df810cb1ddb227df28bbba5131f263bba68b97f5accb5801a196cd3c",
+      "category": "btts",
+      "outcomeSlotCount": 2,
+      "outcomeLabels": [
+        "Yes",
+        "No"
+      ],
+      "title": "Qatar vs Switzerland — both teams to score",
+      "fixture": "Qatar vs Switzerland",
+      "round": "Matchday 3",
+      "group": "Group B",
+      "openingDistribution": [
+        0.5,
+        0.5
+      ],
+      "metadataURI": "kickoff://market/btts/matchday-3-qatar-switzerland"
+    },
+    {
+      "seed": "Kickoff:WC2026:GroupWinner:Group A",
+      "questionId": "0xcbbb2664e08d206f9217ec54327dd8acd511b3b1cd46bfc5c1853a43808c0f7a",
+      "category": "group-winner",
+      "outcomeSlotCount": 4,
+      "outcomeLabels": [
+        "Mexico",
+        "South Africa",
+        "South Korea",
+        "Czech Republic"
+      ],
+      "title": "Group A — group winner",
+      "group": "Group A",
+      "openingDistribution": [
+        0.25,
+        0.25,
+        0.25,
+        0.25
+      ],
+      "metadataURI": "kickoff://market/group-winner/group-a"
+    },
+    {
+      "seed": "Kickoff:WC2026:GroupWinner:Group B",
+      "questionId": "0x40073de6795119b303a9846b2e7063e95626e02424e8b532a21ba3cb2c5a232d",
+      "category": "group-winner",
+      "outcomeSlotCount": 4,
+      "outcomeLabels": [
+        "Canada",
+        "Bosnia & Herzegovina",
+        "Qatar",
+        "Switzerland"
+      ],
+      "title": "Group B — group winner",
+      "group": "Group B",
+      "openingDistribution": [
+        0.25,
+        0.25,
+        0.25,
+        0.25
+      ],
+      "metadataURI": "kickoff://market/group-winner/group-b"
+    },
+    {
+      "seed": "Kickoff:WC2026:GroupWinner:Group C",
+      "questionId": "0x87a3134e818506b11de93ad6dcc8c10840f5ec2726044403a9d8a8f4d4dcc716",
+      "category": "group-winner",
+      "outcomeSlotCount": 4,
+      "outcomeLabels": [
+        "Brazil",
+        "Morocco",
+        "Haiti",
+        "Scotland"
+      ],
+      "title": "Group C — group winner",
+      "group": "Group C",
+      "openingDistribution": [
+        0.25,
+        0.25,
+        0.25,
+        0.25
+      ],
+      "metadataURI": "kickoff://market/group-winner/group-c"
+    },
+    {
+      "seed": "Kickoff:WC2026:GroupWinner:Group D",
+      "questionId": "0x99da322d27afc3de1c01a3fdedf61bdb4f932587153e1edb08ea94ee8b8a99a1",
+      "category": "group-winner",
+      "outcomeSlotCount": 4,
+      "outcomeLabels": [
+        "USA",
+        "Paraguay",
+        "Australia",
+        "Turkey"
+      ],
+      "title": "Group D — group winner",
+      "group": "Group D",
+      "openingDistribution": [
+        0.25,
+        0.25,
+        0.25,
+        0.25
+      ],
+      "metadataURI": "kickoff://market/group-winner/group-d"
+    },
+    {
+      "seed": "Kickoff:WC2026:GroupWinner:Group E",
+      "questionId": "0xc500e4ef450d4c76321c1de69989b65a056ae3d102201b57f1e0b5847cdd7215",
+      "category": "group-winner",
+      "outcomeSlotCount": 4,
+      "outcomeLabels": [
+        "Germany",
+        "Curaçao",
+        "Ivory Coast",
+        "Ecuador"
+      ],
+      "title": "Group E — group winner",
+      "group": "Group E",
+      "openingDistribution": [
+        0.25,
+        0.25,
+        0.25,
+        0.25
+      ],
+      "metadataURI": "kickoff://market/group-winner/group-e"
+    },
+    {
+      "seed": "Kickoff:WC2026:GroupWinner:Group F",
+      "questionId": "0x8e751c0cc2d5a4de70cfa7815693d4fe101f5d7839076ce6e2511fbb7cfb7c1d",
+      "category": "group-winner",
+      "outcomeSlotCount": 4,
+      "outcomeLabels": [
+        "Netherlands",
+        "Japan",
+        "Sweden",
+        "Tunisia"
+      ],
+      "title": "Group F — group winner",
+      "group": "Group F",
+      "openingDistribution": [
+        0.25,
+        0.25,
+        0.25,
+        0.25
+      ],
+      "metadataURI": "kickoff://market/group-winner/group-f"
+    },
+    {
+      "seed": "Kickoff:WC2026:GroupWinner:Group G",
+      "questionId": "0xe43cd518732b7cd76fcdc2b8be16a2dca0dcc5a23d739a2c05f3e5bc5b577978",
+      "category": "group-winner",
+      "outcomeSlotCount": 4,
+      "outcomeLabels": [
+        "Belgium",
+        "Egypt",
+        "Iran",
+        "New Zealand"
+      ],
+      "title": "Group G — group winner",
+      "group": "Group G",
+      "openingDistribution": [
+        0.25,
+        0.25,
+        0.25,
+        0.25
+      ],
+      "metadataURI": "kickoff://market/group-winner/group-g"
+    },
+    {
+      "seed": "Kickoff:WC2026:GroupWinner:Group H",
+      "questionId": "0xd67a06c37e3c33dae63baa5d2199d4560ff4b93b67c67afc3956d981cb730aa1",
+      "category": "group-winner",
+      "outcomeSlotCount": 4,
+      "outcomeLabels": [
+        "Spain",
+        "Cape Verde",
+        "Saudi Arabia",
+        "Uruguay"
+      ],
+      "title": "Group H — group winner",
+      "group": "Group H",
+      "openingDistribution": [
+        0.25,
+        0.25,
+        0.25,
+        0.25
+      ],
+      "metadataURI": "kickoff://market/group-winner/group-h"
+    },
+    {
+      "seed": "Kickoff:WC2026:GroupWinner:Group I",
+      "questionId": "0xc230ebbd8b3650d6ef927c32430aad0ae832caf26ce2af2df078f4b4a0a454f5",
+      "category": "group-winner",
+      "outcomeSlotCount": 4,
+      "outcomeLabels": [
+        "France",
+        "Senegal",
+        "Iraq",
+        "Norway"
+      ],
+      "title": "Group I — group winner",
+      "group": "Group I",
+      "openingDistribution": [
+        0.25,
+        0.25,
+        0.25,
+        0.25
+      ],
+      "metadataURI": "kickoff://market/group-winner/group-i"
+    },
+    {
+      "seed": "Kickoff:WC2026:GroupWinner:Group J",
+      "questionId": "0x7bd5e67793bf1c3084fb5d4d14b14ca765bdbb45eef0efd62736784650bbfc72",
+      "category": "group-winner",
+      "outcomeSlotCount": 4,
+      "outcomeLabels": [
+        "Argentina",
+        "Algeria",
+        "Austria",
+        "Jordan"
+      ],
+      "title": "Group J — group winner",
+      "group": "Group J",
+      "openingDistribution": [
+        0.25,
+        0.25,
+        0.25,
+        0.25
+      ],
+      "metadataURI": "kickoff://market/group-winner/group-j"
+    },
+    {
+      "seed": "Kickoff:WC2026:GroupWinner:Group K",
+      "questionId": "0xa757a0a1a11b9332d7d6358765cd7d2ca38244d138ac1b70530beb66cc548d1a",
+      "category": "group-winner",
+      "outcomeSlotCount": 4,
+      "outcomeLabels": [
+        "Portugal",
+        "DR Congo",
+        "Uzbekistan",
+        "Colombia"
+      ],
+      "title": "Group K — group winner",
+      "group": "Group K",
+      "openingDistribution": [
+        0.25,
+        0.25,
+        0.25,
+        0.25
+      ],
+      "metadataURI": "kickoff://market/group-winner/group-k"
+    },
+    {
+      "seed": "Kickoff:WC2026:GroupWinner:Group L",
+      "questionId": "0xe5a193acad24f0e6dd58e3e748fd5e222454059b5c220299b054d1db44a5357a",
+      "category": "group-winner",
+      "outcomeSlotCount": 4,
+      "outcomeLabels": [
+        "England",
+        "Croatia",
+        "Ghana",
+        "Panama"
+      ],
+      "title": "Group L — group winner",
+      "group": "Group L",
+      "openingDistribution": [
+        0.25,
+        0.25,
+        0.25,
+        0.25
+      ],
+      "metadataURI": "kickoff://market/group-winner/group-l"
+    },
+    {
+      "seed": "Kickoff:WC2026:Outright:Spain",
+      "questionId": "0xe1a32fd41a5f0ba9d445a841e945d4774fcb9276c5b1423e6f7b7605fa295eb5",
+      "category": "outright",
+      "outcomeSlotCount": 2,
+      "outcomeLabels": [
+        "Yes",
+        "No"
+      ],
+      "title": "Will Spain win the 2026 World Cup?",
+      "subject": "Spain",
+      "openingDistribution": [
+        0.21,
+        0.79
+      ],
+      "metadataURI": "kickoff://market/outright/spain"
+    },
+    {
+      "seed": "Kickoff:WC2026:Outright:France",
+      "questionId": "0x75a735528f842f4ebcb37f6e9b5499758c8337bec0cadfdddec0e1e1217fe7e8",
+      "category": "outright",
+      "outcomeSlotCount": 2,
+      "outcomeLabels": [
+        "Yes",
+        "No"
+      ],
+      "title": "Will France win the 2026 World Cup?",
+      "subject": "France",
+      "openingDistribution": [
+        0.2,
+        0.8
+      ],
+      "metadataURI": "kickoff://market/outright/france"
+    },
+    {
+      "seed": "Kickoff:WC2026:Outright:England",
+      "questionId": "0x393422ccd1fb6b21a6cf631407ff83e5248c4affa1ff1f97684344ba1c693322",
+      "category": "outright",
+      "outcomeSlotCount": 2,
+      "outcomeLabels": [
+        "Yes",
+        "No"
+      ],
+      "title": "Will England win the 2026 World Cup?",
+      "subject": "England",
+      "openingDistribution": [
+        0.15,
+        0.85
+      ],
+      "metadataURI": "kickoff://market/outright/england"
+    },
+    {
+      "seed": "Kickoff:WC2026:Outright:Brazil",
+      "questionId": "0x57fcbb46990a0471560259a54d0673dea66015d0d744f578ed84aede40d37b5d",
+      "category": "outright",
+      "outcomeSlotCount": 2,
+      "outcomeLabels": [
+        "Yes",
+        "No"
+      ],
+      "title": "Will Brazil win the 2026 World Cup?",
+      "subject": "Brazil",
+      "openingDistribution": [
+        0.12,
+        0.88
+      ],
+      "metadataURI": "kickoff://market/outright/brazil"
+    },
+    {
+      "seed": "Kickoff:WC2026:Outright:Argentina",
+      "questionId": "0x298d8563118675ead123dfa2e8794e027ad719298d1341117d5b3b4c8095ea80",
+      "category": "outright",
+      "outcomeSlotCount": 2,
+      "outcomeLabels": [
+        "Yes",
+        "No"
+      ],
+      "title": "Will Argentina win the 2026 World Cup?",
+      "subject": "Argentina",
+      "openingDistribution": [
+        0.11,
+        0.89
+      ],
+      "metadataURI": "kickoff://market/outright/argentina"
+    },
+    {
+      "seed": "Kickoff:WC2026:Outright:Field",
+      "questionId": "0x157f31a4f46475f251c4f913627b3fd11ba2f91b15be3efca3d34bd87af69fcb",
+      "category": "outright",
+      "outcomeSlotCount": 2,
+      "outcomeLabels": [
+        "Yes",
+        "No"
+      ],
+      "title": "Will another team (the Field) win the 2026 World Cup?",
+      "subject": "Field",
+      "openingDistribution": [
+        0.21,
+        0.79
+      ],
+      "metadataURI": "kickoff://market/outright/field"
+    },
+    {
+      "seed": "Kickoff:WC2026:GoldenBoot:Mbappe",
+      "questionId": "0x50064e265253a413b248c8e998ff630aa5e6a1cb495d101956fb1b0a47c4a3ce",
+      "category": "golden-boot",
+      "outcomeSlotCount": 2,
+      "outcomeLabels": [
+        "Yes",
+        "No"
+      ],
+      "title": "Will Mbappe win the 2026 World Cup Golden Boot?",
+      "subject": "Mbappe",
+      "openingDistribution": [
+        0.16,
+        0.84
+      ],
+      "metadataURI": "kickoff://market/golden-boot/mbappe"
+    },
+    {
+      "seed": "Kickoff:WC2026:GoldenBoot:Kane",
+      "questionId": "0xb903d110233823f42ccd5fb79caf3fa9cfc135d7f4edd41288ec1a38a48052e3",
+      "category": "golden-boot",
+      "outcomeSlotCount": 2,
+      "outcomeLabels": [
+        "Yes",
+        "No"
+      ],
+      "title": "Will Kane win the 2026 World Cup Golden Boot?",
+      "subject": "Kane",
+      "openingDistribution": [
+        0.14,
+        0.86
+      ],
+      "metadataURI": "kickoff://market/golden-boot/kane"
+    },
+    {
+      "seed": "Kickoff:WC2026:GoldenBoot:Haaland",
+      "questionId": "0x8374866468487b9604755b266f2c111f48b95681d23753d9455ea5a907e87470",
+      "category": "golden-boot",
+      "outcomeSlotCount": 2,
+      "outcomeLabels": [
+        "Yes",
+        "No"
+      ],
+      "title": "Will Haaland win the 2026 World Cup Golden Boot?",
+      "subject": "Haaland",
+      "openingDistribution": [
+        0.08,
+        0.92
+      ],
+      "metadataURI": "kickoff://market/golden-boot/haaland"
+    },
+    {
+      "seed": "Kickoff:WC2026:GoldenBoot:Messi",
+      "questionId": "0x0ddbc04df32a752f271357ddb18554ca194d375ad3f3e54b166f60056fb10e60",
+      "category": "golden-boot",
+      "outcomeSlotCount": 2,
+      "outcomeLabels": [
+        "Yes",
+        "No"
+      ],
+      "title": "Will Messi win the 2026 World Cup Golden Boot?",
+      "subject": "Messi",
+      "openingDistribution": [
+        0.09,
+        0.91
+      ],
+      "metadataURI": "kickoff://market/golden-boot/messi"
+    },
+    {
+      "seed": "Kickoff:WC2026:GoldenBoot:Yamal",
+      "questionId": "0xe71521fca6a26c2c6addcd2d9c83a550fe7a7fc8fdeb353a3015f4e80ac0cfe5",
+      "category": "golden-boot",
+      "outcomeSlotCount": 2,
+      "outcomeLabels": [
+        "Yes",
+        "No"
+      ],
+      "title": "Will Yamal win the 2026 World Cup Golden Boot?",
+      "subject": "Yamal",
+      "openingDistribution": [
+        0.06,
+        0.94
+      ],
+      "metadataURI": "kickoff://market/golden-boot/yamal"
+    },
+    {
+      "seed": "Kickoff:WC2026:GoldenBoot:Field",
+      "questionId": "0xf750d9787a983f519665a401b47ca73482ce14e1d8b8271b8f683422aecd4557",
+      "category": "golden-boot",
+      "outcomeSlotCount": 2,
+      "outcomeLabels": [
+        "Yes",
+        "No"
+      ],
+      "title": "Will another player (the Field) win the 2026 World Cup Golden Boot?",
+      "subject": "Field",
+      "openingDistribution": [
+        0.47,
+        0.53
+      ],
+      "metadataURI": "kickoff://market/golden-boot/field"
+    }
+  ]
+}

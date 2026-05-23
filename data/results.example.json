@@ -1,0 +1,8 @@
+{
+  "note": "Template for the resolution keeper (simulated mode, v2 Optimistic Oracle). Copy to data/results.json and fill in real conditionId + outcomeCount values from data/deployed-markets.json (written by create-markets.mjs). winningOutcome is the winning OUTCOME INDEX; payouts are one-hot of length outcomeCount. Conventions: 1X2 [0 Home,1 Draw,2 Away]; OU2.5 [0 Over,1 Under]; BTTS [0 Yes,1 No]; group-winner index = team order; outright/golden-boot [0 Yes,1 No].",
+  "results": [
+    { "title": "Mexico vs South Africa — match result", "category": "1x2", "conditionId": "0x<conditionId-from-deployed-markets.json>", "outcomeCount": 3, "winningOutcome": 0 },
+    { "title": "Group A — group winner", "category": "group-winner", "conditionId": "0x<conditionId-from-deployed-markets.json>", "outcomeCount": 4, "winningOutcome": 2 },
+    { "subject": "Spain", "category": "outright", "conditionId": "0x<conditionId-from-deployed-markets.json>", "outcomeCount": 2, "winningOutcome": 0 }
+  ]
+}
