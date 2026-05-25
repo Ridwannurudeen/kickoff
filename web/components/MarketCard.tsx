@@ -66,7 +66,7 @@ export function MarketCard({ market }: { market: Market }) {
           </p>
         </div>
         <p className="text-xs text-muted">
-          {fmtUsdCompact(market.volume24h)} 24h
+          {fmtUsdCompact(market.volume24h)} vol
         </p>
       </div>
     </Link>

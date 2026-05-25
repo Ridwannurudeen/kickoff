@@ -19,7 +19,9 @@ export default function HomePage() {
     () => (markets ?? []).reduce((sum, m) => sum + m.volume24h, 0),
     [markets],
   );
-  const featured = (markets ?? []).slice(0, 6);
+  const featured = [...(markets ?? [])]
+    .sort((a, b) => b.volume24h - a.volume24h)
+    .slice(0, 6);
 
   return (
     <div className="space-y-10">
@@ -43,7 +45,7 @@ export default function HomePage() {
             </Link>
             <OnRampButton />
             <div className="pill">
-              Total 24h volume:&nbsp;
+              Total volume:&nbsp;
               <span className="font-semibold text-white">
                 {fmtUsdCompact(totalVolume)}
               </span>

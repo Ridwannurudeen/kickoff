@@ -6,6 +6,7 @@ import { factoryAbi, fpmmAbi } from "./abis";
 import { pricesToProbabilities, reservesToProbabilities } from "./prob";
 import { outcomeLabels, parseMetadata, questionFor } from "./labels";
 import { deployedMeta } from "./deployed";
+import { SNAPSHOT } from "./snapshot";
 import type { Market, Outcome } from "./types";
 import { MOCK_MARKETS, getMockMarket } from "./mock";
 
@@ -61,12 +62,21 @@ async function fetchMarkets(): Promise<Market[]> {
   })) as `0x${string}`[];
 
   const metaMap = await fetchMetadataMap();
-  return Promise.all(addresses.map((addr) => hydrateMarket(addr, metaMap)));
+  return Promise.all(
+    addresses.map((addr) =>
+      hydrateMarket(
+        addr,
+        metaMap,
+        SNAPSHOT.volumeByMarket[addr.toLowerCase()] ?? 0,
+      ),
+    ),
+  );
 }
 
 async function hydrateMarket(
   address: `0x${string}`,
   metaMap: Map<string, string>,
+  volume24h: number,
 ): Promise<Market> {
   const client = publicClient();
   const [countRaw, condId, fee, isClosed, pricesRaw, reservesRaw] =
@@ -112,7 +122,7 @@ async function hydrateMarket(
     subject: subject || `Market ${address.slice(0, 6)}`,
     outcomeCount: count,
     outcomes,
-    volume24h: 0,
+    volume24h,
     isMock: false,
     closed: isClosed,
     feeBps: Number(fee),

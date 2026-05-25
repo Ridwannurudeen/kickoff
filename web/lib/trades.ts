@@ -1,91 +1,27 @@
 import { useQuery } from "@tanstack/react-query";
-import { parseAbiItem } from "viem";
-import { publicClient } from "./client";
 import { FACTORY_CONFIGURED } from "./config";
-import { formatShares, formatUsdc } from "./format";
 import type { LeaderRow, Market, PricePoint, Trade } from "./types";
 import { mockLeaderboard, mockPriceHistory, mockTrades } from "./mock";
+import { SNAPSHOT, type SnapshotTrade } from "./snapshot";
 
-const BUY_EVENT = parseAbiItem(
-  "event FPMMBuy(address indexed buyer, uint8 outcomeIndex, uint256 investmentAmount, uint256 feeAmount, uint256 outcomeTokensBought)",
-);
-const SELL_EVENT = parseAbiItem(
-  "event FPMMSell(address indexed seller, uint8 outcomeIndex, uint256 returnAmount, uint256 feeAmount, uint256 outcomeTokensSold)",
-);
-
-/** How many recent blocks to scan for activity. ~1s blocks → ~7h window. */
-const LOOKBACK_BLOCKS = 25_000n;
-
-interface RawLog {
-  side: "buy" | "sell";
-  market: `0x${string}`;
-  trader: `0x${string}`;
-  outcomeIndex: number;
-  amount: number;
-  shares: number;
-  txHash: `0x${string}`;
-  blockNumber: bigint;
-}
-
-/** Scan FPMMBuy/FPMMSell logs across the given markets. */
-async function scanLogs(markets: Market[]): Promise<RawLog[]> {
-  if (markets.length === 0) return [];
-  const client = publicClient();
-  const latest = await client.getBlockNumber();
-  const fromBlock = latest > LOOKBACK_BLOCKS ? latest - LOOKBACK_BLOCKS : 0n;
-  const addresses = markets.map((m) => m.address);
-
-  const [buys, sells] = await Promise.all([
-    client.getLogs({
-      address: addresses,
-      event: BUY_EVENT,
-      fromBlock,
-      toBlock: latest,
-    }),
-    client.getLogs({
-      address: addresses,
-      event: SELL_EVENT,
-      fromBlock,
-      toBlock: latest,
-    }),
-  ]);
-
-  const out: RawLog[] = [];
-  for (const log of buys) {
-    const a = log.args;
-    out.push({
-      side: "buy",
-      market: log.address as `0x${string}`,
-      trader: a.buyer as `0x${string}`,
-      outcomeIndex: Number(a.outcomeIndex),
-      amount: formatUsdc(a.investmentAmount as bigint),
-      shares: formatShares(a.outcomeTokensBought as bigint),
-      txHash: log.transactionHash as `0x${string}`,
-      blockNumber: log.blockNumber as bigint,
-    });
-  }
-  for (const log of sells) {
-    const a = log.args;
-    out.push({
-      side: "sell",
-      market: log.address as `0x${string}`,
-      trader: a.seller as `0x${string}`,
-      outcomeIndex: Number(a.outcomeIndex),
-      amount: formatUsdc(a.returnAmount as bigint),
-      shares: formatShares(a.outcomeTokensSold as bigint),
-      txHash: log.transactionHash as `0x${string}`,
-      blockNumber: log.blockNumber as bigint,
-    });
-  }
-  out.sort((x, y) => Number(y.blockNumber - x.blockNumber));
-  return out;
+/**
+ * Activity is read from a bundled, on-chain-derived snapshot rather than live logs:
+ * X Layer testnet RPCs cap eth_getLogs to a 100-block range, so the app cannot scan
+ * trade history at runtime. Prices stay live via eth_call (see markets.ts); volume,
+ * the ticker and the leaderboard come from this snapshot. Regenerate it after
+ * re-seeding with scripts/gen-snapshot.mjs.
+ */
+function snapshotLogs(markets?: Market[]): SnapshotTrade[] {
+  if (!markets) return SNAPSHOT.trades;
+  const set = new Set(markets.map((m) => m.address.toLowerCase()));
+  return SNAPSHOT.trades.filter((t) => set.has(t.market.toLowerCase()));
 }
 
 function outcomeLabelFor(market: Market | undefined, index: number): string {
   return market?.outcomes[index]?.label ?? `Outcome ${index + 1}`;
 }
 
-function toTrade(r: RawLog, markets: Market[]): Trade {
+function toTrade(r: SnapshotTrade, markets: Market[]): Trade {
   const m = markets.find(
     (x) => x.address.toLowerCase() === r.market.toLowerCase(),
   );
@@ -107,13 +43,13 @@ function toTrade(r: RawLog, markets: Market[]): Trade {
 export function useRecentTrades(markets: Market[] | undefined, limit = 20) {
   return useQuery({
     queryKey: ["recent-trades", FACTORY_CONFIGURED, markets?.length ?? 0],
-    queryFn: async (): Promise<Trade[]> => {
+    queryFn: (): Trade[] => {
       if (!FACTORY_CONFIGURED || !markets) return mockTrades(limit);
-      const logs = await scanLogs(markets);
-      return logs.slice(0, limit).map((r) => toTrade(r, markets));
+      return snapshotLogs(markets)
+        .slice(0, limit)
+        .map((r) => toTrade(r, markets));
     },
-    staleTime: 10_000,
-    refetchInterval: 12_000,
+    staleTime: 30_000,
     enabled: !FACTORY_CONFIGURED || (markets?.length ?? 0) >= 0,
   });
 }
@@ -122,7 +58,7 @@ export function useRecentTrades(markets: Market[] | undefined, limit = 20) {
 export function useMarketTrades(market: Market | undefined, limit = 30) {
   return useQuery({
     queryKey: ["market-trades", market?.address, FACTORY_CONFIGURED],
-    queryFn: async (): Promise<Trade[]> => {
+    queryFn: (): Trade[] => {
       if (!market) return [];
       if (!FACTORY_CONFIGURED || market.isMock) {
         return mockTrades(limit).map((t) => ({
@@ -136,20 +72,20 @@ export function useMarketTrades(market: Market | undefined, limit = 30) {
           outcomeIndex: t.outcomeIndex % market.outcomeCount,
         }));
       }
-      const logs = await scanLogs([market]);
-      return logs.slice(0, limit).map((r) => toTrade(r, [market]));
+      return snapshotLogs([market])
+        .slice(0, limit)
+        .map((r) => toTrade(r, [market]));
     },
-    staleTime: 8_000,
-    refetchInterval: 12_000,
+    staleTime: 30_000,
     enabled: !!market,
   });
 }
 
 /**
- * Builds a probability history for a single outcome of a market. With logs we
- * approximate the outcome's probability over time from buy/sell pressure on it;
- * without a deployed factory we use a deterministic mock walk so the chart always
- * renders.
+ * Builds a probability history for a single outcome of a market. From snapshot
+ * trades we approximate the outcome's probability over time from buy/sell pressure
+ * on it; without a deployed factory we use a deterministic mock walk so the chart
+ * always renders.
  */
 export function usePriceHistory(
   market: Market | undefined,
@@ -163,12 +99,12 @@ export function usePriceHistory(
       outcomeIndex,
       FACTORY_CONFIGURED,
     ],
-    queryFn: async (): Promise<PricePoint[]> => {
+    queryFn: (): PricePoint[] => {
       if (!market) return [];
       if (!FACTORY_CONFIGURED || market.isMock) {
         return mockPriceHistory(current);
       }
-      const logs = (await scanLogs([market])).slice().reverse(); // oldest first
+      const logs = snapshotLogs([market]).slice().reverse(); // oldest first
       const points: PricePoint[] = [];
       const now = Date.now();
       // walk backwards using each trade's pressure on the tracked outcome
@@ -186,20 +122,18 @@ export function usePriceHistory(
       return points.length > 1 ? points : mockPriceHistory(current);
     },
     staleTime: 30_000,
-    refetchInterval: 30_000,
     enabled: !!market,
   });
 }
 
-/** Leaderboard derived from event logs (volume + rough realized PnL proxy). */
+/** Leaderboard derived from snapshot trades (volume + rough realized PnL proxy). */
 export function useLeaderboard(markets: Market[] | undefined) {
   return useQuery({
     queryKey: ["leaderboard", FACTORY_CONFIGURED, markets?.length ?? 0],
-    queryFn: async (): Promise<LeaderRow[]> => {
+    queryFn: (): LeaderRow[] => {
       if (!FACTORY_CONFIGURED || !markets) return mockLeaderboard();
-      const logs = await scanLogs(markets);
       const byTrader = new Map<string, LeaderRow>();
-      for (const r of logs) {
+      for (const r of snapshotLogs(markets)) {
         const key = r.trader.toLowerCase();
         const row =
           byTrader.get(key) ??
@@ -223,7 +157,6 @@ export function useLeaderboard(markets: Market[] | undefined) {
       return [...byTrader.values()].sort((a, b) => b.volume - a.volume);
     },
     staleTime: 30_000,
-    refetchInterval: 30_000,
     enabled: !FACTORY_CONFIGURED || (markets?.length ?? 0) >= 0,
   });
 }
