@@ -3,8 +3,14 @@ import { xLayer } from "viem/chains";
 
 /**
  * Chain configuration for Kickoff v2. The v2 product runs on X Layer with
- * native OKB gas; defaults to testnet (chainId 195) and reads NEXT_PUBLIC_*
- * env vars to target mainnet (196) or the alternate testnet (1952).
+ * native OKB gas; defaults to testnet (chainId 1952) and reads NEXT_PUBLIC_*
+ * env vars to target mainnet (196).
+ *
+ * Note on the default: the pre-OP-Stack testnet was chainId 195, but after
+ * X Layer's migration in Dec 2025 the live testnet endpoint
+ * https://testrpc.xlayer.tech serves chainId 1952. Hardcoding 195 here would
+ * cause wallet_addEthereumChain to fail with a chainId/RPC mismatch (Rabby
+ * and MetaMask both probe the RPC and reject the add).
  *
  * Contract addresses live in `v2-addresses.ts`. The v1 trading addresses
  * (factory, conditionalTokens, parlayBook, USDC) were intentionally removed
@@ -16,7 +22,7 @@ function env(name: string): string | undefined {
   return v && v.length > 0 ? v : undefined;
 }
 
-export const CHAIN_ID = Number(env("NEXT_PUBLIC_CHAIN_ID") ?? "195");
+export const CHAIN_ID = Number(env("NEXT_PUBLIC_CHAIN_ID") ?? "1952");
 
 export const RPC_URL =
   env("NEXT_PUBLIC_RPC_URL") ??
