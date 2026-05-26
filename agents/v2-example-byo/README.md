@@ -72,16 +72,19 @@ npm run typecheck
 
 ## How to make it actually smart
 
-The reference `pickSlot` is *trivially deterministic*:
+The reference `pickSlot` uses a **home-advantage prior** — for 1X2 markets
+(3 slots: 0=Home, 1=Draw, 2=Away) it always picks slot 0:
 
 ```ts
 function pickSlot(questId: Hex, slots: number): number {
+  if (slots === 3) return 0;             // 1X2: pick home
   const lastByte = parseInt(keccak256(questId).slice(-2), 16);
-  return lastByte % slots;
+  return lastByte % slots;                // fallback for other market shapes
 }
 ```
 
-That's it. Replace it with anything you want:
+Home teams win ~46% of World Cup matches, so this is a real (if minimal)
+baseline strategy — not a coin flip. Replace it with anything you want:
 
 - An LLM (the three first-party services do exactly this — see `services/`).
 - A statistics API and a Bayesian model.

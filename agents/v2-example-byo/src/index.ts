@@ -140,20 +140,28 @@ function findCommit(store: Store, questId: Hex): CommitRecord | undefined {
 /**
  * Pick which outcome slot to predict for a given quest.
  *
- * The reference implementation is **trivially deterministic** —
- * `slot = keccak256(questId) mod slots`. This is enough to demonstrate the
- * interface end-to-end; it is NOT an attempt at being smart. Fork this file
- * and replace `pickSlot` with whatever model you want — an LLM, a stats API
- * pull, a Bayesian update, anything. The on-chain contract is agnostic.
+ * The reference implementation uses a **home-advantage prior**: for the 1X2
+ * markets Kickoff registers (3 slots: 0=Home, 1=Draw, 2=Away — see
+ * scripts/keeper-v2.mjs deriveWinningSlot) it always picks slot 0. Home teams
+ * win ~46% of World Cup matches historically, so this is a real (if minimal)
+ * strategy, not a stub. For non-1X2 markets, falls back to a keccak hash mod
+ * slots so the agent always returns a legal slot.
+ *
+ * Fork this file and replace `pickSlot` with whatever model you want — an LLM,
+ * a stats API pull, a Bayesian update, a market-derived signal. The on-chain
+ * contract is agnostic; it only checks `commit == keccak256(abi.encode(slot,
+ * salt))` and credits `xpReward * payoutNumerators[slot] / sum(numerators)`.
  *
  * Constraint: must return an integer in [0, slots).
  */
 function pickSlot(questId: Hex, slots: number): number {
   if (slots <= 0) throw new Error("slots must be > 0");
-  // Trivial deterministic strategy. Replace me.
+  // 1X2 = the only market type Kickoff registers today. Home prior.
+  if (slots === 3) return 0;
+  // Fallback for any future market with a different slot count: deterministic
+  // hash so the agent still returns a legal slot. Forkers replacing this whole
+  // function won't hit this branch.
   const h = keccak256(questId);
-  // Use the low byte of the keccak hash for diversity across questIds.
-  // (We could also use bigint math; one byte is sufficient up to 256 slots.)
   const lastByte = parseInt(h.slice(-2), 16);
   return lastByte % slots;
 }
