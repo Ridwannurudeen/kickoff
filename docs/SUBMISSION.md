@@ -2,9 +2,9 @@
 
 > **DO NOT SUBMIT WITHOUT EXPLICIT APPROVAL.** This is a fill-in-the-blanks draft for the single X Cup Google Form. Review every field, fill the `TODO`s, then submit yourself.
 >
-> **Deadline:** 23:59 UTC, **May 28, 2026**.
-> **Prizes:** 1st 5,000 USDT · 2nd 3,000 USDT (×2) · 3rd 1,000 USDT (×3).
-> **Judging:** dual AI-judge + human-judge. Criteria: **Innovation** (WC differentiation), **Market potential** (capture WC traffic → X Layer on-chain users + transactions), **Completion** (delivered, demonstrable, on-chain verifiable), **Demo video** (bonus).
+> **Deadline:** extended window, ~two weeks from 2026-05-26. Confirm the exact cutoff on the official OKX X Cup page before submitting.
+> **Judging:** dual AI-judge + human-judge. Criteria: **Innovation** (WC differentiation), **Market potential** (capture WC attention → X Layer on-chain users + transactions), **Completion** (delivered, demonstrable, on-chain verifiable), **Demo video** (bonus).
+> **Eligible tracks hit:** **Social + NFT + AI Agent** — three of six.
 
 ---
 
@@ -22,35 +22,35 @@ Kickoff
 
 **One-line description:**
 ```
-Kickoff — trade the beautiful game, live and on-chain: continuously-tradeable, categorical FIFA World Cup 2026 markets on X Layer, settled by a trustless bonded optimistic oracle, where every position is a real transaction in the OKX ecosystem.
+Kickoff — a global fan platform that turns World Cup 2026 attention into real X Layer activity through free Quests, a composable Fan Reputation SBT, and a Bring-Your-Own-Agent league anyone can join.
 ```
 
 **Project Highlights:**
 ```
-• World-Cup-native, categorical markets — the only live, continuously-tradeable World Cup market on X Layer. Native N-outcome markets (1X2 Home/Draw/Away, group winner with one outcome per team, Over/Under 2.5, Both-Teams-To-Score, outright, Golden Boot) where the implied probabilities sum to ~100%. Not a general prediction market with a sports tab; every market, seed, and oracle is built for WC 2026 (48 teams, USA/Canada/Mexico, 104 matches, Jun 11–Jul 19).
+• A composable Fan Reputation primitive — not just another app. FanRep is a soulbound ERC-721 (one per wallet) that carries a multi-dimensional on-chain reputation: prediction accuracy, engagement breadth, longevity. Any X Layer app can read it as `score(address)` and build on top. The Fan ID is the primitive; quests, trophies, and the league are first-party consumers of the same primitive.
 
-• Trustless resolution — a bonded optimistic oracle, not a single key. Anyone proposes a result and posts a bond; anyone disputes; anyone settles undisputed results on-chain. The deployment revokes the deployer's direct resolver role, so the oracle is the sole settlement path (verified on-chain).
+• A permissionless AI Agent platform, not a single Companion. AgentRegistry lets anyone register an autonomous agent on X Layer (their backend, their LLM, their logic) and charge OKB per call. Kickoff seeds three first-party agents — match-analyst, personal-stats, highlights — but the registry itself is open. The multi-agent Companion is just the first consumer.
 
-• Converts the biggest event in sports into X Layer on-chain activity — the exact metric OKX rewards. Each trade is a real transaction and each trader a new OKX-ecosystem wallet. The World Cup is a recurring global traffic spike; Kickoff is the funnel that turns that attention into on-chain transactions and users.
+• Bring-Your-Own-Agent league — the OnchainOS thesis demonstrated end-to-end. AgentLeague is a free-skill, free-entry prediction tournament for AI agents. Builders deploy an agent, register it, enter it, and compete with Kickoff's own agents for XP, reputation, and the AI Champion trophy. No money wagered, no money paid out — reputation-only. The protocol is the platform.
 
-• Live categorical AMM, not an order book. Each market is a general Fixed-Product Market Maker (Gnosis/Polymarket lineage) over N outcomes: price = normalized inverse reserve = implied probability, moves with every trade, the set sums to 1. Enter, exit, or flip any second between now and the final.
+• Three OKX X Cup tracks hit by design. Social (Fan ID + global/team leaderboards + shareable profiles), NFT (commemorative ERC-1155 Trophies + the composable Fan Rep SBT), and AI Agent (multi-agent Companion + permissionless registry + BYO league).
 
-• Live on-chain proof on X Layer testnet (chain 1952): 12 categorical markets seeded (incl. a 1X2 3-way and a group-winner 4-way), real volume from 7 distinct trader wallets, a full propose → 120s liveness → settle oracle cycle that resolved conditions, plus a public-LP funding lifecycle and a parlay book. Every step verifiable on OKLink.
+• Converts the biggest event in sports into X Layer on-chain activity. Every quest completion is a real X Layer transaction. Every Companion call is a real OKB payment to an agent wallet. Every league entry and every prediction commit/reveal is on-chain. The World Cup is a recurring global attention spike; Kickoff is the funnel that turns that attention into real OKX-ecosystem wallets, transactions, and OKB demand.
 
-• OKX-native end to end — OKX Wallet to connect, OKB for gas, sub-cent fees, OKLink for verifiable proof, OKX on-ramp for fiat. Differentiated vs Polymarket (Polygon, order-book) and Azuro/Overtime/SX Bet (general sportsbooks).
+• OKX-native end to end. OKX Wallet to connect, OKB for gas and for agent service fees, sub-cent costs, OKLink for verifiable proof, OKX on-ramp for fiat. Differentiated from generic prediction markets and from generic Web3 fan tokens — this is a fan platform, with an on-chain reputation, an agent economy, and an open AI-agent league.
 
-• Real now, honest scope. Trading and the optimistic-oracle resolution cycle are live and verifiable on X Layer testnet today; markets settle on the real result in June–July 2026. The demo proposes a clearly-labeled simulated result so the full trade→propose→settle→redeem lifecycle is demonstrable now. Mainnet, third-party audit, and the production API-FOOTBALL feed are gated.
+• Built clean: five contracts on Solidity 0.8.26, OpenZeppelin v5, Foundry — FanRep (soulbound ERC-721 with multi-dim reputation), QuestEngine (XP + SELF_ATTEST / PREDICTION / EXTERNAL_PROOF), Trophy (ERC-1155, deterministic gating, no randomness, no mint fee), AgentRegistry (permissionless agent layer with composeAgents), AgentLeague (BYO seasons + leaderboard + commit-reveal predictions). The bonded OptimisticOracle from v1 is reused unchanged for prediction-quest settlement. Append-only resolution, role-gated XP writes, reentrancy-guarded, CEI. The deployer's resolver role is revoked so the oracle is the only settlement path.
 
-• Depth beyond a single AMM — public liquidity and parlays. The market maker is itself an ERC-20 LP token: anyone can add/remove liquidity and earn pro-rata trading fees (permissionless market-making, proven on testnet). A house-backed ParlayBook offers 2–8-leg combination bets (distinct-condition-enforced, exposure-capped) — the bet types fans actually want, on-chain.
+• Honest scope, honest demo. The real World Cup begins 2026-06-11, after the submission window. The demo settles prediction quests against a clearly-labeled simulated friendly so the full commit → propose → 120s liveness → settle → reveal → XP-credit lifecycle is demonstrable today on X Layer testnet (chain 1952). Mainnet, third-party audit, and the production API-FOOTBALL feed are gated.
 
-• Built clean: ConditionalTokens + MarketMakerFactory + FixedProductMarketMaker (EIP-1167 minimal-proxy clone per market, itself an ERC-20 LP token) + OptimisticOracle + ParlayBook + USDC collateral. Solidity 0.8.26, OpenZeppelin v5.6.1, Foundry; 60 tests green (categorical + fuzz no-free-money + full oracle cycle + LP fee-split/exit + parlay exposure guards); reentrancy-guarded, CEI, collateral-whitelisted, per-proposal bond/deadline snapshots, append-only resolution. Deps vendored — a plain git clone builds with no submodules.
+• Free-skill, free-entry, no wagers. Quests are free. League entry is free. Trophies are gas-only to claim. Agent calls are fee-for-service in OKB (sub-cent), with a free tier always available. No entry fees against outcomes, no payouts in money, no randomised mints, no interest. The product earns its place through reputation and utility, not through staked money.
 ```
 
 ### (4) Project X (Twitter) Official Handle URL
-`TODO — https://x.com/<dedicated Kickoff account>` (e.g. `https://x.com/KickoffMarkets`)
+`TODO — https://x.com/<dedicated Kickoff account>`
 
 ### (5) X Post Link (tags @XLayerOfficial + #BuildX)
-`TODO — URL of the submission post` (use Post #8 from `docs/X_CONTENT.md`).
+`TODO — URL of the submission post` (use the Submission Post from `docs/X_CONTENT.md`).
 **Verify the post tags @XLayerOfficial AND contains #BuildX before submitting.**
 
 ### (6) Team Telegram contacts
@@ -64,7 +64,7 @@ Kickoff — trade the beautiful game, live and on-chain: continuously-tradeable,
 
 ### (Optional) Note to X Layer team
 ```
-Kickoff is built to do exactly what X Cup is for: turn World Cup attention into real on-chain activity on X Layer. Live categorical AMM markets, a trustless bonded optimistic oracle for resolution, OKX Wallet + OKB gas — all live on X Layer testnet (chain 1952) with 9 seeded markets, real multi-wallet volume, and a completed propose→settle oracle cycle, every step verifiable on OKLink. Happy to walk the team through the live demo and on-chain trades.
+Kickoff v2 is built to do exactly what the OKX X Cup is for: turn World Cup 2026 attention into real on-chain activity on X Layer. It hits three eligible tracks by design — Social (Fan ID + leaderboards), NFT (Trophies + a composable Fan Rep SBT any app can read), and AI Agent (a multi-agent Companion plus a permissionless registry and a Bring-Your-Own-Agent league). Every quest completion is a real X Layer transaction; every Companion call is OKB demand. The bonded optimistic oracle from v1 is reused unchanged to settle prediction quests, with the deployer's resolver role already revoked. Real WC matches begin 2026-06-11, after the submission window, so the demo settles a clearly-labeled simulated friendly — the same oracle path will handle live matches in June–July. Happy to walk the team through the live demo, the on-chain artefacts, and the BYO-agent tutorial path.
 ```
 
 ---
@@ -72,24 +72,25 @@ Kickoff is built to do exactly what X Cup is for: turn World Cup attention into 
 ## Pre-submit checklist
 
 **Account & posts**
-- [ ] Dedicated Kickoff X account exists and has posted actively May 19–28.
+- [ ] Dedicated Kickoff X account exists and has posted actively across the submission window.
 - [ ] Submission post tags **@XLayerOfficial** and includes **#BuildX**.
 - [ ] Launch thread is pinned.
+- [ ] "Deploy your agent into AgentLeague" post is live with a link to the BYO tutorial path (`agents/v2-example-byo/`).
 
 **Repo**
 - [ ] GitHub repo is **public** (open it in a logged-out/incognito window to confirm).
-- [ ] `README.md` present at root; `docs/` (ARCHITECTURE, DEMO_SCRIPT) present.
-- [ ] Plain `git clone` builds — deps vendored, no submodule step. `cd contracts && forge build` succeeds.
+- [ ] `README.md` present at root; `docs/` (KICKOFF-V2-DESIGN, DEMO_SCRIPT_V2, ARCHITECTURE, SECURITY, ROADMAP) present.
+- [ ] Plain `git clone` builds — deps vendored, no submodule step. `cd contracts && forge build` succeeds; v2 tests green.
 - [ ] No secrets committed (no `.env`, no private keys).
 
 **On-chain (Completion / verifiability)**
-- [x] v3 (funded-LP + parlays) contracts deployed to X Layer testnet (chain 1952); addresses in the README "Deployed addresses" table (`MarketMakerFactory` `0x08A349C2…`, `ConditionalTokens` `0x846AA126…`, `OptimisticOracle` `0xA82075EB…`, `ParlayBook` `0xF323A948…`, `MockUSDC` `0xd347711C…`, FPMM impl `0x4d12be79…`).
-- [x] Real trade txs exist and are viewable on OKLink — 12 categorical markets, volume from 7 distinct trader wallets, plus a public-LP funding lifecycle and a parlay book (links ready for judges).
-- [x] A full propose → 120s liveness → settle oracle cycle resolved conditions on-chain; deployer resolver role revoked (verified).
-- [ ] Demo settlement / proposed result is clearly labeled "simulated".
+- [ ] Five v2 contracts deployed to X Layer testnet (chain 1952): `FanRep`, `QuestEngine`, `Trophy`, `AgentRegistry`, `AgentLeague`. Addresses listed in the README "Deployed addresses" table.
+- [ ] `OptimisticOracle` reused from v1 (unchanged); deployer's resolver role revoked, verified on-chain.
+- [ ] Real on-chain artefacts viewable on OKLink: at least one `FanRep.mint`, one `SELF_ATTEST` completion, one `PREDICTION` commit + reveal across a full propose → 120s liveness → settle cycle, one `Trophy.claim`, one `AgentRegistry.composeAgents` (with three `Called` + three `submitResult`), one `AgentLeague.enterAgent` from an example user-deployed agent.
+- [ ] Any prediction settlement in the demo is clearly labeled "simulated match — for demo only" on screen and in the voiceover.
 
 **Demo video (bonus)**
-- [ ] 1–3 min video recorded per `docs/DEMO_SCRIPT.md`, showing real on-chain trades + the optimistic-oracle propose→settle + OKLink + labeled simulated result.
+- [ ] 2–3 min video recorded per `docs/DEMO_SCRIPT_V2.md`, covering: connect → Fan ID mint → SELF_ATTEST quest → PREDICTION commit → OO settle → reveal + XP credit → Trophy claim → Companion multi-agent (composeAgents) → AgentLeague + "Deploy your agent" CTA.
 - [ ] Video link ready (and added to the submission post / form note if appropriate).
 
 **Form fields**
@@ -97,7 +98,7 @@ Kickoff is built to do exactly what X Cup is for: turn World Cup attention into 
 - [ ] One-Line Description & Highlights (field 3) pasted in full.
 
 **Final**
-- [ ] Submitting **before 23:59 UTC May 28, 2026**.
+- [ ] Submitting before the official OKX X Cup cutoff.
 - [ ] **User has explicitly approved submission.**
 
 ---

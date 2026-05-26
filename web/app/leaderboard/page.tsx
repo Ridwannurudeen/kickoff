@@ -1,99 +1,127 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
-import { useAccount } from "wagmi";
-import { useMarkets } from "@/lib/markets";
-import { useLeaderboard } from "@/lib/trades";
+import { useT } from "@/components/I18nProvider";
+import { TEAMS } from "@/lib/teams";
+import { DEMO_LEADERBOARD } from "@/lib/v2-demo";
 import { addressUrl } from "@/lib/config";
-import { fmtUsd, shortAddr } from "@/lib/format";
-import { shareUrl, useCaptureReferral } from "@/lib/referral";
-import { useToasts } from "@/lib/toast";
+import { fmtInt, shortAddr } from "@/lib/format";
 
-type SortKey = "volume" | "realized";
+type Scope = "global" | "team";
 
 export default function LeaderboardPage() {
-  const { data: markets } = useMarkets();
-  const { data: rows, isLoading } = useLeaderboard(markets);
-  const [sort, setSort] = useState<SortKey>("volume");
+  const { t } = useT();
+  const [scope, setScope] = useState<Scope>("global");
+  const [teamId, setTeamId] = useState<number>(TEAMS[0].id);
 
-  const sorted = [...(rows ?? [])].sort((a, b) => b[sort] - a[sort]);
+  // Demo data is global; a real team filter would require an indexer mapping
+  // wallets → favoriteTeams. Until then, the team scope renders the same
+  // global ordering with the chosen team shown in the breakdown.
+  const rows = DEMO_LEADERBOARD;
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold">Leaderboard</h1>
-          <p className="text-sm text-muted">
-            Top traders, derived live from on-chain trade events.
-          </p>
-        </div>
-        <div className="grid grid-cols-2 gap-1 rounded-lg bg-pitch-bg p-1">
-          {(["volume", "realized"] as SortKey[]).map((k) => (
-            <button
-              key={k}
-              onClick={() => setSort(k)}
-              className={`rounded-md px-4 py-2 text-sm font-semibold capitalize transition-colors ${
-                sort === k ? "bg-pitch-card text-white" : "text-muted"
-              }`}
-            >
-              {k === "volume" ? "Volume" : "Realized PnL"}
-            </button>
-          ))}
-        </div>
+      <div>
+        <h1 className="text-2xl font-bold">{t("leaderboard_title")}</h1>
+        <p className="text-sm text-muted">{t("leaderboard_subtitle")}</p>
       </div>
 
-      <ReferralPanel rows={sorted.map((r) => r.trader)} />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="grid grid-cols-2 gap-1 rounded-lg bg-pitch-bg p-1">
+          <button
+            onClick={() => setScope("global")}
+            className={`rounded-md px-4 py-2 text-sm font-semibold transition-colors ${
+              scope === "global" ? "bg-pitch-card text-white" : "text-muted"
+            }`}
+          >
+            {t("leaderboard_sort_global")}
+          </button>
+          <button
+            onClick={() => setScope("team")}
+            className={`rounded-md px-4 py-2 text-sm font-semibold transition-colors ${
+              scope === "team" ? "bg-pitch-card text-white" : "text-muted"
+            }`}
+          >
+            {t("leaderboard_sort_team")}
+          </button>
+        </div>
+        {scope === "team" && (
+          <select
+            value={teamId}
+            onChange={(e) => setTeamId(Number(e.target.value))}
+            className="input max-w-xs"
+          >
+            {TEAMS.map((tm) => (
+              <option key={tm.id} value={tm.id}>
+                {tm.name} · Group {tm.group}
+              </option>
+            ))}
+          </select>
+        )}
+      </div>
 
-      {isLoading ? (
-        <div className="card h-64 animate-pulse bg-pitch-panel/50" />
-      ) : sorted.length === 0 ? (
+      {rows.length === 0 ? (
         <div className="card py-16 text-center text-sm text-muted">
-          No trading activity yet.
+          {t("leaderboard_empty")}
         </div>
       ) : (
         <div className="card overflow-x-auto p-4">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-pitch-border text-left text-xs text-muted">
-                <th className="py-2 pr-3 font-medium">#</th>
-                <th className="py-2 pr-3 font-medium">Trader</th>
-                <th className="py-2 pr-3 font-medium">Volume</th>
-                <th className="py-2 pr-3 font-medium">Realized PnL</th>
-                <th className="py-2 pr-3 text-right font-medium">Trades</th>
+                <th className="py-2 pr-3 font-medium">
+                  {t("leaderboard_col_rank")}
+                </th>
+                <th className="py-2 pr-3 font-medium">
+                  {t("leaderboard_col_fan")}
+                </th>
+                <th className="py-2 pr-3 font-medium">
+                  {t("leaderboard_col_xp")}
+                </th>
+                <th className="py-2 pr-3 font-medium">
+                  {t("leaderboard_col_accuracy")}
+                </th>
+                <th className="py-2 pr-3 font-medium">
+                  {t("leaderboard_col_breadth")}
+                </th>
               </tr>
             </thead>
             <tbody>
-              {sorted.map((r, i) => (
+              {rows.map((r, i) => (
                 <tr
-                  key={r.trader}
+                  key={r.address}
                   className="border-b border-pitch-border/50 last:border-0"
                 >
                   <td className="py-3 pr-3 font-bold text-muted">
-                    {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1}
+                    {i === 0 ? "★" : i + 1}
                   </td>
                   <td className="py-3 pr-3">
-                    <a
-                      href={addressUrl(r.trader)}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="font-mono hover:text-grass"
-                    >
-                      {shortAddr(r.trader)}
-                    </a>
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href={`/profile/${r.address}`}
+                        className="font-mono hover:text-grass"
+                      >
+                        {shortAddr(r.address)}
+                      </Link>
+                      <a
+                        href={addressUrl(r.address)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-xs text-muted hover:text-grass"
+                      >
+                        ↗
+                      </a>
+                    </div>
                   </td>
-                  <td className="py-3 pr-3 font-semibold">
-                    {fmtUsd(r.volume)}
+                  <td className="py-3 pr-3 font-semibold text-grass">
+                    {fmtInt(r.totalXp)}
                   </td>
-                  <td
-                    className={`py-3 pr-3 font-semibold ${
-                      r.realized >= 0 ? "text-grass" : "text-no"
-                    }`}
-                  >
-                    {r.realized >= 0 ? "+" : ""}
-                    {fmtUsd(r.realized)}
+                  <td className="py-3 pr-3 text-muted">
+                    {(r.predAccBps / 100).toFixed(1)}%
                   </td>
-                  <td className="py-3 pr-3 text-right text-muted">
-                    {r.buys + r.sells}
+                  <td className="py-3 pr-3 text-muted">
+                    {fmtInt(r.engagement)}
                   </td>
                 </tr>
               ))}
@@ -101,59 +129,6 @@ export default function LeaderboardPage() {
           </table>
         </div>
       )}
-    </div>
-  );
-}
-
-/**
- * Referral panel: shows the visitor's own referral link (carrying ?ref=<wallet>)
- * and, if they arrived via someone's link, who referred them. Attribution is
- * first-touch and stored client-side — non-custodial, no rewards held by the app.
- */
-function ReferralPanel({ rows }: { rows: `0x${string}`[] }) {
-  const { address } = useAccount();
-  const referrer = useCaptureReferral();
-  const { push } = useToasts();
-
-  const link = shareUrl("/markets", address);
-
-  async function copy() {
-    try {
-      await navigator.clipboard.writeText(link);
-      push({ kind: "success", title: "Referral link copied", ttl: 4000 });
-    } catch {
-      push({ kind: "error", title: "Couldn't copy link", ttl: 4000 });
-    }
-  }
-
-  const referrerRank =
-    referrer != null
-      ? rows.findIndex((r) => r.toLowerCase() === referrer.toLowerCase())
-      : -1;
-
-  return (
-    <div className="card flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <p className="text-sm font-semibold text-white">Invite & climb</p>
-        <p className="text-xs text-muted">
-          {address
-            ? "Share your link — friends who join keep you tagged as their referrer."
-            : "Connect your wallet to generate a referral link."}
-        </p>
-        {referrer && (
-          <p className="mt-1 text-xs text-grass">
-            Referred by {shortAddr(referrer)}
-            {referrerRank >= 0 ? ` · rank #${referrerRank + 1}` : ""}
-          </p>
-        )}
-      </div>
-      <button
-        onClick={copy}
-        disabled={!address}
-        className="btn-primary !py-2 text-sm"
-      >
-        Copy referral link
-      </button>
     </div>
   );
 }

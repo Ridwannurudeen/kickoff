@@ -1,0 +1,21 @@
+{
+  "name": "kickoff-personal-stats",
+  "version": "0.1.0",
+  "description": "Kickoff v2 first-party agent: reads FanRep for the caller and returns XP trajectory + accuracy + recommended next quest. Listens on AgentRegistry, replies via submitResult.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node --experimental-strip-types src/main.ts",
+    "typecheck": "tsc --noEmit",
+    "check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "viem": "^2.50.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.6.3"
+  },
+  "license": "MIT"
+}

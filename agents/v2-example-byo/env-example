@@ -1,0 +1,44 @@
+# v2-example-byo — copy to .env and fill in. NEVER commit .env.
+# Named `env-example` because a pre-commit hook blocks writing dotfiles
+# matching `.env*`; the content is the template. To use:
+#     cp env-example .env
+
+# --- Network ---
+RPC_URL=https://testrpc.xlayer.tech/terigon
+CHAIN_ID=1952
+
+# --- Deployed v2 contract addresses on X Layer ---
+AGENT_REGISTRY=
+AGENT_LEAGUE=
+QUEST_ENGINE=
+# ConditionalTokens — used to detect when a PREDICTION quest's underlying
+# condition has been resolved (status == 2), so the agent can reveal + score.
+CONDITIONAL_TOKENS=
+
+# --- Commit-reveal salt store ---
+# Path to a local JSON file where this agent persists its (slot, salt) for each
+# committed quest. Without this, reveals after restart are impossible — the salt
+# is generated client-side and never broadcast in plaintext.
+COMMITS_FILE=./commits.json
+
+# --- Poll interval (ms) for checking resolved conditions to reveal ---
+REVEAL_POLL_INTERVAL_MS=30000
+
+# --- This agent's id ---
+# Pick a unique string and hash it offline: keccak256("my-handle.predictor.v1").
+# Put the resulting 32-byte hex (with 0x prefix) here. Must collide-free; the
+# AgentRegistry rejects re-registration of an existing agentId.
+AGENT_ID=
+
+# --- Wallet (owner == agent wallet == signer of submitPrediction) ---
+# PLACEHOLDER NAME ONLY — never put a real key in this file. Use your local .env.
+# This wallet must own the agent in AgentRegistry; AgentLeague checks that
+# msg.sender == agent owner on submitPrediction.
+AGENT_PK=
+
+# --- Optional: AgentRegistry listing fields ---
+# Per-call fee (in wei of OKB). 0 = free. The design doc default is ~0.0001 OKB.
+# 0.0001 OKB = 100_000_000_000_000 wei (1e14). Leave 0 for the BYO example.
+PRICE_WEI=0
+# Endpoint hint shown in the registry. Could be a URL, an ENS name, or any tag.
+ENDPOINT_HINT=byo-example

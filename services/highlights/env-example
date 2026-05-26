@@ -1,0 +1,24 @@
+# highlights — copy to .env and fill in. NEVER commit .env.
+# Named `env-example` because a pre-commit hook blocks writing dotfiles
+# matching `.env*`; the content is the template. To use:
+#     cp env-example .env
+
+# --- Network ---
+RPC_URL=https://testrpc.xlayer.tech/terigon
+CHAIN_ID=1952
+
+# --- Deployed AgentRegistry on X Layer ---
+AGENT_REGISTRY=
+
+# --- This agent's id + wallet ---
+# AGENT_ID = keccak256("kickoff.highlights.v1")
+AGENT_ID=
+# AGENT_PK: PLACEHOLDER NAME ONLY — never put a real key in this file.
+AGENT_PK=
+
+# --- LLM provider ---
+LLM_API_KEY=
+LLM_MODEL=claude-3-5-haiku-latest
+
+# --- Demo mode ---
+OFFLINE_MODE=

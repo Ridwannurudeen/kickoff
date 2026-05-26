@@ -1,3 +1,10 @@
+> **Historical document — v1 only.** This file describes the v1 (betting) architecture, preserved for history.
+> The current product is **Kickoff v2** — a free-to-play fan platform with no betting primitives. See `docs/KICKOFF-V2-DESIGN.md` for the live design.
+> v1 was retired due to a values constraint against gambling; v2 keeps the World Cup hook and the X Layer alignment, but replaces the FPMM/ConditionalTokens/ParlayBook surface with Fan ID + Quests + Trophies + a multi-agent Companion + a Bring-Your-Own-Agent league.
+> v1 contracts remain in git history; they are not part of the live system.
+
+---
+
 # Architecture
 
 Kickoff is a general **Fixed-Product Market Maker (FPMM)** for **categorical (N-outcome) World Cup 2026 markets**, in the Gnosis / Polymarket lineage, deployed on X Layer. This document covers the categorical CPMM math, conditional-token mechanics, the bonded optimistic oracle, security posture, and the resolution/keeper design.

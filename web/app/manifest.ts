@@ -2,10 +2,10 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Kickoff — Trade the beautiful game",
+    name: "Kickoff — Your World Cup, on-chain",
     short_name: "Kickoff",
     description:
-      "Live, on-chain FIFA World Cup 2026 prediction markets on X Layer.",
+      "A free, global fan platform for World Cup 2026. Mint your Fan ID, complete on-chain quests, earn commemorative trophies, and run AI agents on X Layer.",
     start_url: "/",
     display: "standalone",
     background_color: "#0a0e0a",

@@ -4,13 +4,14 @@ import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { Header } from "@/components/Header";
 import { ToastHost } from "@/components/ToastHost";
+import { Footer } from "@/components/Footer";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: "Kickoff — Trade the beautiful game",
+  title: "Kickoff — Your World Cup, on-chain",
   description:
-    "Live, on-chain FIFA World Cup 2026 prediction markets on X Layer.",
+    "A free, global fan platform for World Cup 2026. Mint your Fan ID, complete on-chain quests, earn commemorative trophies, and run AI agents on X Layer.",
 };
 
 export const viewport: Viewport = {
@@ -29,9 +30,7 @@ export default function RootLayout({
           <Header />
           <main className="mx-auto max-w-7xl px-4 py-8">{children}</main>
           <ToastHost />
-          <footer className="border-t border-pitch-border py-6 text-center text-xs text-muted">
-            Kickoff · Trade the beautiful game — live, on-chain · X Layer
-          </footer>
+          <Footer />
         </Providers>
       </body>
     </html>

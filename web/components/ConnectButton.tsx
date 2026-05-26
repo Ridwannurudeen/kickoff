@@ -5,6 +5,7 @@ import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { CHAIN_NAME } from "@/lib/config";
 import { shortAddr } from "@/lib/format";
 import { useOnCorrectChain } from "@/lib/useNetwork";
+import { useT } from "./I18nProvider";
 
 export function ConnectButton() {
   const { address, isConnected } = useAccount();
@@ -12,6 +13,7 @@ export function ConnectButton() {
   const { disconnect } = useDisconnect();
   const { isCorrect, switchToXLayer, isSwitching } = useOnCorrectChain();
   const [open, setOpen] = useState(false);
+  const { t } = useT();
 
   if (isConnected && address) {
     return (
@@ -22,14 +24,16 @@ export function ConnectButton() {
             disabled={isSwitching}
             className="btn-primary !py-1.5 !px-3 text-xs"
           >
-            {isSwitching ? "Switching…" : `Switch to ${CHAIN_NAME}`}
+            {isSwitching
+              ? t("wallet_connecting")
+              : t("wallet_switch", { chain: CHAIN_NAME })}
           </button>
         )}
         <NetworkIndicator correct={isCorrect} />
         <button
           onClick={() => disconnect()}
           className="btn-ghost !py-1.5 !px-3 font-mono text-xs"
-          title="Disconnect"
+          title={t("wallet_disconnect")}
         >
           {shortAddr(address)}
         </button>
@@ -44,7 +48,7 @@ export function ConnectButton() {
         disabled={isPending}
         className="btn-primary"
       >
-        {isPending ? "Connecting…" : "Connect Wallet"}
+        {isPending ? t("wallet_connecting") : t("wallet_connect")}
       </button>
       {open && (
         <>
@@ -70,12 +74,13 @@ export function ConnectButton() {
 }
 
 function NetworkIndicator({ correct }: { correct: boolean }) {
+  const { t } = useT();
   return (
     <span className="pill">
       <span
-        className={`h-2 w-2 rounded-full ${correct ? "bg-grass animate-pulse-dot" : "bg-no"}`}
+        className={`h-2 w-2 rounded-full ${correct ? "animate-pulse-dot bg-grass" : "bg-no"}`}
       />
-      {correct ? CHAIN_NAME : "Wrong network"}
+      {correct ? CHAIN_NAME : t("wallet_wrong_network")}
     </span>
   );
 }

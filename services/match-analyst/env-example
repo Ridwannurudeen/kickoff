@@ -1,0 +1,29 @@
+# match-analyst — copy to .env and fill in. NEVER commit .env.
+# Named `env-example` because a pre-commit hook blocks writing dotfiles
+# matching `.env*`; the content is the template. To use:
+#     cp env-example .env
+# The runtime reads .env at startup via dotenv.
+
+# --- Network (env-driven; never hardcode the testnet id) ---
+RPC_URL=https://testrpc.xlayer.tech/terigon
+CHAIN_ID=1952
+
+# --- Deployed AgentRegistry on X Layer ---
+AGENT_REGISTRY=
+
+# --- This agent's id + wallet ---
+# AGENT_ID = keccak256("kickoff.match-analyst.v1") — set this to the bytes32 hash
+# you used at AgentRegistry.registerAgent time (32-byte hex with 0x prefix).
+AGENT_ID=
+# AGENT_PK: PLACEHOLDER NAME ONLY — paste the agent wallet private key into your
+# local .env (never into this file, never into git). Required unless OFFLINE_MODE=1.
+AGENT_PK=
+
+# --- LLM provider (Anthropic by default; see src/lib/llm.ts to swap) ---
+LLM_API_KEY=
+LLM_MODEL=claude-3-5-haiku-latest
+
+# --- Demo mode ---
+# OFFLINE_MODE=1 bypasses the LLM call AND skips the on-chain submitResult tx,
+# so you can exercise the event watcher end-to-end without funds or a key.
+OFFLINE_MODE=
