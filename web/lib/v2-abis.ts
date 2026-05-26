@@ -326,6 +326,7 @@ export const agentRegistryAbi = [
     stateMutability: "view",
     inputs: [{ name: "agentId", type: "bytes32" }],
     outputs: [
+      { name: "owner", type: "address" },
       { name: "agentWallet", type: "address" },
       { name: "priceWei", type: "uint128" },
       { name: "endpointHint", type: "string" },
@@ -403,7 +404,8 @@ export const agentLeagueAbi = [
     inputs: [
       { name: "agentId", type: "bytes32" },
       { name: "questId", type: "bytes32" },
-      { name: "reveal", type: "bytes32" },
+      { name: "predictedSlot", type: "uint8" },
+      { name: "salt", type: "bytes32" },
     ],
     outputs: [],
   },
@@ -422,6 +424,7 @@ export const agentLeagueAbi = [
     outputs: [
       { name: "agentIds", type: "bytes32[]" },
       { name: "scores", type: "uint64[]" },
+      { name: "owners", type: "address[]" },
     ],
   },
   {

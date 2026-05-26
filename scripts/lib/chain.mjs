@@ -88,7 +88,11 @@ export function addressLink(addr) {
 export function envAddress(name, { dryRun = false } = {}) {
   const raw = process.env[name];
   if (!raw) {
-    if (dryRun) return null;
+    // Dry-run: return the zero-address sentinel so address-typed ABI encoding
+    // (e.g. the keccak-derived conditionId in keeper-v2) works without env.
+    // Live contract calls are gated separately by the dry-run flag and don't
+    // reach the chain.
+    if (dryRun) return "0x0000000000000000000000000000000000000000";
     throw new Error(`Missing required env ${name} (set it in scripts/.env)`);
   }
   return getAddress(raw);
