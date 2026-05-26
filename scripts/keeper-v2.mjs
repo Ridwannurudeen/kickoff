@@ -203,13 +203,14 @@ function selfAttestQuestId(match) {
 }
 
 function conditionIdFor(usdc, oracle, questionId, slotCount) {
-  // Matches the standard ConditionalTokens conditionId derivation. Verified
-  // against contracts/src/ConditionalTokens.sol's _conditionId.
-  // conditionId = keccak256(abi.encode(oracle, questionId, outcomeSlotCount))
+  // Matches contracts/src/ConditionalTokens.sol:62 — conditionId is
+  // keccak256(abi.encode(collateral, questionId, outcomeSlotCount)).
+  // The `oracle` arg is kept in the signature so call sites stay readable
+  // but is intentionally not part of the derivation.
   return keccak256(
     encodeAbiParameters(
       [{ type: 'address' }, { type: 'bytes32' }, { type: 'uint8' }],
-      [oracle, questionId, slotCount],
+      [usdc, questionId, slotCount],
     ),
   );
 }
