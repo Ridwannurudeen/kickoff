@@ -20,7 +20,11 @@ contracts/broadcast/
 # runtime-generated, deployment-specific (regenerate via scripts/)
 /data/deployed-markets.json
 /data/results.json
+/data/keeper-v2-fixtures.json
 /scripts/data/
+
+# BYO agent runtime state — contains commit salts, MUST NOT be committed
+agents/*/commits.json
 
 # os
 .DS_Store
