@@ -9,7 +9,7 @@
 
 ## Account setup (one-time)
 
-- **Handle:** `@KickoffFans` (or `@KickoffXLayer` if taken) — TODO confirm availability.
+- **Handle:** `@X_KICKOFF` (created; URL `https://x.com/X_KICKOFF`).
 - **Display name:** Kickoff
 - **Bio:** `World Cup 2026 fan platform on @XLayerOfficial. Free quests, on-chain Fan Reputation, multi-agent AI, Bring-Your-Own-Agent league. #BuildX`
 - **Pinned:** the launch thread below (Post #1).
