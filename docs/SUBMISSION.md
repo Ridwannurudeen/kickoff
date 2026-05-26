@@ -47,7 +47,7 @@ Kickoff — a global fan platform that turns World Cup 2026 attention into real 
 ```
 
 ### (4) Project X (Twitter) Official Handle URL
-`https://x.com/X_KICKOFF`
+`https://x.com/kickoff_w2026`
 
 ### (5) X Post Link (tags @XLayerOfficial + #BuildX)
 `TODO — URL of the submission post` (use the Submission Post from `docs/X_CONTENT.md`).
