@@ -8,10 +8,16 @@
  *
  * Env override: NEXT_PUBLIC_FAN_REP, NEXT_PUBLIC_QUEST_ENGINE,
  * NEXT_PUBLIC_TROPHY, NEXT_PUBLIC_AGENT_REGISTRY, NEXT_PUBLIC_AGENT_LEAGUE.
+ *
+ * IMPORTANT: env vars below MUST be referenced with literal dot-notation
+ * (process.env.NEXT_PUBLIC_X) — Next.js's webpack plugin only inlines
+ * NEXT_PUBLIC_* values into the client bundle when accessed that way. A
+ * dynamic helper like `process.env[name]` looks the same at the TS level
+ * but compiles to a runtime lookup against an empty object in the browser,
+ * silently dropping every override.
  */
 
-function env(name: string): string | undefined {
-  const v = process.env[name];
+function nonEmpty(v: string | undefined): string | undefined {
   return v && v.length > 0 ? v : undefined;
 }
 
@@ -27,13 +33,15 @@ const PLACEHOLDER_AGENT_LEAGUE =
   "0x0000000000000000000000000000000000000005" as const;
 
 export const V2_ADDRESSES = {
-  fanRep: (env("NEXT_PUBLIC_FAN_REP") ?? PLACEHOLDER_FAN_REP) as `0x${string}`,
-  questEngine: (env("NEXT_PUBLIC_QUEST_ENGINE") ??
+  fanRep: (nonEmpty(process.env.NEXT_PUBLIC_FAN_REP) ??
+    PLACEHOLDER_FAN_REP) as `0x${string}`,
+  questEngine: (nonEmpty(process.env.NEXT_PUBLIC_QUEST_ENGINE) ??
     PLACEHOLDER_QUEST_ENGINE) as `0x${string}`,
-  trophy: (env("NEXT_PUBLIC_TROPHY") ?? PLACEHOLDER_TROPHY) as `0x${string}`,
-  agentRegistry: (env("NEXT_PUBLIC_AGENT_REGISTRY") ??
+  trophy: (nonEmpty(process.env.NEXT_PUBLIC_TROPHY) ??
+    PLACEHOLDER_TROPHY) as `0x${string}`,
+  agentRegistry: (nonEmpty(process.env.NEXT_PUBLIC_AGENT_REGISTRY) ??
     PLACEHOLDER_AGENT_REGISTRY) as `0x${string}`,
-  agentLeague: (env("NEXT_PUBLIC_AGENT_LEAGUE") ??
+  agentLeague: (nonEmpty(process.env.NEXT_PUBLIC_AGENT_LEAGUE) ??
     PLACEHOLDER_AGENT_LEAGUE) as `0x${string}`,
 } as const;
 

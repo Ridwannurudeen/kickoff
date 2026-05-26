@@ -12,33 +12,41 @@ import { xLayer } from "viem/chains";
  * cause wallet_addEthereumChain to fail with a chainId/RPC mismatch (Rabby
  * and MetaMask both probe the RPC and reject the add).
  *
+ * IMPORTANT: env vars below MUST be referenced with literal dot-notation
+ * (process.env.NEXT_PUBLIC_X) — Next.js's webpack plugin only inlines
+ * NEXT_PUBLIC_* values into the client bundle when accessed that way. A
+ * dynamic helper like `process.env[name]` looks the same at the TS level
+ * but compiles to a runtime lookup against an empty object in the browser,
+ * silently dropping every override.
+ *
  * Contract addresses live in `v2-addresses.ts`. The v1 trading addresses
  * (factory, conditionalTokens, parlayBook, USDC) were intentionally removed
  * — v2 has no betting surface.
  */
 
-function env(name: string): string | undefined {
-  const v = process.env[name];
+function nonEmpty(v: string | undefined): string | undefined {
   return v && v.length > 0 ? v : undefined;
 }
 
-export const CHAIN_ID = Number(env("NEXT_PUBLIC_CHAIN_ID") ?? "1952");
+export const CHAIN_ID = Number(
+  nonEmpty(process.env.NEXT_PUBLIC_CHAIN_ID) ?? "1952",
+);
 
 export const RPC_URL =
-  env("NEXT_PUBLIC_RPC_URL") ??
+  nonEmpty(process.env.NEXT_PUBLIC_RPC_URL) ??
   (CHAIN_ID === 196
     ? "https://rpc.xlayer.tech"
     : "https://testrpc.xlayer.tech");
 
 export const EXPLORER_URL = (
-  env("NEXT_PUBLIC_EXPLORER_URL") ??
+  nonEmpty(process.env.NEXT_PUBLIC_EXPLORER_URL) ??
   (CHAIN_ID === 196
     ? "https://www.oklink.com/xlayer"
     : "https://www.oklink.com/xlayer-test")
 ).replace(/\/$/, "");
 
 export const CHAIN_NAME =
-  env("NEXT_PUBLIC_CHAIN_NAME") ??
+  nonEmpty(process.env.NEXT_PUBLIC_CHAIN_NAME) ??
   (CHAIN_ID === 196 ? "X Layer" : "X Layer Testnet");
 
 /** The viem Chain object for the configured network. Native OKB gas. */
