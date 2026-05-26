@@ -1,6 +1,6 @@
-# Kickoff v2 — MENA-first World Cup Fan Platform on X Layer
+# Kickoff v2 — Global World Cup Fan Platform on X Layer
 
-> **Status:** Design locked 2026-05-26. Build target: ~2 weeks. Branch: `feat/v2-halal-fan-platform`.
+> **Status:** Design locked 2026-05-26. Build target: ~2 weeks (submission deadline ~2026-06-09). Branch: `feat/v2-halal-fan-platform`.
 > **For the OKX X Cup** (World Cup-themed, X Layer-deployed). Eligible tracks hit: **Social + NFT + AI Agent**.
 
 ## 1. Why this exists
@@ -69,7 +69,7 @@ A soulbound ERC-721 (one per wallet) that *carries* a multi-dimensional reputati
 - `complete(bytes32 questId, bytes attestation)` — the entry point. Behavior depends on type:
   - `SELF_ATTEST` (e.g. "watch tonight's match"): user calls directly, one-per-wallet per quest.
   - `PREDICTION` (e.g. "predict tonight's score"): user submits a hash commit *before* `endsAt`; after the OO resolves the match, anyone (or a keeper) calls `settlePrediction(questId, user, prediction)` and `xpReward` is scaled by closeness.
-  - `EXTERNAL_PROOF` (e.g. "share a post that tags @KickoffMENA"): admin signs an attestation off-chain; user submits it; contract verifies the signature.
+  - `EXTERNAL_PROOF` (e.g. "share a post that tags @KickoffFans"): admin signs an attestation off-chain; user submits it; contract verifies the signature.
 - On completion, calls `FanRep.recordXP(user, dim, amount)` and emits `QuestCompleted` (used by Trophy gating + frontend).
 
 ### 6.3 `Trophy.sol` — commemorative ERC-1155
@@ -172,7 +172,7 @@ Fixed-supply, deterministic, no randomness.
 ## 15. Submission strategy (X Cup)
 
 - **Tracks hit:** Social (Fan ID + leaderboards + sharing), NFT (Trophies + composable Fan Rep SBT), AI Agent (multi-agent Companion **+ Bring-Your-Own-Agent league**). Three of six eligible — and the AI Agent track is hit *as a platform*, not as a feature.
-- **OKX strategic story:** every free quest + every Companion call + every league prediction is a real X Layer transaction and incremental OKB demand. The `AgentLeague` is OKX's OnchainOS thesis demonstrated end-to-end: *anyone* can ship and run an autonomous agent on X Layer.
+- **OKX strategic story:** every free quest + every Companion call + every league prediction is a real X Layer transaction and incremental OKB demand. The `AgentLeague` is OKX's OnchainOS thesis demonstrated end-to-end: *anyone* can ship and run an autonomous agent on X Layer — see [`agents/v2-example-byo/`](../agents/v2-example-byo/) for a fork-and-go tutorial.
 - **Hard prerequisites at submission:** dedicated X account active, repo public, live demo at `kickoff.gudman.xyz`, contracts verifiable on OKLink, demo video. *Nothing gets submitted without explicit owner approval.*
 
 ## 16. Risks + open questions (acknowledged, not blocking)
