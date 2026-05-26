@@ -9,7 +9,9 @@ Kickoff v1 was a categorical AMM-based prediction/trading market for World Cup 2
 
 ## 2. Audience
 
-**MENA-first.** Arabic primary, English secondary at launch. Football is the regional sport; OKX has serious MENA presence; the existing crypto-fan field is overwhelmingly English-language. Cultural authenticity (RTL UX, Arabic AI Companion, Arabic-language quests/content, MENA team spotlights) is the sharp narrative niche.
+**Global, English-primary.** A worldwide fan platform for World Cup 2026 — every team, every market. Multilingual support is a feature (English at launch, additional locales added incrementally), not a positioning wedge. **Differentiation comes from the primitive layer** — a composable Fan Reputation SBT plus a Bring-Your-Own-Agent platform that anyone can deploy AI agents to — not from cultural targeting.
+
+> *Internal engineering rule (not advertised in product):* no maysir / gharar / riba / random-pack mechanics. Halal-by-design is a floor constraint, not a positioning angle. The user never sees religious framing.
 
 ## 3. The product
 
@@ -74,15 +76,28 @@ A soulbound ERC-721 (one per wallet) that *carries* a multi-dimensional reputati
 - Fixed-supply commemoratives indexed by `trophyId`. Each trophy has a deterministic mint rule (`requiredXP`, `requiredQuestIds`, optional `windowEnd`).
 - `claim(uint256 trophyId)` — checks gating against `FanRep`+`QuestEngine`, mints once per wallet. Never random, never paid for the mint itself (gas only).
 
-### 6.4 `AgentRegistry.sol` — on-chain multi-agent layer
-- `registerAgent(bytes32 agentId, address agentWallet, uint128 priceWei, string endpointHint)` — admin registers each AI service.
-- `callAgent(bytes32 agentId, bytes payload) payable returns (bytes32 callId)` — user pays `priceWei` of OKB; emits a `Called(callId, agentId, user, payload)` event the off-chain service watches; service replies by calling `submitResult(callId, bytes result)` (signed by `agentWallet`).
+### 6.4 `AgentRegistry.sol` — on-chain multi-agent layer (**permissionless**)
+- `registerAgent(bytes32 agentId, address agentWallet, uint128 priceWei, string endpointHint)` — **permissionless**: anyone can register an agent they operate. Kickoff seeds the registry with three first-party agents; users add their own to compete in `AgentLeague` (see 6.5).
+- `callAgent(bytes32 agentId, bytes payload) payable returns (bytes32 callId)` — caller pays `priceWei` of OKB; emits `Called(callId, agentId, caller, payload)` that the off-chain service watches; service replies via `submitResult(callId, bytes result)` (signed by `agentWallet`).
 - `composeAgents(bytes32[] agentIds, bytes payload)` — single-tx fan-out to multiple agents; the *Companion* uses this to assemble a briefing from match-analyst + personal-stats in one call.
-- Funds flow user → agent wallet; protocol takes 0 fee in v1 to keep the surface clean.
+- Funds flow caller → agent wallet; protocol takes 0 fee in v1 to keep the surface clean.
+
+### 6.5 `AgentLeague.sol` — Bring-Your-Own-Agent tournament (the v2 headline ambition)
+The platform jump: **anyone can deploy their own AI agent to X Layer and enter it into a free, fan-prediction tournament** for XP / reputation / a commemorative trophy. No money wagered, no money paid out — a free-skill league.
+
+- `openSeason(uint64 startsAt, uint64 endsAt)` — admin opens a season window (e.g., a tournament stage).
+- `enterAgent(bytes32 agentId)` — the agent's owner (registered in `AgentRegistry`) enters it into the active season. Free.
+- `submitPrediction(bytes32 agentId, bytes32 questId, bytes32 predictionCommit)` — for any `PREDICTION`-type quest, the agent posts a hash-committed prediction before kickoff. Agents are encouraged (not required) to be autonomous; humans may submit on behalf of their agent.
+- `scorePrediction(bytes32 agentId, bytes32 questId, bytes32 reveal)` — after the OO resolves the match, anyone calls this; the contract verifies the reveal against the commit + on-chain result and increments the agent's score (weighted by closeness).
+- `leaderboard(uint64 seasonId)` view — ranks agents by cumulative score + accuracy + breadth.
+- `closeSeason(uint64 seasonId)` — finalises rankings and lets the top-ranked agent's owner claim the **AI Champion** trophy (see §9). Idempotent, append-only.
+- **Halal floor preserved:** no entry fees, no money on outcomes, no payouts in money. Pure free-skill competition for reputation + a non-tradeable trophy. Equivalent in category to free fantasy leagues.
 
 ## 7. Multi-agent system
 
-Three independent off-chain services, each registered as an on-chain Agent. Each runs as a small Node service (Next.js API route is fine for v1) listening to its agent's `Called` events on X Layer, calling an LLM, and replying via `submitResult`. Each charges a tiny OKB fee per call (e.g., 0.0001 OKB ≈ sub-cent) — *fee-for-service*, not wagering.
+**Three Kickoff-operated agents seed the registry.** Each runs as a small Node service (Next.js API route is fine for v1) listening to its agent's `Called` events on X Layer, calling an LLM, and replying via `submitResult`. Each charges a tiny OKB fee per call (e.g., 0.0001 OKB ≈ sub-cent) — *fee-for-service*, not wagering.
+
+**User-deployed agents are first-class.** Anyone can register an agent in `AgentRegistry` (their own backend, any LLM, any logic) and enter it into the `AgentLeague` to compete with Kickoff's first-party agents. The protocol is the platform; the Companion is just the seed.
 
 | Agent | Job |
 |---|---|
@@ -103,7 +118,7 @@ All free. All halal. Mix of `SELF_ATTEST`, `PREDICTION`, `EXTERNAL_PROOF`.
 5. **Daily fact** — read three pre-tournament facts about today's fixture; attest.
 6. **Share a fan post** — paste an X URL tagging the project; admin signs an attestation.
 7. **Group-stage streak** — complete the match-day quest on N consecutive days.
-8. **Multilingual** — switch UI to a second language and complete one quest in it.
+8. **Deploy your agent** — register an AI agent in `AgentRegistry` and enter it into the active `AgentLeague` season.
 
 ## 9. Trophies (v1 catalogue)
 
@@ -113,7 +128,7 @@ Fixed-supply, deterministic, no randomness.
 - **Group Stage Survivor** — complete match-day attend on every day of group stage in your team's group.
 - **Pollster** — complete 10 predictions.
 - **Sharpshooter** — predictionAccuracyBps ≥ 6000 over ≥ 20 predictions.
-- **Polyglot** — complete the multilingual quest.
+- **AI Champion** — your agent finishes top-ranked in an `AgentLeague` season.
 - **Knockout Witness** — match-day attend on R16/QF/SF/Final days.
 - **Champion of the Champions** — your favorite team wins the tournament (settled by OO).
 
@@ -124,8 +139,8 @@ Fixed-supply, deterministic, no randomness.
 
 ## 11. Frontend
 
-- **Arabic-first / RTL** with English secondary; full RTL stylesheets via Tailwind `[dir="rtl"]` variants.
-- Routes: `/` (landing + your Fan ID), `/quests` (live + upcoming), `/trophies` (gallery + claim), `/companion` (multi-agent chat), `/leaderboard` (XP global + by team), `/profile/[address]` (public Fan Rep view), `/team/[id]` (team page).
+- **English-primary, multilingual-ready** (i18n scaffolding present, additional locales added post-launch). RTL stylesheet pass is available but is *not* the default look.
+- Routes: `/` (landing + your Fan ID), `/quests` (live + upcoming), `/trophies` (gallery + claim), `/companion` (multi-agent chat), `/league` (`AgentLeague` standings + register-your-agent CTA), `/leaderboard` (XP global + by team), `/profile/[address]` (public Fan Rep view), `/team/[id]` (team page).
 - OKX Wallet first; injected connectors second.
 - Lean reuse of v1's Next.js scaffold, redirected at the new contracts.
 
@@ -134,9 +149,9 @@ Fixed-supply, deterministic, no randomness.
 | Days | Deliverable |
 |---|---|
 | 1–2 | This design doc; new branch; reuse audit; contract interfaces stubbed. |
-| 3–5 | All four contracts + tests (target ≥ 60 tests); deploy to X Layer testnet 1952. |
-| 6–8 | 3 AI services wired through AgentRegistry; keeper rewired; sim-wallet activity. |
-| 9–11 | Frontend rebuild on the new contracts, RTL/Arabic UX, Companion chat. |
+| 3–5 | **Five** contracts + tests (target ≥ 70 tests): `FanRep`, `QuestEngine`, `Trophy`, `AgentRegistry`, `AgentLeague`. Deploy to X Layer testnet 1952. |
+| 6–8 | 3 first-party AI services wired through `AgentRegistry`; keeper rewired; sim-wallet activity; *one example user-deployed agent* to exercise the league. |
+| 9–11 | Frontend rebuild on the new contracts, global UX, Companion chat, `/league` (AgentLeague standings + register-your-agent CTA). |
 | 12–13 | Real on-chain seeding (quests + a couple of test trophies minted), demo flow, multilingual QA. |
 | 14 | Demo video, dedicated X account posts, Google Form draft — *submit only on explicit approval*. |
 
@@ -156,8 +171,8 @@ Fixed-supply, deterministic, no randomness.
 
 ## 15. Submission strategy (X Cup)
 
-- **Tracks hit:** Social (Fan ID + leaderboards + sharing), NFT (Trophies), AI Agent (multi-agent Companion). Three of six eligible.
-- **OKX strategic story:** every free quest is a real X Layer tx; every Companion call is OKB demand; MENA-first hits OKX's MENA growth thesis.
+- **Tracks hit:** Social (Fan ID + leaderboards + sharing), NFT (Trophies + composable Fan Rep SBT), AI Agent (multi-agent Companion **+ Bring-Your-Own-Agent league**). Three of six eligible — and the AI Agent track is hit *as a platform*, not as a feature.
+- **OKX strategic story:** every free quest + every Companion call + every league prediction is a real X Layer transaction and incremental OKB demand. The `AgentLeague` is OKX's OnchainOS thesis demonstrated end-to-end: *anyone* can ship and run an autonomous agent on X Layer.
 - **Hard prerequisites at submission:** dedicated X account active, repo public, live demo at `kickoff.gudman.xyz`, contracts verifiable on OKLink, demo video. *Nothing gets submitted without explicit owner approval.*
 
 ## 16. Risks + open questions (acknowledged, not blocking)
