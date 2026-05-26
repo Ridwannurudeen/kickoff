@@ -1,0 +1,27 @@
+<svg viewBox="0 0 1500 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Kickoff — Your World Cup, on-chain.">
+  <!-- Pitch background -->
+  <rect width="1500" height="500" fill="#0a0e0a"/>
+
+  <!-- Subtle pitch motif: halfway line + center circle (decorative, not load-bearing) -->
+  <line x1="750" y1="50" x2="750" y2="450" stroke="#1a2a1a" stroke-width="2"/>
+  <circle cx="750" cy="250" r="110" fill="none" stroke="#1a2a1a" stroke-width="2"/>
+
+  <!-- K mark on the left (path-based, no font) -->
+  <g transform="translate(120, 175)" fill="#16c060">
+    <rect x="0" y="0" width="36" height="150" rx="3"/>
+    <polygon points="36,60 90,0 130,0 70,72"/>
+    <polygon points="36,90 70,78 130,150 90,150"/>
+  </g>
+  <circle cx="252" cy="322" r="9" fill="#3cf08a"/>
+
+  <!-- Wordmark + tagline (centered around the pitch motif, mobile-crop safe band) -->
+  <text x="750" y="240" font-family="Inter, -apple-system, system-ui, 'Segoe UI', sans-serif"
+        font-size="128" font-weight="900" fill="#16c060"
+        text-anchor="middle" letter-spacing="-4">kickoff</text>
+  <text x="750" y="295" font-family="Inter, -apple-system, system-ui, 'Segoe UI', sans-serif"
+        font-size="30" font-weight="500" fill="#e9f2e9"
+        text-anchor="middle">Your World Cup, on-chain.</text>
+  <text x="750" y="340" font-family="Inter, -apple-system, system-ui, 'Segoe UI', sans-serif"
+        font-size="22" font-weight="500" fill="#7c8a7c"
+        text-anchor="middle">built on @XLayerOfficial · #BuildX</text>
+</svg>

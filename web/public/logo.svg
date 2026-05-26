@@ -1,0 +1,17 @@
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Kickoff">
+  <!-- Pitch background -->
+  <rect width="400" height="400" fill="#0a0e0a"/>
+  <!-- Subtle pitch center-circle -->
+  <circle cx="200" cy="200" r="172" fill="none" stroke="#1a2a1a" stroke-width="2"/>
+  <!-- K mark (paths so it renders identically without any font dependency) -->
+  <g fill="#16c060">
+    <!-- vertical bar -->
+    <rect x="120" y="120" width="48" height="160" rx="4"/>
+    <!-- upper diagonal -->
+    <polygon points="168,184 238,120 290,120 218,200"/>
+    <!-- lower diagonal -->
+    <polygon points="168,216 218,200 290,280 238,280"/>
+  </g>
+  <!-- Tiny grass-glow dot — the kickoff spot -->
+  <circle cx="294" cy="284" r="11" fill="#3cf08a"/>
+</svg>
