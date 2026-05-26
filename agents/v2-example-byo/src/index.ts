@@ -63,14 +63,14 @@ import {
   agentLeagueAbi,
   conditionalTokensAbi,
   questEngineAbi,
-} from "./lib/v2-abis.js";
+} from "./lib/v2-abis.ts";
 import {
   addressFromPk,
   getPublicClient,
   getWalletClient,
   requireAddress,
   requireEnv,
-} from "./lib/v2-chain.js";
+} from "./lib/v2-chain.ts";
 
 // ---------- env ----------
 

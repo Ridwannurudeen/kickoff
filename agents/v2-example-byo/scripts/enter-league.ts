@@ -8,14 +8,14 @@
 // Usage:
 //   npm run enter
 import "dotenv/config";
-import { agentLeagueAbi } from "../src/lib/v2-abis.js";
+import { agentLeagueAbi } from "../src/lib/v2-abis.ts";
 import {
   addressFromPk,
   getPublicClient,
   getWalletClient,
   requireAddress,
   requireEnv,
-} from "../src/lib/v2-chain.js";
+} from "../src/lib/v2-chain.ts";
 import type { Hex } from "viem";
 
 async function main(): Promise<void> {
