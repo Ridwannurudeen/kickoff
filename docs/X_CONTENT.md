@@ -60,7 +60,24 @@ Technical-but-accessible. Dev-facing where it earns the post. Confident, no hype
 
 ---
 
-## Post 2 — Why a Fan Rep SBT (the primitive angle)
+## Post 2 — Day 3 ship report (AgentLeague is live)
+
+**Approved 2026-05-27. Single post, ~260 chars.** Proof tx is the BYO
+`scorePrediction` from the demo cycle on chain 1952 (block 31358097) —
+sim wallet 1 -> AgentLeague `0x30e4Bb6eA75409abB1A29C4FB86bF13c85abA89e`,
+xpReward 1000 credited.
+
+> AgentLeague is live on @XLayerOfficial.
+>
+> One agent: registered → entered season 1 → committed a prediction before kickoff → revealed after the OO settled. 1000 XP credited, all on chain.
+>
+> https://www.oklink.com/xlayer-test/tx/0xa9b688d1724cc80cae9a30ad3b2a30e65a0c0ba5001217d955674ce35e946f24
+>
+> Fork the example BYO and ship your own. #BuildX
+
+---
+
+## Post 3 — Why a Fan Rep SBT (the primitive angle)
 
 > Most fan platforms hand you points in a database.
 >
@@ -72,7 +89,7 @@ Technical-but-accessible. Dev-facing where it earns the post. Confident, no hype
 
 ---
 
-## Post 3 — Build progress (the multi-agent layer)
+## Post 4 — Build progress (the multi-agent layer)
 
 > Build update: AgentRegistry + composeAgents are wired.
 >
@@ -84,7 +101,7 @@ Technical-but-accessible. Dev-facing where it earns the post. Confident, no hype
 
 ---
 
-## Post 4 — Build progress (AgentLeague seasons)
+## Post 5 — Build progress (AgentLeague seasons)
 
 > Build update: AgentLeague is live in testnet.
 >
@@ -96,7 +113,7 @@ Technical-but-accessible. Dev-facing where it earns the post. Confident, no hype
 
 ---
 
-## Post 5 — Behind the scenes (honest scope)
+## Post 6 — Behind the scenes (honest scope)
 
 > Honest scope: real World Cup matches start 2026-06-11.
 >
@@ -106,7 +123,7 @@ Technical-but-accessible. Dev-facing where it earns the post. Confident, no hype
 
 ---
 
-## Post 6 — Builders: deploy your own agent into AgentLeague
+## Post 7 — Builders: deploy your own agent into AgentLeague
 
 > Builders: AgentLeague is open. Bring your own agent.
 >
@@ -123,7 +140,7 @@ Technical-but-accessible. Dev-facing where it earns the post. Confident, no hype
 
 ---
 
-## Post 7 — Submission Post (this link goes in the form)
+## Post 8 — Submission Post (this link goes in the form)
 
 > Kickoff v2 is live for #BuildX on @XLayerOfficial.
 >
@@ -142,11 +159,12 @@ Technical-but-accessible. Dev-facing where it earns the post. Confident, no hype
 | Slot | Post | Notes |
 |---|---|---|
 | Day 1 | #1 Launch thread | Pin it |
-| Day 3 | #2 Fan Rep SBT primitive | |
-| Day 5 | #3 AgentRegistry + composeAgents | |
-| Day 7 | #4 AgentLeague seasons | |
-| Day 9 | #5 Honest-scope / simulated demo | |
-| Day 11 | #6 BYO-agent tutorial CTA | Link to `agents/v2-example-byo/` |
-| Submission day | #7 Submission post | URL goes in the form |
+| Day 3 | #2 Day-3 ship report (AgentLeague live) | **Approved 2026-05-27** — single post with on-chain proof tx |
+| Day 5 | #3 Fan Rep SBT primitive | |
+| Day 7 | #4 AgentRegistry + composeAgents | |
+| Day 9 | #5 AgentLeague seasons | |
+| Day 11 | #6 Honest-scope / simulated demo | |
+| Day 13 | #7 BYO-agent tutorial CTA | Link to `agents/v2-example-byo/` |
+| Submission day | #8 Submission post | URL goes in the form |
 
 Every post: **@XLayerOfficial + #BuildX**. Reply to and quote @XLayerOfficial threads during the window for reach.
