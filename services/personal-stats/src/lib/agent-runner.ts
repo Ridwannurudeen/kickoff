@@ -16,7 +16,7 @@ import {
   type WalletClient,
   type Log,
 } from "viem";
-import { agentRegistryAbi } from "./v2-abis.js";
+import { agentRegistryAbi } from "./v2-abis.ts";
 import {
   addressFromPk,
   getPublicClient,
@@ -24,7 +24,7 @@ import {
   isOffline,
   requireAddress,
   requireEnv,
-} from "./v2-chain.js";
+} from "./v2-chain.ts";
 
 export type CalledEvent = {
   callId: Hex;

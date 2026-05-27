@@ -11,8 +11,8 @@
 //   web/companion encodes this with `encodeAbiParameters([...], [...])`.
 import "dotenv/config";
 import { decodeAbiParameters, type Hex } from "viem";
-import { runAgent, type CalledEvent } from "./lib/agent-runner.js";
-import { runLLM } from "./lib/llm.js";
+import { runAgent, type CalledEvent } from "./lib/agent-runner.ts";
+import { runLLM } from "./lib/llm.ts";
 
 type Decoded = {
   home: string;

@@ -17,10 +17,10 @@ import {
   runAgent,
   type AgentContext,
   type CalledEvent,
-} from "./lib/agent-runner.js";
-import { runLLM } from "./lib/llm.js";
-import { fanRepAbi } from "./lib/v2-abis.js";
-import { requireAddress } from "./lib/v2-chain.js";
+} from "./lib/agent-runner.ts";
+import { runLLM } from "./lib/llm.ts";
+import { fanRepAbi } from "./lib/v2-abis.ts";
+import { requireAddress } from "./lib/v2-chain.ts";
 
 type Score = {
   total: bigint;
