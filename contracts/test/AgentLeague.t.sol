@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.26;
 
-import {Test} from "forge-std/Test.sol";
+import {Test, Vm} from "forge-std/Test.sol";
 import {FanRep} from "../src/FanRep.sol";
 import {QuestEngine} from "../src/QuestEngine.sol";
 import {Trophy} from "../src/Trophy.sol";
@@ -9,6 +9,54 @@ import {AgentRegistry} from "../src/AgentRegistry.sol";
 import {AgentLeague} from "../src/AgentLeague.sol";
 import {ConditionalTokens} from "../src/ConditionalTokens.sol";
 import {MockUSDC} from "../src/MockUSDC.sol";
+import {IERC1155Receiver} from "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
+
+/// @dev Receiver that toggles between "accept ERC-1155" and "revert in onERC1155Received".
+///      Used to verify `closeSeason` survives a grief winner-owner and that the deferred mint
+///      can be pull-claimed later once the receiver is flipped to accept.
+contract ToggleReceiver is IERC1155Receiver {
+    bool public reject = true;
+
+    function setReject(bool v) external { reject = v; }
+
+    function register(AgentRegistry reg, bytes32 agentId, address wallet) external {
+        reg.registerAgent(agentId, wallet, 0, "hint-malicious");
+    }
+
+    function enter(AgentLeague league, bytes32 agentId) external {
+        league.enterAgent(agentId);
+    }
+
+    function commit(AgentLeague league, bytes32 agentId, bytes32 questId, bytes32 c) external {
+        league.submitPrediction(agentId, questId, c);
+    }
+
+    function claim(AgentLeague league, uint64 seasonId) external {
+        league.claimAiChampionTrophy(seasonId);
+    }
+
+    function onERC1155Received(address, address, uint256, uint256, bytes calldata)
+        external
+        view
+        returns (bytes4)
+    {
+        require(!reject, "rejected");
+        return IERC1155Receiver.onERC1155Received.selector;
+    }
+
+    function onERC1155BatchReceived(address, address, uint256[] calldata, uint256[] calldata, bytes calldata)
+        external
+        view
+        returns (bytes4)
+    {
+        require(!reject, "rejected");
+        return IERC1155Receiver.onERC1155BatchReceived.selector;
+    }
+
+    function supportsInterface(bytes4 interfaceId) external pure returns (bool) {
+        return interfaceId == type(IERC1155Receiver).interfaceId;
+    }
+}
 
 contract AgentLeagueTest is Test {
     FanRep rep;
@@ -606,5 +654,114 @@ contract AgentLeagueTest is Test {
         assertEq(address(league.conditionalTokens()), address(ct));
         assertEq(address(league.trophy()), address(trophy));
         assertEq(league.aiChampionTrophyId(), AI_CHAMP_TROPHY);
+    }
+
+    // --- v2.1 fixes: closeSeason DoS pull-pattern ---
+
+    /// @dev Sets up a season where a `ToggleReceiver` agent (initially rejecting ERC-1155 receives)
+    ///      is the sole scorer, then warps past season end. Returns the seasonId and the receiver.
+    function _seasonWonByToggleReceiver(bool initiallyReject)
+        internal
+        returns (uint64 sid, ToggleReceiver mal, bytes32 malAgentId)
+    {
+        mal = new ToggleReceiver();
+        mal.setReject(initiallyReject);
+        // The agent id is derived in Solidity (no 64-hex literal in source).
+        malAgentId = keccak256(bytes("malicious-receiver-agent"));
+        mal.register(reg, malAgentId, address(mal));
+
+        vm.warp(1000);
+        sid = _openSeason(uint64(block.timestamp), uint64(block.timestamp + 5000));
+        _registerPredQuest(Q_PRED, conditionId, uint64(block.timestamp), uint64(block.timestamp + 100), 100);
+        mal.enter(league, malAgentId);
+
+        bytes32 salt = bytes32(uint256(0xC0FFEE));
+        mal.commit(league, malAgentId, Q_PRED, _commit(0, salt));
+
+        vm.warp(block.timestamp + 200);
+        uint256[] memory p = new uint256[](2);
+        p[0] = 1; p[1] = 0;
+        ct.reportPayouts(conditionId, p);
+        league.scorePrediction(malAgentId, Q_PRED, 0, salt);
+
+        vm.warp(block.timestamp + 10_000);
+    }
+
+    function test_closeSeason_doesNotRevert_whenWinnerOwnerRejectsERC1155() public {
+        (uint64 sid, ToggleReceiver mal, bytes32 malAgentId) = _seasonWonByToggleReceiver(true);
+
+        vm.recordLogs();
+        league.closeSeason(sid);
+        Vm.Log[] memory entries = vm.getRecordedLogs();
+
+        // season is Closed and no trophy was minted
+        (,, AgentLeague.SeasonStatus st, bytes32 winnerId,) = league.getSeason(sid);
+        assertEq(uint256(st), uint256(AgentLeague.SeasonStatus.Closed));
+        assertEq(winnerId, malAgentId);
+        assertEq(league.championMinted(sid), false);
+        assertEq(trophy.balanceOf(address(mal), AI_CHAMP_TROPHY), 0);
+
+        // and AiChampionMintDeferred was emitted (don't peek the reasonHash payload)
+        bytes32 deferredSig =
+            keccak256("AiChampionMintDeferred(uint64,bytes32,address,bytes)");
+        bool sawDeferred;
+        for (uint256 i = 0; i < entries.length; ++i) {
+            if (entries[i].topics.length > 0 && entries[i].topics[0] == deferredSig) {
+                sawDeferred = true;
+                break;
+            }
+        }
+        assertTrue(sawDeferred, "expected AiChampionMintDeferred");
+    }
+
+    function test_claimAiChampionTrophy_pullWorks() public {
+        (uint64 sid, ToggleReceiver mal,) = _seasonWonByToggleReceiver(true);
+        league.closeSeason(sid);
+        // close was deferred
+        assertEq(league.championMinted(sid), false);
+
+        // operator flips to accept ERC-1155, then pull-claims
+        mal.setReject(false);
+        mal.claim(league, sid);
+
+        assertEq(league.championMinted(sid), true);
+        assertEq(trophy.balanceOf(address(mal), AI_CHAMP_TROPHY), 1);
+    }
+
+    function test_claimAiChampionTrophy_revertsIfSeasonNotClosed() public {
+        vm.warp(1000);
+        uint64 sid = _openSeason(uint64(block.timestamp), uint64(block.timestamp + 1000));
+        vm.prank(ownerA);
+        vm.expectRevert(AgentLeague.SeasonNotClosed.selector);
+        league.claimAiChampionTrophy(sid);
+    }
+
+    function test_claimAiChampionTrophy_revertsIfAlreadyClaimed() public {
+        (uint64 sid, ToggleReceiver mal,) = _seasonWonByToggleReceiver(true);
+        league.closeSeason(sid);
+        mal.setReject(false);
+        mal.claim(league, sid);
+        // second claim from the same legitimate owner reverts
+        vm.expectRevert(AgentLeague.AlreadyClaimed.selector);
+        mal.claim(league, sid);
+    }
+
+    function test_claimAiChampionTrophy_revertsIfWrongCaller() public {
+        (uint64 sid,,) = _seasonWonByToggleReceiver(true);
+        league.closeSeason(sid);
+        // a stranger calls the pull function — must revert
+        vm.prank(ownerC);
+        vm.expectRevert(AgentLeague.NotWinnerOwner.selector);
+        league.claimAiChampionTrophy(sid);
+    }
+
+    function test_claimAiChampionTrophy_revertsIfNoWinner() public {
+        // season closes with no scorer at all → winnerAgentId == 0
+        vm.warp(1000);
+        uint64 sid = _openSeason(uint64(block.timestamp), uint64(block.timestamp + 100));
+        vm.warp(block.timestamp + 500);
+        league.closeSeason(sid);
+        vm.expectRevert(AgentLeague.NoWinner.selector);
+        league.claimAiChampionTrophy(sid);
     }
 }

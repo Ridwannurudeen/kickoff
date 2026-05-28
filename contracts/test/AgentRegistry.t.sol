@@ -277,5 +277,39 @@ contract AgentRegistryTest is Test {
         vm.expectRevert(AgentRegistry.BadSignature.selector);
         reg.submitResult(callId, "tampered", sig);
     }
+
+    // --- v2.1 fixes: submitResult uses snapshotted signer ---
+
+    /// @dev After `callAgent` snapshots `agentWalletAtCall`, an owner who later swaps the live
+    ///      `agentWallet` via `updateAgent` cannot change which key signs a valid result. The
+    ///      original wallet's signature succeeds; the new wallet's signature is rejected.
+    function test_submitResult_usesSnapshotSigner_notLiveWallet() public {
+        // initial wallet = `agentWallet` (key `agentKey`)
+        _register(alice, A1, 0);
+        vm.prank(bob);
+        bytes32 callId = reg.callAgent{value: 0}(A1, "ping");
+
+        // owner re-routes the live wallet to a different signer
+        uint256 newKey = 0xC0FFEE;
+        address newWallet = vm.addr(newKey);
+        vm.prank(alice);
+        reg.updateAgent(A1, newWallet, 0, "rerouted");
+
+        bytes memory result = "ok";
+
+        // a signature from the *new* wallet is rejected (it does not match the snapshot)
+        bytes32 digest = keccak256(abi.encode(address(reg), block.chainid, callId, keccak256(result)));
+        bytes32 ethDigest = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", digest));
+        (uint8 v2, bytes32 r2, bytes32 s2) = vm.sign(newKey, ethDigest);
+        bytes memory newSig = abi.encodePacked(r2, s2, v2);
+        vm.expectRevert(AgentRegistry.BadSignature.selector);
+        reg.submitResult(callId, result, newSig);
+
+        // a signature from the *original* wallet still succeeds, because the snapshot pinned it
+        bytes memory origSig = _sign(callId, result);
+        reg.submitResult(callId, result, origSig);
+        (,,, uint8 status) = reg.getCall(callId);
+        assertEq(status, 2); // Replied
+    }
 }
 

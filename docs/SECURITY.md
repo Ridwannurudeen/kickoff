@@ -163,6 +163,32 @@ These are documented, not blocking testnet, and explicitly gated before mainnet:
 
 ---
 
+## 5a. Post-submission fixes pending audit redeploy (v2.1 source)
+
+The following findings surfaced during the contract-level audit pass. They are fixed in source on the v2.1 branch (`contracts/src/AgentLeague.sol`, `contracts/src/AgentRegistry.sol`) with new tests added in `contracts/test/AgentLeague.t.sol` and `contracts/test/AgentRegistry.t.sol`. **The live testnet contracts at the addresses listed in `README.md` (FanRep, QuestEngine, Trophy, AgentRegistry, AgentLeague) DO NOT yet carry these fixes** — they are running the originally-deployed v2 bytecode. v2.1 will deploy after the post-submission third-party audit; until then the live demo continues to use the v2 instances.
+
+- **MEDIUM — `AgentLeague.closeSeason` DoS by grief winner-owner.** An agent owner that is a contract reverting in `onERC1155Received` (or any other revert path inside `Trophy.operatorMint`) caused the inline `trophy.operatorMint(aiChampionTrophyId, winnerOwner)` to revert, bubbling up and reverting the whole `closeSeason` tx. The season could never close and no future season could open because `activeSeasonId` was never cleared.
+  - **Fix:** `closeSeason` now wraps the inline mint in `try/catch` and falls back to a deferred-mint path. On revert the season still flips to `Closed`, `activeSeasonId` still resets, and a new event `AiChampionMintDeferred(seasonId, agentId, winnerOwner, reasonHash)` is emitted. A new external function `claimAiChampionTrophy(uint64 seasonId)` lets the winning agent's current owner pull-claim the trophy once they control a receiver-safe address. A new mapping `championMinted[seasonId]` tracks whether the trophy was minted (inline or via pull) and prevents double-claim. Revert reason payload is truncated to 32 bytes via `_truncate` so the event payload stays bounded.
+  - **Tests:** `test_closeSeason_doesNotRevert_whenWinnerOwnerRejectsERC1155`, `test_claimAiChampionTrophy_pullWorks`, `test_claimAiChampionTrophy_revertsIfSeasonNotClosed`, `test_claimAiChampionTrophy_revertsIfAlreadyClaimed`, `test_claimAiChampionTrophy_revertsIfWrongCaller`, `test_claimAiChampionTrophy_revertsIfNoWinner`.
+
+- **LOW — `AgentRegistry.updateAgent` signer re-route between call and reply.** `submitResult` previously read `a.agentWallet` live from storage when recovering the signer. An owner who called `updateAgent` between `callAgent` and `submitResult` could swap which off-chain key signed a valid reply for an in-flight call.
+  - **Fix:** `CallRecord` gained an `agentWalletAtCall` field that is snapshotted at `callAgent` / `composeAgents` time. `submitResult` now validates the signature against `rec.agentWalletAtCall`, so a mid-flight `updateAgent` cannot change the accepted signer for an existing call.
+  - **Tests:** `test_submitResult_usesSnapshotSigner_notLiveWallet` (original wallet's signature succeeds; new wallet's signature is rejected after the owner reroutes).
+
+- **LOW — `AgentRegistry.composeAgents` atomic-fail not documented.** If any agent's `agentWallet` reverts on receive, the whole `composeAgents` tx reverts, and the caller is responsible for vetting every agent in the array. This is the correct semantic (partial fan-outs would leave the off-chain service with ambiguous state), but was not surfaced in the function's NatSpec.
+  - **Fix:** Added a `@dev` paragraph on `composeAgents` explaining the atomic-fail semantics and recommending one-off `callAgent` calls when an array entry is untrusted.
+  - **Tests:** No new tests — doc-only change. Existing reentrancy + sum-check coverage in `AgentRegistry.t.sol` already exercises the value-forwarding path.
+
+`forge test` after the v2.1 source changes:
+
+```
+Ran 9 test suites: 218 tests passed, 0 failed, 0 skipped (218 total tests)
+```
+
+(211 prior + 7 new: 6 in `AgentLeague.t.sol`, 1 in `AgentRegistry.t.sol`.)
+
+---
+
 ## 6. Operational notes
 
 - **`.env*` is gitignored from genesis.** The repo's root `.gitignore` excludes `.env`, `.env.*`, and per-package dotfiles. A pre-commit hook also blocks 64-hex literals being written through `Edit`/`Write`, which catches the most common shape of a leaked private key being pasted into source.

@@ -101,6 +101,10 @@ contract AgentLeague is AccessControl {
     mapping(uint64 => mapping(bytes32 => mapping(bytes32 => bytes32))) public predictionCommit;
     /// @dev seasonId → agentId → questId → scored?
     mapping(uint64 => mapping(bytes32 => mapping(bytes32 => bool))) public scored;
+    /// @dev seasonId → whether the AI Champion trophy has been minted for this season's winner.
+    ///      Set true on successful mint (inline at close, or via `claimAiChampionTrophy`).
+    ///      Stays false if the season had no winner or the inline mint was deferred.
+    mapping(uint64 seasonId => bool) public championMinted;
 
     event SeasonOpened(uint64 indexed seasonId, uint64 startsAt, uint64 endsAt);
     event AgentEntered(uint64 indexed seasonId, bytes32 indexed agentId, address indexed owner);
@@ -110,6 +114,14 @@ contract AgentLeague is AccessControl {
     );
     event SeasonClosed(uint64 indexed seasonId, bytes32 winnerAgentId, uint64 winnerScore);
     event AiChampionMinted(uint64 indexed seasonId, bytes32 indexed agentId, address indexed owner, uint256 trophyId);
+    /// @notice Emitted when the inline AI-Champion mint in `closeSeason` fails because the winner's
+    ///         owner is a contract that reverts on ERC-1155 receive (or any other revert from
+    ///         `Trophy.operatorMint`). The season still closes; the winner's owner can pull-claim
+    ///         later via `claimAiChampionTrophy`. `reasonHash` is the first 32 bytes of the revert
+    ///         data (or empty if shorter), kept bounded so this never blows event gas.
+    event AiChampionMintDeferred(
+        uint64 indexed seasonId, bytes32 indexed agentId, address indexed winnerOwner, bytes reasonHash
+    );
 
     error SeasonOpenAlready();
     error SeasonNotOpen();
@@ -133,6 +145,9 @@ contract AgentLeague is AccessControl {
     error NoWinner();
     error ZeroAddr();
     error BadSlot();
+    error AlreadyClaimed();
+    error NotWinnerOwner();
+    error SeasonNotClosed();
 
     constructor(
         address agentRegistry_,
@@ -268,6 +283,13 @@ contract AgentLeague is AccessControl {
     ///         owner. Anyone can call after `endsAt`; admin can force-close earlier. Idempotent — a
     ///         season can only be closed once. If no agent scored > 0, the season closes without a
     ///         winner and no trophy is minted.
+    /// @dev    The inline `trophy.operatorMint` is wrapped in try/catch so a malicious/grief winner
+    ///         owner (e.g. a contract that reverts in `onERC1155Received`) cannot DoS the season
+    ///         close — the season still flips to `Closed`, `activeSeasonId` still resets, and the
+    ///         mint is deferred. The winner's owner can pull-claim later via
+    ///         `claimAiChampionTrophy` (e.g. once they control a receiver-safe address). Also
+    ///         covers the "already-claimed across seasons" revert path, which is now non-fatal to
+    ///         closure.
     function closeSeason(uint64 seasonId) external {
         Season storage s = _seasons[seasonId];
         if (s.status == SeasonStatus.None) revert SeasonUnknown();
@@ -294,11 +316,38 @@ contract AgentLeague is AccessControl {
 
         if (bestId != bytes32(0)) {
             (address winnerOwner,,,,) = agentRegistry.getAgent(bestId);
-            // operatorMint reverts on double-claim; if a prior season already minted this trophy
-            // to the same owner, we surface the revert rather than silently swallow.
-            trophy.operatorMint(aiChampionTrophyId, winnerOwner);
-            emit AiChampionMinted(seasonId, bestId, winnerOwner, aiChampionTrophyId);
+            try trophy.operatorMint(aiChampionTrophyId, winnerOwner) {
+                championMinted[seasonId] = true;
+                emit AiChampionMinted(seasonId, bestId, winnerOwner, aiChampionTrophyId);
+            } catch (bytes memory reason) {
+                // Winner-owner is a contract that rejects ERC1155 receive (or operatorMint reverted
+                // for another reason, e.g. trophy not defined yet). Keep the season Closed but
+                // defer the mint; the winner's owner can pull-claim later via
+                // claimAiChampionTrophy() once they have a receiver-safe recipient.
+                emit AiChampionMintDeferred(seasonId, bestId, winnerOwner, _truncate(reason));
+            }
         }
+    }
+
+    /// @notice Pull-claim a deferred AI Champion trophy. Used when the inline mint in
+    ///         `closeSeason` reverted (e.g. the winner's owner was a contract that rejected the
+    ///         ERC-1155 receive). Caller must be the winner agent's current owner per
+    ///         `AgentRegistry`. Idempotent: `championMinted[seasonId]` flips true on success and
+    ///         subsequent calls revert.
+    function claimAiChampionTrophy(uint64 seasonId) external {
+        Season storage s = _seasons[seasonId];
+        if (s.status == SeasonStatus.None) revert SeasonUnknown();
+        if (s.status != SeasonStatus.Closed) revert SeasonNotClosed();
+        if (championMinted[seasonId]) revert AlreadyClaimed();
+        bytes32 winnerId = s.winnerAgentId;
+        if (winnerId == bytes32(0)) revert NoWinner();
+
+        (address winnerOwner,,,,) = agentRegistry.getAgent(winnerId);
+        if (msg.sender != winnerOwner) revert NotWinnerOwner();
+
+        championMinted[seasonId] = true;
+        trophy.operatorMint(aiChampionTrophyId, msg.sender);
+        emit AiChampionMinted(seasonId, winnerId, msg.sender, aiChampionTrophyId);
     }
 
     // --- views ---
@@ -373,5 +422,18 @@ contract AgentLeague is AccessControl {
     function _decodePredictionConfig(bytes memory cfg) internal pure returns (bytes32 conditionId) {
         require(cfg.length == 32, "cfg");
         assembly { conditionId := mload(add(cfg, 32)) }
+    }
+
+    /// @dev Returns the first 32 bytes of `data` (or empty if shorter). Keeps the
+    ///      `AiChampionMintDeferred` event payload bounded so a long revert reason can't blow
+    ///      event gas. Callers should treat the truncated value as an opaque identifier, not as
+    ///      structured ABI-decoded data.
+    function _truncate(bytes memory data) internal pure returns (bytes memory) {
+        if (data.length <= 32) return data;
+        bytes memory head = new bytes(32);
+        for (uint256 i = 0; i < 32; ++i) {
+            head[i] = data[i];
+        }
+        return head;
     }
 }

@@ -35,6 +35,11 @@ contract AgentRegistry is ReentrancyGuard {
         address caller;
         uint256 paid;
         CallStatus status;
+        /// @dev Snapshot of `Agent.agentWallet` at the moment the call was recorded. `submitResult`
+        ///      validates the signature against this snapshot, NOT the live `Agent.agentWallet`,
+        ///      so an owner who calls `updateAgent` between `callAgent` and `submitResult` cannot
+        ///      retroactively change which off-chain key is allowed to sign the result.
+        address agentWalletAtCall;
     }
 
     mapping(bytes32 agentId => Agent) private _agents;
@@ -88,6 +93,9 @@ contract AgentRegistry is ReentrancyGuard {
     // --- call / reply ---
 
     /// @notice Pay an agent for one call. Emits a `Called` event the off-chain service watches.
+    /// @dev    The `agentWallet` in force at this moment is snapshotted into the `CallRecord`.
+    ///         `submitResult` verifies the result signature against that snapshot, so the owner
+    ///         cannot retroactively swap the signing key between call and reply via `updateAgent`.
     function callAgent(bytes32 agentId, bytes calldata payload)
         external
         payable
@@ -99,7 +107,13 @@ contract AgentRegistry is ReentrancyGuard {
         if (msg.value != a.priceWei) revert WrongPayment();
 
         callId = _mkCallId(msg.sender);
-        _calls[callId] = CallRecord({agentId: agentId, caller: msg.sender, paid: msg.value, status: CallStatus.Pending});
+        _calls[callId] = CallRecord({
+            agentId: agentId,
+            caller: msg.sender,
+            paid: msg.value,
+            status: CallStatus.Pending,
+            agentWalletAtCall: a.agentWallet
+        });
         emit Called(callId, agentId, msg.sender, msg.value, payload);
 
         // forward funds caller -> agent wallet (zero protocol fee)
@@ -111,6 +125,17 @@ contract AgentRegistry is ReentrancyGuard {
 
     /// @notice Fan a single payload out to multiple agents in one tx. Caller must send the sum of
     ///         each agent's `priceWei` as `msg.value`.
+    /// @dev    Each per-agent `CallRecord` snapshots the agent's `agentWallet` at fan-out time so
+    ///         `submitResult` validates against the signing key in force when the call was placed
+    ///         (see `callAgent` for the same snapshot rationale).
+    /// @dev    Atomic-fail: if *any* `agentWallet` in the array reverts on receive (e.g. a
+    ///         malicious receiver), the entire `composeAgents` tx reverts and no `Called` events
+    ///         survive. Callers MUST vet every agent in the array — a single bad apple bricks the
+    ///         whole batch and the caller pays the rolled-back gas. v1 chooses atomic semantics
+    ///         over per-agent best-effort because partial fan-outs leave the off-chain service
+    ///         with ambiguous state ("did the agent take payment and silently drop the call, or
+    ///         was the call never queued?"). Use one-off `callAgent` calls if any agent in the
+    ///         intended batch is untrusted.
     function composeAgents(bytes32[] calldata agentIds, bytes calldata payload)
         external
         payable
@@ -133,7 +158,11 @@ contract AgentRegistry is ReentrancyGuard {
             Agent storage a = _agents[agentIds[i]];
             bytes32 callId = _mkCallId(msg.sender);
             _calls[callId] = CallRecord({
-                agentId: agentIds[i], caller: msg.sender, paid: a.priceWei, status: CallStatus.Pending
+                agentId: agentIds[i],
+                caller: msg.sender,
+                paid: a.priceWei,
+                status: CallStatus.Pending,
+                agentWalletAtCall: a.agentWallet
             });
             callIds[i] = callId;
             emit Called(callId, agentIds[i], msg.sender, a.priceWei, payload);
@@ -146,17 +175,20 @@ contract AgentRegistry is ReentrancyGuard {
 
     /// @notice Agent posts its result, signed by `agentWallet`. The signature binds
     ///         {address(this), chainid, callId, keccak256(result)} to prevent replay.
+    /// @dev    The recovered signer is compared against `rec.agentWalletAtCall` — the snapshot
+    ///         taken when the call was placed — NOT the live `Agent.agentWallet`. This blocks the
+    ///         signer-reroute path where an owner calls `updateAgent` between `callAgent` and
+    ///         `submitResult` to swap in a different signing key for an in-flight call.
     function submitResult(bytes32 callId, bytes calldata result, bytes calldata signature) external {
         CallRecord storage rec = _calls[callId];
         if (rec.status == CallStatus.None) revert CallUnknown();
         if (rec.status == CallStatus.Replied) revert AlreadyReplied();
-        Agent storage a = _agents[rec.agentId];
 
         bytes32 digest = keccak256(
             abi.encode(address(this), block.chainid, callId, keccak256(result))
         ).toEthSignedMessageHash();
         address recovered = digest.recover(signature);
-        if (recovered != a.agentWallet) revert BadSignature();
+        if (recovered != rec.agentWalletAtCall) revert BadSignature();
 
         rec.status = CallStatus.Replied;
         emit Replied(callId, rec.agentId, result);
