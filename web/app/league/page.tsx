@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import { keccak256, toBytes, parseUnits } from "viem";
 import { useT } from "@/components/I18nProvider";
@@ -34,6 +34,20 @@ export default function LeaguePage() {
   const [endpoint, setEndpoint] = useState("");
   const [priceOkb, setPriceOkb] = useState("0.0001");
 
+  // Two-step register → enter UX. After a successful `registerAgent` we stash
+  // the just-registered agentId + tx hash here so the form swaps into a
+  // success state with an explicit "Step 2 · Enter Season" CTA. Keeping the
+  // two wallet popups behind separate clicks stops users from rejecting the
+  // second one thinking it's a duplicate of the first.
+  const [pendingAgentId, setPendingAgentId] = useState<`0x${string}` | null>(
+    null,
+  );
+  const [registerTxHash, setRegisterTxHash] = useState<`0x${string}` | null>(
+    null,
+  );
+  const [recentEnterTs, setRecentEnterTs] = useState<number | null>(null);
+  const [isEntering, setIsEntering] = useState(false);
+
   const demoRegistry = !AGENT_REGISTRY_CONFIGURED;
   const demoLeague = !AGENT_LEAGUE_CONFIGURED;
 
@@ -50,6 +64,7 @@ export default function LeaguePage() {
     query: { enabled: !demoLeague },
   });
   const liveSeasonId = (active.data?.[0] ?? 0n) as bigint;
+  const seasonOpen = (active.data?.[3] ?? false) as boolean;
   const leaderboard = useReadContract({
     address: V2_ADDRESSES.agentLeague,
     abi: agentLeagueAbi,
@@ -141,33 +156,10 @@ export default function LeaguePage() {
         href: txUrl(hash),
         ttl: 9000,
       });
-      setName("");
-      setWallet("");
-      setEndpoint("");
-      setPriceOkb("0.0001");
-      // Best-effort follow-up: enter the just-registered agent into the active
-      // season. If this leg fails (e.g. no active season), the registry tx
-      // still stands and the user can try `enterAgent` again later.
-      if (!demoLeague) {
-        try {
-          await writeContractAsync({
-            address: V2_ADDRESSES.agentLeague,
-            abi: agentLeagueAbi,
-            functionName: "enterAgent",
-            args: [agentId],
-          });
-        } catch (enterErr) {
-          push({
-            kind: "error",
-            title: "Could not enter season",
-            message:
-              enterErr instanceof Error
-                ? enterErr.message.split("\n")[0]
-                : "AgentLeague.enterAgent reverted — your agent is registered but not in the active season; try the Enter step manually.",
-            ttl: 9000,
-          });
-        }
-      }
+      // Stash for the Step-2 card. Form fields stay populated so the user
+      // can see what they just registered before clicking Enter Season.
+      setPendingAgentId(agentId);
+      setRegisterTxHash(hash);
       refetchStandings();
     } catch (e) {
       push({
@@ -180,6 +172,104 @@ export default function LeaguePage() {
       dismiss(id);
     }
   }
+
+  function resetRegisterForm(): void {
+    setPendingAgentId(null);
+    setRegisterTxHash(null);
+    setName("");
+    setWallet("");
+    setEndpoint("");
+    setPriceOkb("0.0001");
+  }
+
+  async function enterPendingAgent() {
+    if (!pendingAgentId) return;
+    if (demoLeague) {
+      push({ kind: "info", title: t("common_demo_banner"), ttl: 4000 });
+      return;
+    }
+    if (!address) {
+      push({ kind: "info", title: t("common_connect_first"), ttl: 4000 });
+      return;
+    }
+    const id = push({
+      kind: "pending",
+      title: "Enter Season",
+      ttl: 0,
+    });
+    setIsEntering(true);
+    try {
+      const hash = await writeContractAsync({
+        address: V2_ADDRESSES.agentLeague,
+        abi: agentLeagueAbi,
+        functionName: "enterAgent",
+        args: [pendingAgentId],
+      });
+      push({
+        kind: "success",
+        title: "Agent entered season",
+        href: txUrl(hash),
+        ttl: 9000,
+      });
+      refetchStandings();
+      setRecentEnterTs(Date.now());
+      // Hold the success state long enough for the user to read the toast,
+      // then clear the Step-2 card and reset the form for the next agent.
+      setTimeout(() => {
+        resetRegisterForm();
+      }, 8000);
+    } catch (e) {
+      push({
+        kind: "error",
+        title: "Could not enter season",
+        message: e instanceof Error ? e.message.split("\n")[0] : undefined,
+        ttl: 9000,
+      });
+    } finally {
+      setIsEntering(false);
+      dismiss(id);
+    }
+  }
+
+  // After a fresh enterAgent, the leaderboard read may race the chain
+  // indexer. Poll up to 5×6s (30s) until the new agentId shows up in the
+  // standings array, then stop. Cancels on unmount, on a new register cycle,
+  // and as soon as the agent appears.
+  useEffect(() => {
+    if (!pendingAgentId || !recentEnterTs) return;
+    let attempts = 0;
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const tick = () => {
+      if (cancelled) return;
+      const data = leaderboard.data as
+        | readonly [
+            readonly `0x${string}`[],
+            readonly bigint[],
+            readonly `0x${string}`[],
+          ]
+        | undefined;
+      const ids = data?.[0];
+      if (
+        ids &&
+        ids.some((x) => x.toLowerCase() === pendingAgentId.toLowerCase())
+      ) {
+        return;
+      }
+      if (attempts >= 5) return;
+      attempts += 1;
+      void leaderboard.refetch();
+      timer = setTimeout(tick, 6000);
+    };
+    timer = setTimeout(tick, 6000);
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
+    // leaderboard.refetch is stable across renders; depending on the data
+    // ref would restart the timer on every poll. Keep deps minimal.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingAgentId, recentEnterTs]);
 
   return (
     <div className="space-y-8">
@@ -292,60 +382,115 @@ export default function LeaguePage() {
 
         {/* Register-your-agent panel */}
         <section className="tabula h-fit animate-fade-up p-5 [animation-delay:300ms]">
-          <h3 className="mb-3 font-bold text-white">
-            {t("league_register_cta")}
-          </h3>
-          <div className="space-y-2.5">
-            <label className="block">
-              <span className="mb-1 block text-xs text-muted">Name</span>
-              <input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="alpha-striker-v1"
-                className="input"
-              />
-            </label>
-            <label className="block">
-              <span className="mb-1 block text-xs text-muted">
-                Agent wallet
-              </span>
-              <input
-                value={wallet}
-                onChange={(e) => setWallet(e.target.value)}
-                placeholder="0x…"
-                className="input font-mono text-xs"
-              />
-            </label>
-            <label className="block">
-              <span className="mb-1 block text-xs text-muted">
-                Endpoint hint
-              </span>
-              <input
-                value={endpoint}
-                onChange={(e) => setEndpoint(e.target.value)}
-                placeholder="https://my-agent.example.com"
-                className="input text-xs"
-              />
-            </label>
-            <label className="block">
-              <span className="mb-1 block text-xs text-muted">
-                Price per call (OKB)
-              </span>
-              <input
-                value={priceOkb}
-                onChange={(e) => setPriceOkb(e.target.value)}
-                inputMode="decimal"
-                className="input font-mono text-xs"
-              />
-            </label>
-            <button
-              onClick={registerAgent}
-              disabled={isPending}
-              className="btn-primary w-full"
-            >
-              {isPending ? t("wallet_connecting") : t("league_register_cta")}
-            </button>
-          </div>
+          {pendingAgentId ? (
+            <div className="space-y-3">
+              <h3 className="font-bold text-white">Your agent is registered</h3>
+              <div className="space-y-1 text-xs text-muted">
+                <div>
+                  <span className="text-muted/70">Agent ID:</span>{" "}
+                  <span className="font-mono text-white">
+                    {pendingAgentId.slice(0, 10)}…
+                  </span>
+                </div>
+                {registerTxHash && (
+                  <div>
+                    <a
+                      href={txUrl(registerTxHash)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-mono text-grass hover:underline"
+                    >
+                      View register tx ↗
+                    </a>
+                  </div>
+                )}
+              </div>
+              {!demoLeague && (!seasonOpen || liveSeasonId === 0n) ? (
+                <button
+                  disabled
+                  title="The contract has no open season right now — an admin needs to call openSeason(). Your agent is registered and can be entered once a season opens."
+                  className="btn-primary w-full cursor-not-allowed opacity-60"
+                >
+                  No active season — try again later
+                </button>
+              ) : (
+                <button
+                  onClick={enterPendingAgent}
+                  disabled={isEntering || isPending}
+                  className="btn-primary w-full"
+                >
+                  {isEntering
+                    ? t("wallet_connecting")
+                    : `Step 2 · Enter Season ${seasonId}`}
+                </button>
+              )}
+              <button
+                onClick={resetRegisterForm}
+                className="btn-ghost w-full text-xs"
+              >
+                Register another
+              </button>
+            </div>
+          ) : (
+            <>
+              <h3 className="mb-3 font-bold text-white">
+                {t("league_register_cta")}
+              </h3>
+              <div className="space-y-2.5">
+                <label className="block">
+                  <span className="mb-1 block text-xs text-muted">Name</span>
+                  <input
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="alpha-striker-v1"
+                    className="input"
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-1 block text-xs text-muted">
+                    Agent wallet
+                  </span>
+                  <input
+                    value={wallet}
+                    onChange={(e) => setWallet(e.target.value)}
+                    placeholder="0x…"
+                    className="input font-mono text-xs"
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-1 block text-xs text-muted">
+                    Endpoint hint
+                  </span>
+                  <input
+                    value={endpoint}
+                    onChange={(e) => setEndpoint(e.target.value)}
+                    placeholder="https://my-agent.example.com"
+                    className="input text-xs"
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-1 block text-xs text-muted">
+                    Price per call (OKB)
+                  </span>
+                  <input
+                    value={priceOkb}
+                    onChange={(e) => setPriceOkb(e.target.value)}
+                    inputMode="decimal"
+                    className="input font-mono text-xs"
+                  />
+                </label>
+                <button
+                  onClick={registerAgent}
+                  disabled={isPending}
+                  className="btn-primary w-full"
+                >
+                  {isPending
+                    ? t("wallet_connecting")
+                    : t("league_register_cta")}
+                </button>
+              </div>
+            </>
+          )}
         </section>
       </div>
     </div>

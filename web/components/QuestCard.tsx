@@ -43,12 +43,16 @@ export function QuestCard({ quest, now }: { quest: Quest; now: number }) {
         ? t("quests_status_upcoming")
         : t("quests_status_closed");
 
-  const ctaLabel =
-    quest.type === "SELF_ATTEST"
-      ? t("quests_action_complete")
-      : quest.type === "PREDICTION"
-        ? t("quests_action_commit")
-        : t("quests_action_submit_proof");
+  // PREDICTION still needs a slot picker tied to a live ConditionalTokens
+  // condition; that UI ships with v2.1, so we render the button as a
+  // visibly-pending pill. EXTERNAL_PROOF now goes through an admin signing
+  // route (/api/attest) and the user submits the returned signature on chain.
+  const needsAttestation = quest.type === "EXTERNAL_PROOF";
+  const isV21Only = quest.type === "PREDICTION";
+
+  const ctaLabel = needsAttestation
+    ? t("quests_action_submit_proof")
+    : t("quests_action_complete");
 
   async function onPrimary() {
     if (demo) {
@@ -59,27 +63,52 @@ export function QuestCard({ quest, now }: { quest: Quest; now: number }) {
       push({ kind: "info", title: t("common_connect_first"), ttl: 4000 });
       return;
     }
-    if (quest.type !== "SELF_ATTEST") {
-      // Prediction commits + external-proof submissions need additional input
-      // surfaces (prediction picker, signature blob) we haven't built yet for
-      // v1. Surface a clear message rather than half-doing it.
+    if (isV21Only) {
       push({
         kind: "info",
-        title: ctaLabel,
+        title: "Prediction quests · v2.1",
         message:
-          "This action needs an additional input (prediction or admin attestation) — that surface ships with the on-chain seed.",
-        ttl: 6000,
+          "PREDICTION quests need a slot picker tied to a live ConditionalTokens condition — that UI ships with v2.1. The on-chain quest itself is registered; the BYO example agent already exercises the same commit-reveal path end-to-end.",
+        ttl: 10000,
       });
       return;
     }
     const id = push({ kind: "pending", title: ctaLabel, ttl: 0 });
     try {
-      const hash = await writeContractAsync({
-        address: V2_ADDRESSES.questEngine,
-        abi: questEngineAbi,
-        functionName: "completeSelfAttest",
-        args: [quest.id],
-      });
+      let hash: `0x${string}`;
+      if (needsAttestation) {
+        const res = await fetch("/api/attest", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ questId: quest.id, userAddress: address }),
+        });
+        const data = (await res.json()) as {
+          signature?: `0x${string}`;
+          error?: string;
+        };
+        if (!data.signature) {
+          push({
+            kind: "error",
+            title: t("common_error"),
+            message: data.error ?? "could not get attestation",
+            ttl: 8000,
+          });
+          return;
+        }
+        hash = await writeContractAsync({
+          address: V2_ADDRESSES.questEngine,
+          abi: questEngineAbi,
+          functionName: "completeExternalProof",
+          args: [quest.id, data.signature],
+        });
+      } else {
+        hash = await writeContractAsync({
+          address: V2_ADDRESSES.questEngine,
+          abi: questEngineAbi,
+          functionName: "completeSelfAttest",
+          args: [quest.id],
+        });
+      }
       push({
         kind: "success",
         title: t("quests_status_completed"),
@@ -133,6 +162,14 @@ export function QuestCard({ quest, now }: { quest: Quest; now: number }) {
           <span className="pill border-grass/60 text-grass">
             {t("quests_status_completed")}
           </span>
+        ) : isV21Only ? (
+          <button
+            onClick={onPrimary}
+            className="pill border-honor/40 bg-pitch-panel text-[10px] uppercase tracking-wide text-honor transition-colors hover:border-honor/70"
+            title="Prediction quests ship in v2.1 — click for details"
+          >
+            Soon · v2.1
+          </button>
         ) : (
           <button
             onClick={onPrimary}
