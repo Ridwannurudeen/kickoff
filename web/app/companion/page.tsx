@@ -10,6 +10,7 @@ import { AGENT_REGISTRY_CONFIGURED, V2_ADDRESSES } from "@/lib/v2-addresses";
 import { txUrl } from "@/lib/config";
 import { formatOkb } from "@/lib/format";
 import { useToasts } from "@/lib/toast";
+import { Laurel } from "@/components/Laurel";
 
 interface CompanionReply {
   id: number;
@@ -126,8 +127,13 @@ export default function CompanionPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">{t("companion_title")}</h1>
-        <p className="text-sm text-muted">{t("companion_subtitle")}</p>
+        <h1 className="font-display text-3xl font-bold tracking-wide sm:text-4xl">
+          {t("companion_title")}
+        </h1>
+        <p className="mt-1 inline-flex items-center gap-2 text-sm text-muted">
+          <Laurel size={16} className="text-honor/40" />
+          {t("companion_subtitle")}
+        </p>
       </div>
 
       {/* Agent picker */}
@@ -157,8 +163,10 @@ export default function CompanionPage() {
         </div>
       </section>
 
+      <div className="divider-classical" />
+
       {/* Conversation */}
-      <section className="card flex flex-col gap-3 p-4">
+      <section className="tabula card flex flex-col gap-3 p-4">
         <div className="min-h-[200px] space-y-3">
           {history.length === 0 ? (
             <p className="py-8 text-center text-xs text-muted">
@@ -186,7 +194,7 @@ export default function CompanionPage() {
                     href={txUrl(m.txHash)}
                     target="_blank"
                     rel="noreferrer"
-                    className="mt-1 inline-block text-xs text-grass hover:underline"
+                    className="mt-2 inline-flex items-center gap-1 rounded-full bg-honor px-2.5 py-0.5 text-[10px] font-semibold text-pitch-bg hover:opacity-90"
                   >
                     View call ↗
                   </a>

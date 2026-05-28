@@ -23,7 +23,9 @@ export default function LeaderboardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">{t("leaderboard_title")}</h1>
+        <h1 className="font-display text-3xl tracking-wide sm:text-4xl">
+          {t("leaderboard_title")}
+        </h1>
         <p className="text-sm text-muted">{t("leaderboard_subtitle")}</p>
       </div>
 
@@ -94,7 +96,15 @@ export default function LeaderboardPage() {
                   className="border-b border-pitch-border/50 last:border-0"
                 >
                   <td className="py-3 pr-3 font-bold text-muted">
-                    {i === 0 ? "★" : i + 1}
+                    {i === 0 ? (
+                      <span className="gold-ink">I</span>
+                    ) : i === 1 || i === 2 ? (
+                      <span className="font-display font-semibold text-honor-glow">
+                        {i + 1}
+                      </span>
+                    ) : (
+                      i + 1
+                    )}
                   </td>
                   <td className="py-3 pr-3">
                     <div className="flex items-center gap-2">

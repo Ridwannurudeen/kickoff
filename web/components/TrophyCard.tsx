@@ -2,12 +2,25 @@
 
 import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import { useT } from "./I18nProvider";
+import { Laurel } from "./Laurel";
 import { fmtInt } from "@/lib/format";
 import { txUrl } from "@/lib/config";
 import { trophyAbi } from "@/lib/v2-abis";
 import { TROPHY_CONFIGURED, V2_ADDRESSES } from "@/lib/v2-addresses";
 import type { Trophy } from "@/lib/v2-types";
 import { useToasts } from "@/lib/toast";
+
+// Honor heuristic: the AI Champion (id 5) and Champion of Champions (id 7)
+// trophies are the two top-tier "champion" awards in lib/v2-catalog.ts. Only
+// those get the gold tabula treatment — every other trophy stays grass-green.
+// We additionally check the nameKey so the heuristic survives a future re-id
+// of the catalogue without silently turning every card gold.
+const CHAMPION_TROPHY_IDS = new Set<number>([5, 7]);
+function isChampionTrophy(trophy: Trophy): boolean {
+  return (
+    CHAMPION_TROPHY_IDS.has(trophy.id) || trophy.nameKey.includes("champion")
+  );
+}
 
 export function TrophyCard({
   trophy,
@@ -79,15 +92,19 @@ export function TrophyCard({
     }
   }
 
+  const isChampion = isChampionTrophy(trophy);
+
   return (
     <div
-      className={`card relative flex flex-col gap-3 overflow-hidden p-5 ${
-        isOwned ? "border-grass/40 shadow-glow" : ""
-      }`}
+      className={`relative flex flex-col gap-3 overflow-hidden p-5 ${
+        isChampion ? "tabula shadow-honor" : "card"
+      } ${isOwned && !isChampion ? "border-grass/40 shadow-glow" : ""}`}
     >
       <div className="flex items-center justify-between">
         <span
-          className={`text-4xl ${isOwned ? "text-grass" : "text-muted/60"}`}
+          className={`text-4xl ${
+            isChampion ? "text-honor" : isOwned ? "text-grass" : "text-muted/60"
+          }`}
         >
           {trophy.glyph}
         </span>
@@ -100,7 +117,16 @@ export function TrophyCard({
         )}
       </div>
       <div>
-        <h3 className="font-bold text-white">{t(trophy.nameKey)}</h3>
+        <h3
+          className={
+            isChampion
+              ? "flex items-center gap-1.5 gold-ink font-bold"
+              : "font-bold text-white"
+          }
+        >
+          {t(trophy.nameKey)}
+          {isChampion && <Laurel size={16} className="text-honor" />}
+        </h3>
         <p className="mt-1 text-sm text-muted">{t(trophy.descKey)}</p>
       </div>
       <div className="mt-1 text-xs text-muted">

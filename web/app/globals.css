@@ -15,7 +15,8 @@ body {
 body {
   background-image:
     radial-gradient(circle at 15% -10%, rgba(22, 192, 96, 0.12), transparent 40%),
-    radial-gradient(circle at 90% 0%, rgba(60, 240, 138, 0.08), transparent 35%);
+    radial-gradient(circle at 90% 0%, rgba(60, 240, 138, 0.08), transparent 35%),
+    radial-gradient(circle at 50% 110%, rgba(212, 175, 55, 0.05), transparent 45%);
   min-height: 100vh;
 }
 
@@ -48,4 +49,56 @@ body {
   .input {
     @apply w-full rounded-lg border border-pitch-border bg-pitch-bg px-3 py-2.5 text-sm text-white outline-none placeholder:text-muted focus:border-grass/60;
   }
+
+  /* Tabula — a panel styled like an inscribed stone tablet. Used for the
+     Companion agent replies and for champion-trophy cards. Kept compatible
+     with the existing `.card` so it can be applied additively. */
+  .tabula {
+    @apply rounded-xl border bg-pitch-card;
+    border-color: rgba(212, 175, 55, 0.18);
+    background-image:
+      linear-gradient(180deg, rgba(212, 175, 55, 0.04), transparent 35%),
+      linear-gradient(0deg, rgba(212, 175, 55, 0.03), transparent 40%);
+    box-shadow:
+      inset 0 1px 0 rgba(244, 211, 94, 0.06),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.35);
+  }
+
+  /* Etched in gold ink — used only for top-3 leaderboard ranks and champion
+     trophy titles. Subtle text-shadow gives the "embossed" feel without going
+     into kitsch territory. */
+  .gold-ink {
+    @apply font-display text-honor;
+    text-shadow:
+      0 0 1px rgba(244, 211, 94, 0.55),
+      0 1px 12px rgba(212, 175, 55, 0.18);
+    letter-spacing: 0.02em;
+  }
+}
+
+/* Classical hairline divider with a centered laurel diamond. Place a
+   <hr class="divider-classical" /> or wrap content in <div class="divider-classical">.
+   Uses a thin gradient rule that fades to transparent at both ends with a
+   marble-coloured center node. */
+.divider-classical {
+  position: relative;
+  height: 1px;
+  margin: 1.5rem 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(212, 175, 55, 0.55),
+    transparent
+  );
+}
+.divider-classical::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  transform: translate(-50%, -50%) rotate(45deg);
+  background: #d4af37;
+  box-shadow: 0 0 8px rgba(244, 211, 94, 0.5);
 }

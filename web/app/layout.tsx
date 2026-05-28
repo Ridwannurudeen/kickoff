@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Cinzel } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { Header } from "@/components/Header";
@@ -7,6 +7,15 @@ import { ToastHost } from "@/components/ToastHost";
 import { Footer } from "@/components/Footer";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+
+// Cinzel — display-only face for page H1s, top-3 ranks, and champion-trophy
+// titles. Restrained: never used for body copy, never below 18 px in practice.
+const cinzel = Cinzel({
+  subsets: ["latin"],
+  weight: ["500", "700", "900"],
+  variable: "--font-cinzel",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Kickoff — Your World Cup, on-chain",
@@ -24,7 +33,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={`${inter.variable} ${cinzel.variable}`}>
       <body className="font-sans antialiased">
         <Providers>
           <Header />

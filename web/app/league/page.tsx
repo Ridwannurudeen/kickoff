@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useAccount, useWriteContract } from "wagmi";
 import { keccak256, toBytes, parseUnits } from "viem";
 import { useT } from "@/components/I18nProvider";
+import { Laurel } from "@/components/Laurel";
 import { agentLeagueAbi, agentRegistryAbi } from "@/lib/v2-abis";
 import {
   AGENT_LEAGUE_CONFIGURED,
@@ -106,7 +107,12 @@ export default function LeaguePage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold">{t("league_title")}</h1>
+        <div className="flex items-center gap-2">
+          <h1 className="font-display text-3xl tracking-wide sm:text-4xl">
+            {t("league_title")}
+          </h1>
+          <Laurel size={20} className="text-honor" />
+        </div>
         <p className="text-sm text-muted">{t("league_subtitle")}</p>
       </div>
 
@@ -148,7 +154,15 @@ export default function LeaguePage() {
                       className="border-b border-pitch-border/50 last:border-0"
                     >
                       <td className="py-3 pr-3 font-bold text-muted">
-                        {i === 0 ? "★" : i + 1}
+                        {i === 0 ? (
+                          <span className="gold-ink">I</span>
+                        ) : i === 1 || i === 2 ? (
+                          <span className="font-display font-semibold text-honor-glow">
+                            {i + 1}
+                          </span>
+                        ) : (
+                          i + 1
+                        )}
                       </td>
                       <td className="py-3 pr-3 font-mono text-xs">{s.name}</td>
                       <td className="py-3 pr-3 font-mono text-xs text-muted">
@@ -186,8 +200,13 @@ export default function LeaguePage() {
           </div>
         </section>
 
+        {/* Section break between standings and the register-agent CTA on the
+            mobile stack. On desktop the two sit side-by-side so the divider is
+            redundant; hide it there. */}
+        <div className="divider-classical lg:hidden" />
+
         {/* Register-your-agent panel */}
-        <section className="card h-fit p-5">
+        <section className="tabula h-fit p-5">
           <h3 className="mb-3 font-bold text-white">
             {t("league_register_cta")}
           </h3>

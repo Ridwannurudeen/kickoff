@@ -15,7 +15,9 @@ export default function TrophiesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">{t("trophies_title")}</h1>
+        <h1 className="font-display text-3xl tracking-wide sm:text-4xl">
+          {t("trophies_title")}
+        </h1>
         <p className="text-sm text-muted">{t("trophies_subtitle")}</p>
       </div>
 

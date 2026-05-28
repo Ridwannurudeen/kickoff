@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useAccount, useWriteContract } from "wagmi";
 import { useT } from "@/components/I18nProvider";
+import { Laurel } from "@/components/Laurel";
 import { useFanScore } from "@/lib/v2-fan";
 import { fanRepAbi } from "@/lib/v2-abis";
 import { FAN_REP_CONFIGURED, V2_ADDRESSES } from "@/lib/v2-addresses";
@@ -68,9 +69,20 @@ export default function HomePage() {
             <span className="h-2 w-2 animate-pulse-dot rounded-full bg-grass" />
             {t("home_hero_eyebrow")}
           </p>
-          <h1 className="text-4xl font-extrabold leading-tight tracking-tight md:text-5xl">
-            Kick<span className="text-grass">off</span>
-          </h1>
+          <div className="relative inline-block">
+            <Laurel
+              size={64}
+              className="pointer-events-none absolute -left-2 -top-4 text-honor/15"
+            />
+            <Laurel
+              size={64}
+              flipped
+              className="pointer-events-none absolute -right-2 -top-4 text-honor/15"
+            />
+            <h1 className="font-display text-3xl font-extrabold leading-tight tracking-wide sm:text-5xl">
+              Kick<span className="text-grass">off</span>
+            </h1>
+          </div>
           <p className="mt-3 text-lg text-muted">{t("brand_subtitle")}</p>
           <div className="mt-6 flex flex-wrap items-center gap-3">
             {!fan?.hasFanId && (
@@ -91,6 +103,8 @@ export default function HomePage() {
           ⚽
         </div>
       </section>
+
+      <div className="divider-classical" />
 
       {/* Protocol-wide stats */}
       <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -237,7 +251,7 @@ function Pillar({
       className="card group flex flex-col gap-2 p-6 transition-colors hover:border-grass/60"
     >
       <span className="text-3xl text-grass">{glyph}</span>
-      <h3 className="font-bold text-white">{title}</h3>
+      <h3 className="font-extrabold tracking-wide text-white">{title}</h3>
       <p className="text-sm text-muted">{body}</p>
       <span className="mt-2 text-xs font-medium text-grass group-hover:underline">
         {title} →
