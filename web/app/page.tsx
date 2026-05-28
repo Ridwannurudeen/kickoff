@@ -3,13 +3,17 @@
 import Link from "next/link";
 import { useAccount, useWriteContract } from "wagmi";
 import { useT } from "@/components/I18nProvider";
-import {
-  ChampionshipMark,
-  LaurelWreath,
-  PillarIcon,
-} from "@/components/ornaments";
+import { ChampionshipMark, LaurelWreath } from "@/components/ornaments";
 import { BuiltOnXLayerBadge } from "@/components/BuiltOnXLayerBadge";
 import { TxTicker } from "@/components/TxTicker";
+import {
+  Architecture,
+  CTASection,
+  FAQ,
+  HowItWorks,
+  OnChainProof,
+  Tracks,
+} from "@/components/landing";
 import { useCountUp } from "@/lib/useCountUp";
 import { useFanScore } from "@/lib/v2-fan";
 import { fanRepAbi } from "@/lib/v2-abis";
@@ -234,37 +238,32 @@ export default function HomePage() {
         )}
       </section>
 
-      {/* Pillars */}
-      <section>
-        <h2 className="mb-4 text-xl font-bold">{t("home_pillars_title")}</h2>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <Pillar
-            href="/quests"
-            title={t("home_pillar_quests_title")}
-            body={t("home_pillar_quests_body")}
-            pillar="quests"
-            delayMs={440}
-          />
-          <Pillar
-            href="/trophies"
-            title={t("home_pillar_trophies_title")}
-            body={t("home_pillar_trophies_body")}
-            pillar="trophies"
-            delayMs={500}
-          />
-          <Pillar
-            href="/league"
-            title={t("home_pillar_league_title")}
-            body={t("home_pillar_league_body")}
-            pillar="league"
-            delayMs={560}
-          />
-        </div>
-      </section>
+      {/* How it works — 4-step entry flow */}
+      <HowItWorks />
+
+      {/* OKX X Cup tracks — three rich cards (Social / NFT / AI Agent).
+          Supersedes the previous compact Pillars section; the Pillar /
+          AnimatedStatCard / FanStat sub-components below are kept because
+          they're still referenced earlier in the page. */}
+      <Tracks />
 
       <div className="divider-classical" />
 
-      {/* Live on-chain ticker */}
+      {/* Architecture diagram + per-contract glossary */}
+      <Architecture />
+
+      {/* Verifiable on-chain — six real tx receipts from this build */}
+      <OnChainProof />
+
+      {/* FAQ — native <details> accordion, no client JS */}
+      <FAQ />
+
+      {/* Final CTA before the bottom ticker */}
+      <CTASection />
+
+      <div className="divider-classical" />
+
+      {/* Live on-chain ticker (existing, kept at the bottom) */}
       <section className="space-y-2">
         <p className="pill text-grass">
           <span className="h-2 w-2 animate-pulse-dot rounded-full bg-grass-glow" />
@@ -326,39 +325,5 @@ function FanStat({
         {value}
       </p>
     </div>
-  );
-}
-
-function Pillar({
-  href,
-  title,
-  body,
-  pillar,
-  delayMs,
-}: {
-  href: string;
-  title: string;
-  body: string;
-  pillar: "quests" | "trophies" | "league";
-  delayMs: number;
-}) {
-  return (
-    <Link
-      href={href}
-      className="card group relative flex animate-fade-up flex-col gap-2 overflow-hidden p-6 transition-all duration-200 hover:-translate-y-0.5 hover:border-grass/60 hover:shadow-glow"
-      style={{ animationDelay: `${delayMs}ms` }}
-    >
-      <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(60,240,138,0.55),transparent)] bg-[length:200%_100%] opacity-0 group-hover:animate-shimmer group-hover:opacity-100" />
-      <PillarIcon
-        pillar={pillar}
-        size={40}
-        className="text-grass transition-colors group-hover:text-grass-glow"
-      />
-      <h3 className="font-extrabold tracking-wide text-white">{title}</h3>
-      <p className="text-sm text-muted">{body}</p>
-      <span className="mt-2 text-xs font-medium text-grass group-hover:underline">
-        {title} →
-      </span>
-    </Link>
   );
 }
