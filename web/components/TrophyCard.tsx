@@ -2,7 +2,7 @@
 
 import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import { useT } from "./I18nProvider";
-import { Laurel } from "./Laurel";
+import { GreekKeyBorder, TrophyGlyph } from "./ornaments";
 import { fmtInt } from "@/lib/format";
 import { txUrl } from "@/lib/config";
 import { trophyAbi } from "@/lib/v2-abis";
@@ -94,20 +94,15 @@ export function TrophyCard({
 
   const isChampion = isChampionTrophy(trophy);
 
-  return (
-    <div
-      className={`relative flex flex-col gap-3 overflow-hidden p-5 ${
-        isChampion ? "tabula shadow-honor" : "card"
-      } ${isOwned && !isChampion ? "border-grass/40 shadow-glow" : ""}`}
-    >
+  const body = (
+    <div className="flex flex-col gap-3 p-5">
       <div className="flex items-center justify-between">
-        <span
-          className={`text-4xl ${
-            isChampion ? "text-honor" : isOwned ? "text-grass" : "text-muted/60"
-          }`}
-        >
-          {trophy.glyph}
-        </span>
+        <TrophyGlyph
+          id={trophy.id}
+          size={64}
+          honor={isChampion}
+          className={isChampion ? "text-honor" : "text-grass"}
+        />
         {isOwned ? (
           <span className="pill border-grass/60 text-grass">
             {t("trophies_claimed")}
@@ -120,12 +115,11 @@ export function TrophyCard({
         <h3
           className={
             isChampion
-              ? "flex items-center gap-1.5 gold-ink font-bold"
-              : "font-bold text-white"
+              ? "gold-ink font-bold"
+              : "font-extrabold tracking-wide text-white"
           }
         >
           {t(trophy.nameKey)}
-          {isChampion && <Laurel size={16} className="text-honor" />}
         </h3>
         <p className="mt-1 text-sm text-muted">{t(trophy.descKey)}</p>
       </div>
@@ -144,11 +138,35 @@ export function TrophyCard({
         <button
           onClick={onClaim}
           disabled={!isClaimable || isPending}
-          className="btn-primary !py-1.5 text-xs"
+          className={
+            isChampion
+              ? "btn !py-1.5 text-xs bg-honor text-pitch-bg hover:bg-honor-glow"
+              : "btn-primary !py-1.5 text-xs"
+          }
         >
           {isPending ? t("wallet_connecting") : t("trophies_claim")}
         </button>
       )}
+    </div>
+  );
+
+  if (isChampion) {
+    return (
+      <div className="tabula card shadow-honor animate-glow-pulse animate-fade-up relative overflow-hidden">
+        <GreekKeyBorder className="text-honor/35" strokeWidth={1}>
+          {body}
+        </GreekKeyBorder>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={`card animate-fade-up relative overflow-hidden ${
+        isOwned ? "border-grass/40 shadow-glow" : ""
+      }`}
+    >
+      {body}
     </div>
   );
 }

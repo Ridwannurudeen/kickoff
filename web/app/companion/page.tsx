@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useWriteContract } from "wagmi";
+import { useAccount, useWriteContract } from "wagmi";
 import { toBytes, toHex } from "viem";
 import { useT } from "@/components/I18nProvider";
 import { AGENTS } from "@/lib/v2-catalog";
@@ -10,7 +10,7 @@ import { AGENT_REGISTRY_CONFIGURED, V2_ADDRESSES } from "@/lib/v2-addresses";
 import { txUrl } from "@/lib/config";
 import { formatOkb } from "@/lib/format";
 import { useToasts } from "@/lib/toast";
-import { Laurel } from "@/components/Laurel";
+import { LaurelWreath } from "@/components/ornaments";
 
 interface CompanionReply {
   id: number;
@@ -18,10 +18,17 @@ interface CompanionReply {
   reply: string;
   agentSlugs: string[];
   txHash?: `0x${string}`;
+  caller?: `0x${string}`;
+}
+
+function shortAddr(a?: `0x${string}`): string {
+  if (!a) return "you";
+  return `${a.slice(0, 6)}…${a.slice(-4)}`;
 }
 
 export default function CompanionPage() {
   const { t } = useT();
+  const { address } = useAccount();
   const [selected, setSelected] = useState<Set<string>>(
     () => new Set(AGENTS.map((a) => a.slug)),
   );
@@ -72,6 +79,7 @@ export default function CompanionPage() {
             prompt,
             reply: t("companion_offline_reply"),
             agentSlugs,
+            caller: address,
           },
         ]);
         setPrompt("");
@@ -108,6 +116,7 @@ export default function CompanionPage() {
           reply: t("companion_thinking"),
           agentSlugs,
           txHash: hash,
+          caller: address,
         },
       ]);
       setPrompt("");
@@ -127,17 +136,17 @@ export default function CompanionPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-3xl font-bold tracking-wide sm:text-4xl">
+        <h1 className="animate-fade-up flex items-center gap-3 font-display text-3xl font-bold tracking-wide sm:text-4xl">
           {t("companion_title")}
+          <LaurelWreath size={32} className="text-honor/60" />
         </h1>
-        <p className="mt-1 inline-flex items-center gap-2 text-sm text-muted">
-          <Laurel size={16} className="text-honor/40" />
+        <p className="animate-fade-up [animation-delay:80ms] mt-1 text-sm text-muted">
           {t("companion_subtitle")}
         </p>
       </div>
 
       {/* Agent picker */}
-      <section>
+      <section className="animate-fade-up [animation-delay:160ms]">
         <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
           {t("companion_pick_agents")}
         </p>
@@ -161,50 +170,8 @@ export default function CompanionPage() {
             );
           })}
         </div>
-      </section>
 
-      <div className="divider-classical" />
-
-      {/* Conversation */}
-      <section className="tabula card flex flex-col gap-3 p-4">
-        <div className="min-h-[200px] space-y-3">
-          {history.length === 0 ? (
-            <p className="py-8 text-center text-xs text-muted">
-              {demo
-                ? t("companion_demo_notice")
-                : t("companion_input_placeholder")}
-            </p>
-          ) : (
-            history.map((m) => (
-              <div key={m.id} className="rounded-lg bg-pitch-bg p-3">
-                <p className="text-xs text-muted">you</p>
-                <p className="mt-0.5 text-sm">{m.prompt}</p>
-                <div className="mt-2 flex flex-wrap gap-1">
-                  {m.agentSlugs.map((s) => (
-                    <span key={s} className="pill text-[10px]">
-                      {s}
-                    </span>
-                  ))}
-                </div>
-                <p className="mt-2 whitespace-pre-line text-sm text-grass">
-                  {m.reply}
-                </p>
-                {m.txHash && (
-                  <a
-                    href={txUrl(m.txHash)}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="mt-2 inline-flex items-center gap-1 rounded-full bg-honor px-2.5 py-0.5 text-[10px] font-semibold text-pitch-bg hover:opacity-90"
-                  >
-                    View call ↗
-                  </a>
-                )}
-              </div>
-            ))
-          )}
-        </div>
-
-        <div className="flex flex-col gap-2 border-t border-pitch-border pt-3 sm:flex-row">
+        <div className="mt-4 flex flex-col gap-2 sm:flex-row">
           <input
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
@@ -222,12 +189,84 @@ export default function CompanionPage() {
             {sending ? t("companion_thinking") : t("companion_send")}
           </button>
         </div>
-        <p className="text-xs text-muted">
+        <p className="mt-2 text-xs text-muted">
           {t("companion_total_cost")}:{" "}
           <span className="font-mono text-white">
             {formatOkb(totalWei)} OKB
           </span>
         </p>
+      </section>
+
+      <div className="divider-classical" />
+
+      {/* Conversation — each message reads as an inscribed dedication slab. */}
+      <section className="space-y-3">
+        {history.length === 0 ? (
+          <p className="tabula card py-8 text-center text-xs text-muted">
+            {demo
+              ? t("companion_demo_notice")
+              : t("companion_input_placeholder")}
+          </p>
+        ) : (
+          history.map((m) => (
+            <article
+              key={m.id}
+              className="tabula card grid grid-cols-1 gap-3 p-4 md:grid-cols-[1fr_3fr_1fr] md:items-start md:gap-4"
+            >
+              {/* LEFT — caller identity */}
+              <div className="flex items-center gap-2 text-xs text-muted">
+                <span
+                  aria-hidden
+                  className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-pitch-border bg-pitch-bg text-honor/80"
+                >
+                  ?
+                </span>
+                <div className="flex flex-col">
+                  <span className="font-semibold uppercase tracking-wide text-marble/70">
+                    Querent
+                  </span>
+                  <span className="font-mono text-[11px] text-muted">
+                    {shortAddr(m.caller)}
+                  </span>
+                </div>
+              </div>
+
+              {/* CENTER — the inscription itself */}
+              <div className="space-y-2">
+                <p className="text-xs text-muted">{m.prompt}</p>
+                <p className="whitespace-pre-wrap text-sm text-marble">
+                  {m.reply}
+                </p>
+                <div className="flex flex-wrap gap-1">
+                  {m.agentSlugs.map((s) => (
+                    <span key={s} className="pill text-[10px]">
+                      {s}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* RIGHT — on-chain witness */}
+              <div className="flex items-start justify-start md:justify-end">
+                {m.txHash ? (
+                  <a
+                    href={txUrl(m.txHash)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 rounded-full bg-honor px-2.5 py-0.5 text-[10px] font-semibold text-pitch-bg hover:opacity-90"
+                  >
+                    Inscribed on-chain ↗
+                  </a>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 text-[10px] text-muted">
+                    <span className="animate-pulse-dot inline-block h-1.5 w-1.5 rounded-full bg-grass-glow" />
+                    Pending
+                  </span>
+                )}
+              </div>
+            </article>
+          ))
+        )}
       </section>
     </div>
   );

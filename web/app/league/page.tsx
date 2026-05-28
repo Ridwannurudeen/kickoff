@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useAccount, useWriteContract } from "wagmi";
 import { keccak256, toBytes, parseUnits } from "viem";
 import { useT } from "@/components/I18nProvider";
-import { Laurel } from "@/components/Laurel";
+import { LaurelWreath, Podium } from "@/components/ornaments";
 import { agentLeagueAbi, agentRegistryAbi } from "@/lib/v2-abis";
 import {
   AGENT_LEAGUE_CONFIGURED,
@@ -31,6 +31,17 @@ export default function LeaguePage() {
   const demoLeague = !AGENT_LEAGUE_CONFIGURED;
 
   const standings = DEMO_LEAGUE_STANDINGS;
+  const seasonId = 1;
+
+  const topThree = ([1, 2, 3] as const).map((rank) => {
+    const entry = standings[rank - 1];
+    return {
+      rank,
+      label: entry?.name ?? "—",
+      sublabel: entry ? shortAddr(entry.owner) : undefined,
+    };
+  });
+  const rest = standings.slice(3);
 
   async function registerAgent() {
     if (!name.trim() || !wallet.trim()) {
@@ -106,87 +117,95 @@ export default function LeaguePage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <div className="flex items-center gap-2">
+      <div className="animate-fade-up">
+        <div className="flex items-center gap-3">
           <h1 className="font-display text-3xl tracking-wide sm:text-4xl">
             {t("league_title")}
           </h1>
-          <Laurel size={20} className="text-honor" />
+          <LaurelWreath size={32} className="text-honor/70" />
         </div>
         <p className="text-sm text-muted">{t("league_subtitle")}</p>
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Standings */}
-        <section className="lg:col-span-2">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-bold text-muted">
-              {t("league_season_active", { id: 1 })}
-            </h2>
-          </div>
+        <section className="animate-fade-up space-y-6 [animation-delay:180ms] lg:col-span-2">
           {standings.length === 0 ? (
             <div className="card py-16 text-center text-sm text-muted">
               {t("league_empty")}
             </div>
           ) : (
-            <div className="card overflow-x-auto p-4">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-pitch-border text-left text-xs text-muted">
-                    <th className="py-2 pr-3 font-medium">
-                      {t("league_standings_rank")}
-                    </th>
-                    <th className="py-2 pr-3 font-medium">
-                      {t("league_standings_agent")}
-                    </th>
-                    <th className="py-2 pr-3 font-medium">
-                      {t("league_standings_owner")}
-                    </th>
-                    <th className="py-2 pr-3 text-right font-medium">
-                      {t("league_standings_score")}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {standings.map((s, i) => (
-                    <tr
-                      key={s.agentId}
-                      className="border-b border-pitch-border/50 last:border-0"
-                    >
-                      <td className="py-3 pr-3 font-bold text-muted">
-                        {i === 0 ? (
-                          <span className="gold-ink">I</span>
-                        ) : i === 1 || i === 2 ? (
-                          <span className="font-display font-semibold text-honor-glow">
-                            {i + 1}
-                          </span>
-                        ) : (
-                          i + 1
-                        )}
-                      </td>
-                      <td className="py-3 pr-3 font-mono text-xs">{s.name}</td>
-                      <td className="py-3 pr-3 font-mono text-xs text-muted">
-                        <a
-                          href={addressUrl(s.owner)}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="hover:text-grass"
-                        >
-                          {shortAddr(s.owner)}
-                        </a>
-                      </td>
-                      <td className="py-3 pr-3 text-right font-semibold text-grass">
-                        {fmtInt(s.score)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <>
+              {/* Podium honor moment — top 3 */}
+              <div className="tabula card mx-auto max-w-xl p-6 md:p-8">
+                <div className="mb-4 text-center text-[10px] font-bold uppercase tracking-[0.2em] text-muted">
+                  Season {seasonId} · Top 3
+                </div>
+                <Podium topThree={topThree} className="mx-auto w-full" />
+              </div>
+
+              {rest.length > 0 && (
+                <>
+                  <div className="divider-classical" />
+                  <div className="card overflow-x-auto p-4">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-pitch-border text-left text-[10px] uppercase tracking-wide text-muted">
+                          <th className="py-2 pr-3 font-medium">
+                            {t("league_standings_rank")}
+                          </th>
+                          <th className="py-2 pr-3 font-medium">
+                            {t("league_standings_agent")}
+                          </th>
+                          <th className="py-2 pr-3 font-medium">
+                            {t("league_standings_owner")}
+                          </th>
+                          <th className="py-2 pr-3 text-right font-medium">
+                            {t("league_standings_score")}
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {rest.map((s, i) => (
+                          <tr
+                            key={s.agentId}
+                            className="border-b border-pitch-border/50 transition-colors last:border-0 hover:bg-pitch-panel/60"
+                          >
+                            <td className="py-3 pr-3 font-display tracking-wide text-muted">
+                              {i + 4}
+                            </td>
+                            <td className="py-3 pr-3 font-mono text-xs">
+                              {s.name}
+                            </td>
+                            <td className="py-3 pr-3 font-mono text-xs text-muted">
+                              <a
+                                href={addressUrl(s.owner)}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="hover:text-grass"
+                              >
+                                {shortAddr(s.owner)}
+                              </a>
+                            </td>
+                            <td
+                              className={`py-3 pr-3 text-right font-semibold tabular-nums ${
+                                s.score > 0 ? "text-grass" : "text-muted"
+                              }`}
+                            >
+                              {fmtInt(s.score)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+              )}
+            </>
           )}
 
           {/* How it works */}
-          <div className="card mt-6 p-5">
+          <div className="card p-5">
             <h3 className="mb-2 font-bold text-white">
               {t("league_how_title")}
             </h3>
@@ -206,7 +225,7 @@ export default function LeaguePage() {
         <div className="divider-classical lg:hidden" />
 
         {/* Register-your-agent panel */}
-        <section className="tabula h-fit p-5">
+        <section className="tabula h-fit animate-fade-up p-5 [animation-delay:300ms]">
           <h3 className="mb-3 font-bold text-white">
             {t("league_register_cta")}
           </h3>

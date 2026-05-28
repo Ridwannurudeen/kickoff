@@ -60,10 +60,42 @@ const config: Config = {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0.3" },
         },
+        // Subtle entrance: slide up 8px + fade in. Used on hero blocks, stat
+        // cards, and pillar cards. Stagger by overriding `animation-delay`.
+        "fade-up": {
+          "0%": { opacity: "0", transform: "translateY(8px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        // Slow gold-honor breathing for champion-trophy glow. 4s loop, gentle.
+        "glow-pulse": {
+          "0%, 100%": {
+            boxShadow: "0 0 28px -10px rgba(244,211,94,0.35)",
+          },
+          "50%": {
+            boxShadow: "0 0 36px -8px rgba(244,211,94,0.55)",
+          },
+        },
+        // Border shimmer for pillar cards on hover — a thin specular sweep
+        // across the top edge. Applied via a `::before` pseudo or a child div.
+        shimmer: {
+          "0%": { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" },
+        },
+        // 3-step podium stagger — each step rises into place. Used together
+        // with `animation-delay` per step in Podium.tsx.
+        "podium-rise": {
+          "0%": { opacity: "0", transform: "translateY(24px) scale(0.97)" },
+          "60%": { opacity: "1", transform: "translateY(-2px) scale(1.01)" },
+          "100%": { opacity: "1", transform: "translateY(0) scale(1)" },
+        },
       },
       animation: {
         ticker: "ticker-scroll 40s linear infinite",
         "pulse-dot": "pulse-dot 1.4s ease-in-out infinite",
+        "fade-up": "fade-up 0.5s cubic-bezier(0.16,1,0.3,1) both",
+        "glow-pulse": "glow-pulse 4s ease-in-out infinite",
+        shimmer: "shimmer 2.4s linear infinite",
+        "podium-rise": "podium-rise 0.7s cubic-bezier(0.16,1,0.3,1) both",
       },
     },
   },
