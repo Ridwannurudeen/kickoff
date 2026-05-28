@@ -1,96 +1,94 @@
 # Kickoff
 
-**Trade the beautiful game — live, on-chain.**
+**The global World Cup 2026 fan platform on X Layer.**
 
-Kickoff is a live FIFA World Cup 2026 prediction & trading dApp on **X Layer**, OKX's OP Stack L2. It runs continuously-tradeable, World-Cup-native markets where anyone can take a position on tournament outcomes *right now* — months before the result is known — and exit, hedge, or scale that position at any time against a live automated market maker.
+Kickoff is a free-to-play fan platform built around World Cup 2026, live on **X Layer**, OKX's OP Stack L2. A user connects an OKX Wallet → mints a free, soulbound **Fan ID** → picks favorite teams → completes free **Quests** during the tournament → earns **XP** + a multi-dimensional **Fan Reputation** score → claims commemorative **NFT Trophies** at milestones → talks to a **multi-agent AI Companion** for personalized briefings.
 
-Markets are **categorical** (N-outcome): a 1X2 match-result market has three outcomes (Home / Draw / Away), a group-winner market has one outcome per team, and the implied probabilities across a market sum to ~100%. Markets settle on the **real** result when it happens (June–July 2026) through a **bonded optimistic oracle** — propose, dispute, settle, all on-chain. In the hackathon demo, the proposed result is a **clearly-labeled simulated resolution** so the full lifecycle (trade → propose → settle → redeem) is demonstrable today.
+**No money in for outcomes. No money out from outcomes. No randomness with stakes.** Every quest completion, every Companion call, and every league prediction is a real on-chain transaction.
+
+**Live:** https://kickoff.gudman.xyz · **X:** [@kickoff_w2026](https://x.com/kickoff_w2026) · **Built for** [#BuildX](https://x.com/hashtag/BuildX) on [@XLayerOfficial](https://x.com/XLayerOfficial).
 
 ---
 
 ## Why Kickoff
 
-- **World-Cup-native.** Not a general prediction market with a sports tab bolted on. Every market, the seed liquidity, and the resolution feed are built around WC 2026 (48 teams, 16 host cities across USA / Canada / Mexico, 104 matches, group stage Jun 11–27, final Jul 19).
-- **The only live, continuously-tradeable WC market on X Layer.** Positions are priced by a categorical constant-product AMM, so they trade like a live order book without needing one — buy/sell any time, price moves with flow.
-- **Trustless resolution.** No single key decides outcomes. A bonded optimistic oracle lets anyone propose a result and anyone dispute it; the deployment revokes the deployer's direct resolver role so the oracle is the *sole* settlement path.
-- **Built for the metric OKX rewards.** The World Cup is one of the largest recurring traffic events on earth. Kickoff is a funnel that converts that attention into **on-chain transactions and new X Layer users** — every trade is a transaction, every trader is an OKX-ecosystem wallet.
-- **OKX-ecosystem first.** OKX Wallet for connection, **OKB for gas**, sub-cent fees on X Layer, OKLink for verifiable on-chain proof, OKX on-ramp for fiat.
-
-### How it differs from existing prediction markets
-
-| | Kickoff | Polymarket | Azuro / Overtime / SX Bet |
-|---|---|---|---|
-| Chain | **X Layer (196)** | Polygon | Gnosis / Optimism / various |
-| Mechanism | **Live categorical AMM (CPMM)** | Central order book | Pool / order-book hybrids |
-| Focus | **World Cup 2026** | General | General sportsbook |
-| Resolution | **Bonded optimistic oracle** | Centralized / UMA | Centralized feeds |
-| Ecosystem | **OKX (Wallet, OKB gas)** | — | — |
+- **A composable Fan Reputation primitive, not just another app.** `FanRep` is a soulbound ERC-721 (one per wallet) that carries a multi-dimensional on-chain reputation — prediction accuracy, engagement breadth, longevity. Any X Layer app can read it via `score(address)` and build on top. The Fan ID is the *primitive*; Quests, Trophies, and the league are first-party consumers.
+- **A permissionless AI Agent platform, not a single Companion.** `AgentRegistry` lets anyone register an autonomous agent (their backend, their LLM, their logic) and charge OKB per call. Kickoff seeds three first-party agents — `match-analyst`, `personal-stats`, `highlights` — but the registry itself is open.
+- **Bring-Your-Own-Agent league — the OnchainOS thesis demonstrated end-to-end.** `AgentLeague` is a free-skill, free-entry prediction tournament for AI agents. Builders deploy an agent, register it, enter it, and compete with Kickoff's own agents for XP, reputation, and the AI Champion trophy. No money wagered, no money paid out. Fork [`agents/v2-example-byo/`](agents/v2-example-byo/) and ship your own.
+- **Three OKX X Cup tracks hit by design.** Social (Fan ID + global/team leaderboards + shareable profiles), NFT (commemorative ERC-1155 Trophies + composable Fan Rep SBT), and AI Agent (multi-agent Companion + permissionless registry + BYO league).
+- **OKX-native end to end.** OKX Wallet to connect, OKB for gas and for agent service fees, sub-cent costs, OKLink for verifiable proof.
 
 ---
 
-## How it works
-
-Kickoff is a general **Fixed-Product Market Maker (FPMM)** design in the lineage of Gnosis / Polymarket, generalized to **categorical (N-outcome) World Cup markets** (2..16 outcomes per market).
-
-1. **Conditional tokens.** Each market is a question with **N outcome slots** — represented as ERC-1155 conditional token positions. Collateral (USDC) is **split** into a complete set (one share of *every* outcome) and **merged** back the same way; one complete set is always redeemable 1:1 for collateral. Shares are minted 1:1 from collateral, so they carry USDC's **6 decimals**.
-2. **USDC collateral.** All markets are collateralized in USDC (`MockUSDC`, a 6-decimal open-faucet token, on testnet; real USDC on mainnet). Prices are 1e18-scaled implied probabilities.
-3. **Live categorical AMM trading.** Each market has its own **minimal-proxy AMM clone** (a `FixedProductMarketMaker` deployed by `MarketMakerFactory`). Traders buy and sell outcome shares against the pool at any time. `getReserves()` and `prices()` return **arrays** over the N outcomes; `prices()` returns 1e18-scaled implied probabilities that **sum to ~1** (the market's implied probability for each outcome). A fee (in basis points) accrues to liquidity providers.
-4. **Bonded optimistic resolution.** When the real-world result is known, **anyone** proposes the winning outcome on-chain and posts a **bond**; a liveness window opens. If undisputed, **anyone** settles it, writing the payouts on-chain (append-only). A disputer can post an equal bond, in which case an **arbiter** (a Safe in v1) resolves the dispute — bonds go to whichever side the written result agrees with. Holders of winning shares **redeem** for full collateral. The deployment **revokes the deployer's direct resolver role**, so the optimistic oracle is the only way a market resolves.
-
-### Market types
-
-| Type | Outcomes |
-|---|---|
-| 1X2 match result | 3 — Home / Draw / Away |
-| Over/Under 2.5 goals | 2 |
-| Both-Teams-To-Score | 2 |
-| Group winner | one outcome per team in the group |
-| Outright winner | binary Yes / No |
-| Golden Boot | binary Yes / No |
-
-Probabilities within a categorical market sum to ~100%.
-
-> **What's real vs simulated.** *Trading is real, on-chain, and verifiable now* — every buy / sell / split / merge is a live transaction on X Layer with an OKLink link. The *result feed is simulated until the tournament* (demo data from `openfootball/worldcup.json`, CC0). The keeper **proposes** the simulated result to the optimistic oracle, the liveness window elapses, and the market is **settled** on-chain — an explicitly-labeled simulated settlement so the resolve→redeem path is fully demonstrable before a single match is played. Production resolution reads API-FOOTBALL (league=1, season=2026).
-
----
-
-## Architecture overview
+## Architecture
 
 ```
-                    OKX Wallet (OKB gas)
-                            |
-                    web/  (Next.js dApp)
-                            |
-            ┌───────────────┴───────────────┐
-            |                                 |
-   MarketMakerFactory ──clones──> FixedProductMarketMaker (one per market, EIP-1167)
-            |                                 |
-            └──────────> ConditionalTokens <──┘  (ERC-1155 outcome shares)
-                            |
-                        MockUSDC (collateral, testnet)
-                            ^
-                    OptimisticOracle (propose / dispute / settle, sole resolver)
-                            ^
-                  keeper: openfootball (demo) / API-FOOTBALL (prod)
+                       OKX Wallet (OKB gas)
+                              |
+                        web/ (Next.js dApp)
+                              |
+      +-------------+---------+---------+----------------+
+      |             |                   |                |
+   FanRep.sol  QuestEngine.sol     Trophy.sol      AgentRegistry.sol
+   (SBT, ERC-721,  (XP, quest defs,   (ERC-1155       (agents, OKB fees,
+   multi-dim       commit/reveal       commemoratives, on-chain calls,
+   reputation)     predictions,        deterministic   payments,
+                   self-attest,        gating, no      composeAgents)
+                   external-proof)     randomness)            |
+                       |                                      |
+              OptimisticOracle  (reused, settles match results)
+                       |
+              keeper (rolling 7d quest window + propose + settle)
+
+                                                    AgentLeague.sol
+                                                    (BYO seasons +
+                                                     commit/reveal +
+                                                     leaderboard +
+                                                     AI Champion trophy)
+                                                              |
+              off-chain agent services (each watches its Called event):
+                 - match-analyst   (pre-match preview)
+                 - personal-stats  (XP trajectory + recommended quest)
+                 - highlights      (post-match summary)
 ```
 
-See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the categorical CPMM math, conditional-token mechanics, the optimistic-oracle lifecycle, and the resolution/keeper design. Security posture and roadmap are in [`docs/SECURITY.md`](docs/SECURITY.md) and [`docs/ROADMAP.md`](docs/ROADMAP.md).
+See [`docs/KICKOFF-V2-DESIGN.md`](docs/KICKOFF-V2-DESIGN.md) for the design rationale (single source of truth), [`docs/DEMO_SCRIPT_V2.md`](docs/DEMO_SCRIPT_V2.md) for the demo walkthrough, and [`docs/SUBMISSION.md`](docs/SUBMISSION.md) for the X Cup submission draft.
 
-### Contracts
+### Contracts (Solidity 0.8.26 · OpenZeppelin v5 · Foundry)
 
 | Contract | Role |
 |---|---|
-| `ConditionalTokens` | ERC-1155 outcome shares; split / merge / redeem; condition prepare & append-only resolution |
-| `MarketMakerFactory` | Deploys one EIP-1167 minimal-proxy `FixedProductMarketMaker` clone per market |
-| `FixedProductMarketMaker` | Per-market categorical CPMM; buy / sell over N outcomes, array `getReserves()` / `prices()`, fee in bps |
-| `OptimisticOracle` | Bonded propose / dispute / settle / resolveDispute / cancelProposal; sole resolution path |
-| `MockUSDC` | 6-decimal open-faucet stablecoin for testnet collateral |
+| [`FanRep`](contracts/src/FanRep.sol) | Soulbound ERC-721 (one per wallet) carrying a multi-dim on-chain reputation. `score(address)` returns `(total, predictionAccuracyBps, engagementBreadth, longevityDays)` — the composable read surface. XP writes are role-gated to `QuestEngine`. |
+| [`QuestEngine`](contracts/src/QuestEngine.sol) | Quest registry + completion. Three types: `SELF_ATTEST` (one-per-wallet), `PREDICTION` (commit-reveal scaled by OO-settled result), `EXTERNAL_PROOF` (admin-signed attestation). Emits `QuestCompleted`; calls `FanRep.recordXP`. |
+| [`Trophy`](contracts/src/Trophy.sol) | ERC-1155 commemoratives. Each trophy has a deterministic mint rule (`requiredXP`, `requiredQuestIds`, optional `windowEnd`). Gas-only to claim. No randomness, no mint fee. |
+| [`AgentRegistry`](contracts/src/AgentRegistry.sol) | Permissionless agent layer. `registerAgent` / `callAgent` (payable in OKB) / `composeAgents` (single-tx fan-out). Funds flow caller → agent wallet directly; protocol fee = 0. |
+| [`AgentLeague`](contracts/src/AgentLeague.sol) | Bring-Your-Own-Agent seasons. `openSeason` → `enterAgent` (free) → `submitPrediction` (hash commit) → after OO settles, anyone calls `scorePrediction(slot, salt)` and the contract scales the score by the on-chain payouts. Top-ranked agent's owner mints the **AI Champion** trophy at `closeSeason`. |
+| [`OptimisticOracle`](contracts/src/OptimisticOracle.sol) | **Reused from v1, unchanged.** Propose / 120s liveness / settle / dispute / cancel. The sole resolution path; the deployer's `ORACLE_ROLE` on `ConditionalTokens` is revoked at deploy time. |
+| [`ConditionalTokens`](contracts/src/ConditionalTokens.sol) | **Reused from v1**, used here only as a general-purpose result store (`conditionStatus` + `payoutNumerators`) for match outcomes — no betting surface. |
+| [`MockUSDC`](contracts/src/MockUSDC.sol) | 6-decimal collateral token referenced by `ConditionalTokens.prepareCondition`. Not used for any payout in v2. |
 
-Stack: **Solidity 0.8.26**, **OpenZeppelin v5.6.1**, **Foundry**. **43 Foundry tests** green — categorical lifecycle, fuzz no-free-money (binary + categorical), and the full optimistic-oracle propose/dispute/settle/resolve/cancel cycle.
+**Test coverage:** `forge test` runs **211 tests across 9 suites** — all green.
 
-### Seed markets
+### Deployed addresses (X Layer testnet, chain 1952)
 
-The off-chain generator (`scripts/`) produces categorical World Cup markets across all market types — 1X2 match result, Over/Under 2.5, Both-Teams-To-Score, group winner, outright winner, and Golden Boot. The default cap seeds **48 markets**; full coverage of all **104 matches** scales up to **336 markets**. The hardened testnet deploy is seeded with **9 categorical markets** (including a 1X2 3-way and a group-winner 4-way) for the demo.
+| Contract | Address |
+|---|---|
+| `FanRep` | [`0x133aD36f956A3550aee35D9126dE728FaF9d96C6`](https://www.oklink.com/xlayer-test/address/0x133aD36f956A3550aee35D9126dE728FaF9d96C6) |
+| `QuestEngine` | [`0x58EB9041876583F1134A78728668aE53476a8897`](https://www.oklink.com/xlayer-test/address/0x58EB9041876583F1134A78728668aE53476a8897) |
+| `Trophy` | [`0x2E87D0b20638e48B11FFe82fB323B6986B177a02`](https://www.oklink.com/xlayer-test/address/0x2E87D0b20638e48B11FFe82fB323B6986B177a02) |
+| `AgentRegistry` | [`0xf442Fa60ad9f2faB35D5e17065FDC8F7f3EDceEF`](https://www.oklink.com/xlayer-test/address/0xf442Fa60ad9f2faB35D5e17065FDC8F7f3EDceEF) |
+| `AgentLeague` | [`0x30e4Bb6eA75409abB1A29C4FB86bF13c85abA89e`](https://www.oklink.com/xlayer-test/address/0x30e4Bb6eA75409abB1A29C4FB86bF13c85abA89e) |
+| `OptimisticOracle` | [`0x4bd1968a579B7799ed0E84996cB2011eDD504cC8`](https://www.oklink.com/xlayer-test/address/0x4bd1968a579B7799ed0E84996cB2011eDD504cC8) |
+| `ConditionalTokens` | [`0xCB893c645F822667e0409942B6109f4590637A39`](https://www.oklink.com/xlayer-test/address/0xCB893c645F822667e0409942B6109f4590637A39) |
+| `MockUSDC` | [`0x21dF7e14AeD79022fE1bcF2BFF3342Bc10E93D5A`](https://www.oklink.com/xlayer-test/address/0x21dF7e14AeD79022fE1bcF2BFF3342Bc10E93D5A) |
+
+Mainnet (chain 196) is **not yet deployed** — gated on third-party audit per [`docs/ROADMAP.md`](docs/ROADMAP.md).
+
+### Live on-chain artefacts (testnet)
+
+- **AgentLeague season 1** is open. One BYO example agent has run the full cycle on-chain: registered → entered → committed a hashed prediction before kickoff → revealed after the OO settled → 1000 XP credited.
+- **Three first-party Companion services** are live on the VPS, each registered as a separate on-chain agent with its own wallet. Calls land within ~5s and submit real Claude Haiku 4.5 responses on-chain via `submitResult`.
+- **Honest scope:** the real World Cup begins 2026-06-11, after the submission window. Prediction quests in the demo settle against clearly-labeled simulated friendlies. The same oracle path handles live matches in June–July.
 
 ---
 
@@ -98,11 +96,18 @@ The off-chain generator (`scripts/`) produces categorical World Cup markets acro
 
 ```
 kickoff/
-├── contracts/   Foundry project — Solidity contracts, tests, deploy scripts (deps vendored)
-├── web/         Next.js dApp — OKX Wallet connect, categorical N-outcome UI, trade flow
-├── scripts/     Market generator, simulate-activity volume tool, resolution keeper
-├── data/        openfootball/worldcup.json (demo) + results.json (simulated keeper feed)
-└── docs/        Architecture, security, roadmap, demo script, submission, X content
++- contracts/                   Foundry — Solidity contracts, tests, deploy scripts (deps vendored)
++- web/                         Next.js dApp — OKX Wallet, /quests, /league, /companion, /trophies
++- scripts/                     Keeper (register + propose + settle), market generator, sim activity
++- services/
+|   +- match-analyst/           Node service: pre-match preview agent
+|   +- personal-stats/          Node service: XP + coaching agent
+|   +- highlights/              Node service: post-match summary agent
++- agents/
+|   +- v2-example-byo/          The fork-and-go BYO agent reference implementation
++- sdk/                         TS SDK for the v1 markets (kept; not used by v2 product)
++- data/                        keeper fixtures, openfootball/worldcup.json (CC0)
++- docs/                        Design (KICKOFF-V2-DESIGN), demo script, submission, X content
 ```
 
 ---
@@ -110,43 +115,56 @@ kickoff/
 ## Quickstart
 
 ### Prerequisites
-
 - [Foundry](https://book.getfoundry.sh/) (`forge`, `cast`, `anvil`)
-- Node.js 18+ and npm
+- Node.js >= 22.6 (uses `node --experimental-strip-types`)
 - An OKX Wallet (or any EVM wallet) with X Layer testnet OKB for gas
 
 ### Clone
 
 ```bash
-git clone <REPO_URL> kickoff
+git clone https://github.com/Ridwannurudeen/kickoff.git
 cd kickoff
 ```
 
-> **Dependencies are vendored** — `contracts/lib/` (forge-std, openzeppelin-contracts v5.6.1) is committed directly, **not** wired as git submodules. A plain `git clone` gives you everything; you do **not** need `git submodule update --init`.
+Dependencies are vendored under `contracts/lib/` — plain `git clone` gives you forge-std + OpenZeppelin v5; no `git submodule update --init` step.
 
 ### Contracts (Foundry)
 
 ```bash
 cd contracts
 forge build
-forge test
+forge test       # 211 tests, all green
 ```
 
-### Web (dApp)
+### Web dApp
 
 ```bash
 cd web
+cp .env.example .env.local      # fill addresses + RPC if pointing at a fresh deploy
 npm install
-npm run dev
+npm run dev                     # http://localhost:3000
 ```
 
-The dApp serves on `http://localhost:3000` by default and is env-driven against the hardened v2 testnet deployment (addresses below).
+The dApp is env-driven; the live site at https://kickoff.gudman.xyz uses the `web/.env.local` shape (see `web/.env.example`). Default `NEXT_PUBLIC_CHAIN_ID=1952` matches the testnet RPC `https://testrpc.xlayer.tech/terigon`.
+
+### Bring-Your-Own-Agent (the tutorial path)
+
+```bash
+cd agents/v2-example-byo
+cp env-example .env             # fill RPC, AGENT_ID, AGENT_PK
+npm install
+npm run register                # one-shot: AgentRegistry.registerAgent
+npm run enter                   # one-shot: AgentLeague.enterAgent (current season)
+npm run start                   # long-running: watches Called + scores predictions
+```
+
+Replace `pickSlot()` in `src/index.ts` with your own model and ship. The on-chain interface is fixed; the strategy is yours.
 
 ---
 
 ## Environment variables
 
-Copy `.env.example` to `.env` in each package and fill in. Never commit `.env`.
+Copy each `.env.example` / `env-example` to `.env` (or `.env.local`) in its package and fill in. **Never commit `.env*`.** The repo gitignores them and a pre-commit hook blocks dotfile writes.
 
 **`contracts/.env`**
 
@@ -154,70 +172,46 @@ Copy `.env.example` to `.env` in each package and fill in. Never commit `.env`.
 |---|---|
 | `RPC_URL` | X Layer RPC, e.g. testnet `https://testrpc.xlayer.tech/terigon` |
 | `PRIVATE_KEY` | Deployer key (testnet first; never a key with real funds in dev) |
-| `OKLINK_API_KEY` | For contract verification on OKLink (optional) |
 
-**`web/.env`**
+**`web/.env.local`**
 
 | Var | Description |
 |---|---|
 | `NEXT_PUBLIC_CHAIN_ID` | `1952` for X Layer testnet, `196` for mainnet |
 | `NEXT_PUBLIC_RPC_URL` | `https://testrpc.xlayer.tech/terigon` (testnet) |
-| `NEXT_PUBLIC_FACTORY_ADDRESS` | Deployed `MarketMakerFactory` address |
-| `NEXT_PUBLIC_CONDITIONAL_TOKENS_ADDRESS` | Deployed `ConditionalTokens` address |
-| `NEXT_PUBLIC_ORACLE_ADDRESS` | Deployed `OptimisticOracle` address |
-| `NEXT_PUBLIC_USDC_ADDRESS` | Collateral token address |
+| `NEXT_PUBLIC_FAN_REP` | Deployed `FanRep` address |
+| `NEXT_PUBLIC_QUEST_ENGINE` | Deployed `QuestEngine` address |
+| `NEXT_PUBLIC_TROPHY` | Deployed `Trophy` address |
+| `NEXT_PUBLIC_AGENT_REGISTRY` | Deployed `AgentRegistry` address |
+| `NEXT_PUBLIC_AGENT_LEAGUE` | Deployed `AgentLeague` address |
+| `NEXT_PUBLIC_CONDITIONAL_TOKENS` | Deployed `ConditionalTokens` address |
+| `NEXT_PUBLIC_OPTIMISTIC_ORACLE` | Deployed `OptimisticOracle` address |
+| `NEXT_PUBLIC_MOCK_USDC` | Collateral token address |
 
-**`scripts/.env`** (keeper) — `API_FOOTBALL_KEY` gates the production resolution feed; without it the keeper runs in SIMULATED mode from `data/results.json`.
+> **Subtle gotcha** (already fixed): the env reader must use literal dot-notation `process.env.NEXT_PUBLIC_X` for Next.js to inline the value into the client bundle. Dynamic bracket access (`process.env[name]`) silently fails in the browser. See `web/lib/config.ts:18-23` for the explanation.
 
----
+**`services/<svc>/.env`**
 
-## X Layer deployment notes
-
-X Layer is OKX's OP Stack L2. Gas is paid in **OKB**, not ETH.
-
-| | Testnet | Mainnet |
-|---|---|---|
-| Chain ID | `1952` | `196` |
-| RPC | `https://testrpc.xlayer.tech/terigon` | `https://rpc.xlayer.tech` |
-| Explorer | [OKLink xLayer test](https://www.oklink.com/xlayer-test) | [OKLink xLayer](https://www.oklink.com/xlayer) |
-| Gas token | OKB | OKB |
-| Collateral | `MockUSDC` (open faucet) | real USDC `0x74b7F16337b8972027F6196A17a631aC6dE26d22` |
-
-Deploy with the Foundry script (testnet first). The script **revokes the deployer's resolver role by default** so the optimistic oracle is the sole resolution path:
-
-```bash
-cd contracts
-forge script script/Deploy.s.sol:Deploy \
-  --rpc-url "$RPC_URL" \
-  --private-key "$PRIVATE_KEY" \
-  --broadcast
-```
-
-### Deployed addresses — v3 (funded LP + parlays, X Layer testnet, chain 1952)
-
-| Contract | Address |
+| Var | Description |
 |---|---|
-| `MarketMakerFactory` | `0x08A349C2e18Fb76AE022995A69fBB89c22d1c248` |
-| `ConditionalTokens` | `0x846AA1261148F2b96f1f9E8441c25CDA8D9fcF58` |
-| `OptimisticOracle` | `0xA82075EBEcDBe9B8478a75e764B4A465d2403fF9` |
-| `ParlayBook` | `0xF323A948440aD9c851fD8d2846184175fB4ef44a` |
-| `MockUSDC` | `0xd347711C142720D949c2D96C3DD486F2423cEAF1` |
-| `FixedProductMarketMaker` (implementation) | `0x4d12be7950e24867F4F8c8ED399CD7B21b5A66C5` |
-
-**On-chain proof (testnet):** 12 categorical markets seeded (incl. 1X2 3-way and group-winner 4-way), real trading volume from 7 distinct trader wallets, a full **propose → 120s liveness → settle** oracle cycle that resolved conditions, plus a public-LP funding lifecycle (add/remove liquidity, pro-rata fee accrual) and a house-backed parlay book. The deployer's resolver role is **revoked** — verified on-chain that only the oracle resolves. Browse on [OKLink xLayer test](https://www.oklink.com/xlayer-test).
-
-**Mainnet (chain 196)** is supported by the same code against real USDC (`0x74b7F16337b8972027F6196A17a631aC6dE26d22`) but is **not yet deployed** — gated behind an independent third-party audit (see [`docs/ROADMAP.md`](docs/ROADMAP.md)).
+| `RPC_URL` / `CHAIN_ID` | X Layer testnet |
+| `AGENT_REGISTRY` / `AGENT_ID` / `AGENT_PK` | Identity for the on-chain agent the service represents |
+| `LLM_PROVIDER` | `anthropic` (default) or `groq` |
+| `LLM_API_KEY` | API key. Omit to emit a labelled `[no-LLM-key]` stub. |
+| `LLM_MODEL` | Default `claude-haiku-4-5-20251001` for Anthropic, `llama-3.3-70b-versatile` for Groq |
+| `OFFLINE_MODE` | `1` = log Called events but skip `submitResult` |
+| `FAN_REP` | `personal-stats` only — to read `score(address)` |
 
 ---
 
-## What's real vs simulated · what's gated (honest scope)
+## What's real vs simulated (honest scope)
 
-- **Real, on-chain, now (testnet):** market creation, USDC collateralization, split / merge, **live categorical AMM buy & sell**, fees, redemption, and the **bonded optimistic-oracle resolution cycle** (propose → liveness → settle) — all on X Layer, all verifiable on OKLink.
-- **Simulated until the tournament:** the match-result feed. WC 2026 group stage starts Jun 11, 2026; final is Jul 19, 2026. The keeper **proposes** results from `openfootball/worldcup.json` (CC0) data, **labeled as simulated** in the UI. Production swaps in API-FOOTBALL (league=1, season=2026) for live results.
-- **Gated (not yet live):** mainnet deployment, independent third-party audit, the API-FOOTBALL production key, ERC-4337 / OKX smart-account (account-abstraction) login, and fiat→USDC on-ramp at scale — all tracked in [`docs/ROADMAP.md`](docs/ROADMAP.md).
+- **Real, on-chain, now (testnet):** Fan ID mint, the three quest types, XP credit, Trophy claim, multi-agent Companion calls, AgentLeague entries + commit/reveal predictions, the full propose → 120s liveness → settle oracle cycle, and the BYO example agent's full lifecycle.
+- **Simulated until the tournament:** the match-result feed. WC 2026 group stage starts Jun 11, 2026. Prediction quests in the demo settle against clearly-labeled simulated friendlies; the on-screen "SIMULATED MATCH" banner is wired on the resolution panel.
+- **Gated (not yet live):** mainnet deployment, independent third-party audit, the API-FOOTBALL production result feed — tracked in [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ---
 
 ## License
 
-See `LICENSE`. Resolution demo data from `openfootball/worldcup.json` (CC0).
+See `LICENSE`. Demo schedule data from `openfootball/worldcup.json` (CC0).

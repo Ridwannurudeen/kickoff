@@ -60,7 +60,7 @@ Kickoff — a global fan platform that turns World Cup 2026 attention into real 
 `TODO — personal/team X handle(s)`
 
 ### (8) Public GitHub repo link
-`TODO — https://github.com/<owner>/kickoff` (must be **public**; confirm it loads logged-out)
+`https://github.com/Ridwannurudeen/kickoff` (public; verified logged-out 2026-05-28)
 
 ### (Optional) Note to X Layer team
 ```

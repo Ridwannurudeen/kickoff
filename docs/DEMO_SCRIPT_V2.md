@@ -136,3 +136,44 @@
 
 - If a tx is slow to confirm on camera, have a **pre-confirmed** OKLink page ready (mint, complete, settle, composeAgents) so the "verifiable on-chain" beat never dies waiting.
 - 5-second architecture cutaway (FanRep + QuestEngine + Trophy + AgentRegistry + AgentLeague + OptimisticOracle) available if you need to pad the innovation section.
+
+
+---
+
+## Already-confirmed OKLink artefacts (recorded 2026-05-26 to 2026-05-28)
+
+These are real on-chain transactions from the build sessions, all on X Layer testnet (chain 1952). Use them as **fallback B-roll** if anything is slow to confirm during the live recording — every tx below is browsable on OKLink right now.
+
+**BYO example agent — the AgentLeague lifecycle, end-to-end:**
+
+| Step | Tx hash | What it proves |
+|---|---|---|
+| `AgentLeague.openSeason` (admin) | `0x5c0db17e1ece60d6751b0caf36ca3f3400e1ed9221d7369ce0dd6570aab51ab2` | season 1 active |
+| `AgentRegistry.registerAgent` from sim wallet | `0xeef325862b93255f6e1236e1c90e2773a9d5e5ecda04b68d3fbef5ca9219c1be` | BYO agent listed |
+| `AgentLeague.enterAgent` | `0x37c9620ceea6e8d312063cf49fdeb9a6802f2f3eedfee989f1be25afad566c3e` | enterIndex = 1 |
+| `AgentLeague.submitPrediction` (commit, before kickoff) | `0x1832db0349509010c9d48e11385d1904728c39ab8c98ca9361398692ef3606ec` | hash-committed slot 0 |
+| `OptimisticOracle.propose` (keeper) | `0x4f91d7a477f0f0e0c0cf09a9e4c339a2dbc97183b49713f02500d7df14acdb3c` | result [1,0,0] proposed |
+| `OptimisticOracle.settle` (after 120s liveness) | `0x95d55a32c1d1842ffc3e35eb267bfb562ff65f79fcb9ac17d7a048010f94507e` | condition flips to Resolved |
+| `AgentLeague.scorePrediction` (reveal) | `0xa9b688d1724cc80cae9a30ad3b2a30e65a0c0ba5001217d955674ce35e946f24` | 1000 XP credited, score increments |
+
+**Companion services — three on-chain agents, each registered separately, each responding with real Claude Haiku 4.5 text via `submitResult`:**
+
+| Service | Register tx | callAgent tx | submitResult tx (reply on chain) |
+|---|---|---|---|
+| `match-analyst` | `0x00a04be3465038a83387322c44e3463c8817c3eaca5412d2c75395e14c862e10` | `0xb6a4fd88f29e00056e30b58357508242835b5c45efeed27299a51babb4a03e28` | `0xd97e0d3fb725ad533f7e77a7373c95f04cb935949e6437f2f47b71f8119b6038` |
+| `personal-stats` | `0x1f0f03bd8ba1114ec257260a14ce931135723b53ebb422bfd7bfeda5b7195f72` | `0x4b18bc09ec92f93b4c2d0abc02344bfbaad3e2d4a2b57a1abdb8e28380cdd640` | `0x5a6bee5c32daf4f68695ba8b002004e1b79863c707869ae1123ae1d89505c51d` |
+| `highlights` | `0x550b753088d8e3c6a70f99e77aa28af9779fec854be9a42db83f8332d7e74d27` | `0x235a50145e1f6250cb7d27e2e14c2c5240a53744b49872731ade8d038ea0667a` | `0x3e8dd75cf73d6ac182774996c90add0a2dd6606a1fbd01900de289353a9d9c94` |
+
+The `submitResult` tx bytes decode to real Claude Haiku 4.5 output (~400-900 bytes per reply). Examples from the recording day:
+
+- `match-analyst` returned a 928-byte Group C/E pre-match preview ("Brazil vs Germany - Pre-Match Preview...")
+- `personal-stats` returned a 544-byte XP-stats block + Claude coaching note
+- `highlights` returned a 416-byte 3-1 narration using only the supplied minute marks — no invented events
+
+**Direct OKLink links** (paste into the URL bar during the recording if a live tx is slow):
+
+```
+https://www.oklink.com/xlayer-test/tx/<tx-hash-from-the-tables-above>
+```
+
+The contracts themselves are linked from `README.md`'s **Deployed addresses** table — use those links to show the contract's transaction history if you'd rather pan than cut.

@@ -13,7 +13,7 @@
 - **Display name:** Kickoff
 - **Bio:** `World Cup 2026 fan platform on @XLayerOfficial. Free quests, on-chain Fan Reputation, multi-agent AI, Bring-Your-Own-Agent league. #BuildX`
 - **Pinned:** the launch thread below (Post #1).
-- **Link:** repo URL (TODO) once public.
+- **Link:** https://github.com/Ridwannurudeen/kickoff
 - **Avatar/header:** Kickoff mark; header can show the four-tile landing (Fan ID · Quests · Trophies · Companion).
 
 ## Voice
@@ -134,7 +134,7 @@ xpReward 1000 credited.
 >
 > Free entry. Reputation + a trophy for the top-ranked agent's owner. No wagers, no payouts in money — pure free-skill on-chain.
 >
-> Tutorial path → [REPO LINK + `/agents/v2-example-byo`]
+> Tutorial path → https://github.com/Ridwannurudeen/kickoff/tree/main/agents/v2-example-byo
 >
 > #BuildX
 
@@ -148,7 +148,7 @@ xpReward 1000 credited.
 >
 > OKX Wallet, OKB gas, OKLink-verifiable end to end.
 >
-> Demo + repo: [LINKS — TODO]
+> Demo: https://kickoff.gudman.xyz · Repo: https://github.com/Ridwannurudeen/kickoff
 
 > **Reminder:** the URL of *this* post is Google Form field (5). It MUST tag @XLayerOfficial and include #BuildX. Verify both are present before you submit.
 
