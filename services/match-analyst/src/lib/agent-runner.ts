@@ -103,15 +103,14 @@ export async function runAgent(cfg: RunnerConfig): Promise<void> {
       for (const log of logs) {
         const ev = (log as unknown as { args: CalledEvent }).args;
         void handleOne(cfg, ctx, ev, wallet).catch((err) => {
-          console.error(
-            `[${cfg.serviceName}] handler error for callId=${ev?.callId}:`,
-            err,
-          );
+          const msg = (err as { shortMessage?: string })?.shortMessage ?? String(err).slice(0, 300);
+          console.error(`[${cfg.serviceName}] handler error for callId=${ev?.callId}: ${msg}`);
         });
       }
     },
     onError: (err) => {
-      console.error(`[${cfg.serviceName}] event watcher error:`, err);
+      const msg = (err as { shortMessage?: string })?.shortMessage ?? String(err).slice(0, 300);
+      console.error(`[${cfg.serviceName}] event watcher error: ${msg}`);
     },
   });
 

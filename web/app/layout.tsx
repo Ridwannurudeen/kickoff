@@ -36,8 +36,11 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} ${cinzel.variable}`}>
       <body className="font-sans antialiased">
         <Providers>
+          <a href="#main" className="skip-link">
+            Skip to main content
+          </a>
           <Header />
-          <main className="mx-auto max-w-7xl px-4 py-8">{children}</main>
+          <main id="main" className="mx-auto max-w-7xl px-4 py-8">{children}</main>
           <ToastHost />
           <Footer />
         </Providers>

@@ -75,7 +75,7 @@ export default function ProfilePage() {
         <a
           href={addressUrl(addr!)}
           target="_blank"
-          rel="noreferrer"
+          rel="noopener noreferrer"
           className="btn-ghost !py-1.5 text-xs"
         >
           {t("profile_view_on_explorer")} ↗

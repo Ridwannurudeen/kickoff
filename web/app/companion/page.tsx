@@ -252,7 +252,7 @@ export default function CompanionPage() {
                   <a
                     href={txUrl(m.txHash)}
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 rounded-full bg-honor px-2.5 py-0.5 text-[10px] font-semibold text-pitch-bg hover:opacity-90"
                   >
                     Inscribed on-chain ↗

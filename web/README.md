@@ -33,16 +33,16 @@ on-chain data.
 All config is `NEXT_PUBLIC_*` (public, compiled into the client bundle). See
 `.env.example`. Never put secrets here.
 
-| Var | Purpose | Default |
-| --- | --- | --- |
-| `NEXT_PUBLIC_CHAIN_ID` | Target chain. Mainnet = `196`. Testnet chainId is ambiguous (`195` vs `1952`) — set what your RPC reports. | `195` (testnet) |
-| `NEXT_PUBLIC_RPC_URL` | JSON-RPC endpoint | testnet RPC if unset |
-| `NEXT_PUBLIC_EXPLORER_URL` | OKLink base (tx links → `<url>/tx/<hash>`) | testnet OKLink if unset |
-| `NEXT_PUBLIC_USDC_ADDRESS` | MockUSDC (6-dec collateral) | zero addr → demo mode |
-| `NEXT_PUBLIC_CONDITIONAL_TOKENS` | ConditionalTokens (ERC1155) | zero addr → demo mode |
-| `NEXT_PUBLIC_FACTORY` | MarketMakerFactory | zero addr → demo mode |
-| `NEXT_PUBLIC_OPTIMISTIC_ORACLE` | OptimisticOracle (resolution-state surface, optional) | zero addr → hidden |
-| `NEXT_PUBLIC_CHAIN_NAME` | Label for the network indicator | derived from chainId |
+| Var                              | Purpose                                                            | Default                               |
+| -------------------------------- | ------------------------------------------------------------------ | ------------------------------------- |
+| `NEXT_PUBLIC_CHAIN_ID`           | Target chain. Mainnet = `196`; X Layer testnet = `1952` (`0x7a0`). | `1952`                                |
+| `NEXT_PUBLIC_RPC_URL`            | JSON-RPC endpoint                                                  | `https://testrpc.xlayer.tech/terigon` |
+| `NEXT_PUBLIC_EXPLORER_URL`       | OKLink base (tx links → `<url>/tx/<hash>`)                         | testnet OKLink if unset               |
+| `NEXT_PUBLIC_USDC_ADDRESS`       | MockUSDC (6-dec collateral)                                        | zero addr → demo mode                 |
+| `NEXT_PUBLIC_CONDITIONAL_TOKENS` | ConditionalTokens (ERC1155)                                        | zero addr → demo mode                 |
+| `NEXT_PUBLIC_FACTORY`            | MarketMakerFactory                                                 | zero addr → demo mode                 |
+| `NEXT_PUBLIC_OPTIMISTIC_ORACLE`  | OptimisticOracle (resolution-state surface, optional)              | zero addr → hidden                    |
+| `NEXT_PUBLIC_CHAIN_NAME`         | Label for the network indicator                                    | derived from chainId                  |
 
 When `NEXT_PUBLIC_CHAIN_ID != 196`, the viem chain is built with `defineChain`
 from the env values (native gas OKB, 18 decimals). On `196` it uses viem's
@@ -52,19 +52,20 @@ built-in `xLayer`.
 
 - **X Layer mainnet**: chainId `196`, gas OKB, RPC `https://rpc.xlayer.tech`,
   explorer `https://www.oklink.com/xlayer`.
-- **Testnet** chainId is ambiguous — never hardcoded; read from env. The app
-  defaults to testnet for development.
+- **X Layer testnet**: chainId `1952` (`0x7a0`), gas OKB, RPC
+  `https://testrpc.xlayer.tech/terigon`, explorer
+  `https://www.oklink.com/xlayer-test`.
 
 ## Routes
 
-| Route | What it does |
-| --- | --- |
-| `/` | Hero + featured markets + live recent-trades ticker + total volume + OKX fiat on-ramp |
-| `/markets` | Full market list with tabs (In-play / Matches / Over-Under / BTTS / Groups / Outright / Golden Boot) |
-| `/markets/[market]` | Per-outcome probabilities + probability chart (tracks selected outcome) + N-outcome bet slip + recent trades + oracle resolution state + shareable bet slip. `[market]` is the FPMM address. |
-| `/portfolio` | Connected wallet positions (any outcome), marks, est. value, Sell + post-resolution Redeem |
-| `/leaderboard` | Top traders by volume / realized PnL from event logs + referral link panel |
-| `/markets/[market]/opengraph-image` | Dynamic OG bet-slip card for sharing |
+| Route                               | What it does                                                                                                                                                                                 |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`                                 | Hero + featured markets + live recent-trades ticker + total volume + OKX fiat on-ramp                                                                                                        |
+| `/markets`                          | Full market list with tabs (In-play / Matches / Over-Under / BTTS / Groups / Outright / Golden Boot)                                                                                         |
+| `/markets/[market]`                 | Per-outcome probabilities + probability chart (tracks selected outcome) + N-outcome bet slip + recent trades + oracle resolution state + shareable bet slip. `[market]` is the FPMM address. |
+| `/portfolio`                        | Connected wallet positions (any outcome), marks, est. value, Sell + post-resolution Redeem                                                                                                   |
+| `/leaderboard`                      | Top traders by volume / realized PnL from event logs + referral link panel                                                                                                                   |
+| `/markets/[market]/opengraph-image` | Dynamic OG bet-slip card for sharing                                                                                                                                                         |
 
 ## Trading UX
 

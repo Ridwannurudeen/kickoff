@@ -57,7 +57,7 @@ export function ToastHost() {
                 <a
                   href={t.href}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   className="mt-1 inline-block text-xs font-medium text-grass hover:underline focus-visible:underline focus-visible:outline-none"
                 >
                   View on OKLink ↗

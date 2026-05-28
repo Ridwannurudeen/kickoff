@@ -26,6 +26,13 @@ type Schedule = { matches: Match[] };
 let scheduleCache: Schedule | null = null;
 let scheduleFetchedAt = 0;
 const SCHEDULE_TTL_MS = 60 * 60 * 1000; // 1h
+// Cap untrusted on-chain strings before stuffing them into an LLM prompt.
+// Callers control the ABI-encoded payload, so a malicious caller could send a
+// huge string to inflate token usage or smuggle role-confusion markers.
+const MAX_PAYLOAD_CHARS = 2000;
+function clip(s: string): string {
+  return s.length > MAX_PAYLOAD_CHARS ? s.slice(0, MAX_PAYLOAD_CHARS) + "…" : s;
+}
 
 async function loadSchedule(): Promise<Schedule> {
   if (scheduleCache && Date.now() - scheduleFetchedAt < SCHEDULE_TTL_MS) {
@@ -107,21 +114,26 @@ async function handle(ev: CalledEvent): Promise<string> {
     const ctx = pickContext(sched, home, away);
     context = JSON.stringify(ctx);
   } catch (err) {
-    console.warn(
-      "[match-analyst] schedule unavailable — falling back to context-free prompt:",
-      err,
-    );
+    const msg = (err as { shortMessage?: string })?.shortMessage ?? String(err).slice(0, 300);
+    console.warn(`[match-analyst] schedule unavailable — falling back to context-free prompt: ${msg}`);
   }
 
-  const text = await runLLM({
-    system:
-      "You are the Kickoff match-analyst. Produce a concise (<= 8 lines) pre-match preview " +
-      "covering form, key stats, and head-to-head. No betting talk. No randomness. Factual only. " +
-      "If context is empty, say so explicitly instead of inventing facts.",
-    user: `Match: ${home} vs ${away}\nContext (openfootball CC0, may be empty): ${context}`,
-    maxTokens: 512,
-  });
-  return text;
+  try {
+    return await runLLM({
+      system:
+        "You are the Kickoff match-analyst. Produce a concise (<= 8 lines) pre-match preview " +
+        "covering form, key stats, and head-to-head. No betting talk. No randomness. Factual only. " +
+        "If context is empty, say so explicitly instead of inventing facts.",
+      user: `Match: ${clip(home)} vs ${clip(away)}\nContext (openfootball CC0, may be empty): ${clip(context)}`,
+      maxTokens: 512,
+    });
+  } catch (err) {
+    // Return a labelled stub instead of throwing into watchContractEvent —
+    // throwing here would skip submitResult and lock the caller's payment.
+    const msg = (err as { shortMessage?: string })?.shortMessage ?? String(err).slice(0, 300);
+    console.error(`[match-analyst] LLM call failed: ${msg}`);
+    return `[match-analyst error] LLM call failed. Pre-match preview for ${home} vs ${away} unavailable.`;
+  }
 }
 
 void runAgent({ serviceName: "match-analyst", handle });

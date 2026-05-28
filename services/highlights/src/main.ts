@@ -22,6 +22,14 @@ type Decoded = {
   notes: string;
 };
 
+// Cap untrusted on-chain strings before stuffing them into an LLM prompt.
+// Callers control the ABI-encoded payload, so a malicious caller could send a
+// huge string to inflate token usage or smuggle role-confusion markers.
+const MAX_PAYLOAD_CHARS = 2000;
+function clip(s: string): string {
+  return s.length > MAX_PAYLOAD_CHARS ? s.slice(0, MAX_PAYLOAD_CHARS) + "…" : s;
+}
+
 function decodePayload(payload: Hex): Decoded | null {
   try {
     const [home, away, hg, ag, notes] = decodeAbiParameters(
@@ -97,15 +105,13 @@ async function handle(ev: CalledEvent): Promise<string> {
         "Do NOT invent goal scorers, minutes, or events not present in the notes. " +
         "If notes are empty, say so explicitly. No betting talk.",
       user:
-        `Match: ${d.home} ${d.homeGoals} - ${d.awayGoals} ${d.away}\n` +
-        `Notes (may be empty): ${d.notes}`,
+        `Match: ${clip(d.home)} ${d.homeGoals} - ${d.awayGoals} ${clip(d.away)}\n` +
+        `Notes (may be empty): ${clip(d.notes)}`,
       maxTokens: 384,
     });
   } catch (err) {
-    console.warn(
-      "[highlights] LLM call failed — returning deterministic summary:",
-      err,
-    );
+    const msg = (err as { shortMessage?: string })?.shortMessage ?? String(err).slice(0, 300);
+    console.warn(`[highlights] LLM call failed — returning deterministic summary: ${msg}`);
     return deterministicSummary(d);
   }
 }

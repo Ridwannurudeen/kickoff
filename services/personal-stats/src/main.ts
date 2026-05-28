@@ -123,10 +123,8 @@ async function handle(ev: CalledEvent, ctx: AgentContext): Promise<string> {
         maxTokens: 256,
       });
     } catch (err) {
-      console.warn(
-        "[personal-stats] LLM call failed — returning numbers-only brief:",
-        err,
-      );
+      const msg = (err as { shortMessage?: string })?.shortMessage ?? String(err).slice(0, 300);
+      console.warn(`[personal-stats] LLM call failed — returning numbers-only brief: ${msg}`);
     }
   }
 

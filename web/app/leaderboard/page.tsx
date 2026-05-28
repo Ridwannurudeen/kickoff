@@ -143,7 +143,7 @@ export default function LeaderboardPage() {
                             <a
                               href={addressUrl(r.address)}
                               target="_blank"
-                              rel="noreferrer"
+                              rel="noopener noreferrer"
                               className="text-xs text-muted hover:text-grass"
                             >
                               ↗

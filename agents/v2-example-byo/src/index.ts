@@ -120,7 +120,8 @@ function loadStore(): Store {
       return parsed as Store;
     }
   } catch (err) {
-    console.warn(`[byo] could not parse ${commitsFile}, starting fresh:`, err);
+    const msg = (err as { shortMessage?: string })?.shortMessage ?? String(err).slice(0, 300);
+    console.warn(`[byo] could not parse ${commitsFile}, starting fresh: ${msg}`);
   }
   return { commits: [] };
 }
@@ -389,19 +390,22 @@ async function main(): Promise<void> {
         if (!args?.questId) continue;
         if (Number(args.qType) !== QUEST_TYPE_PREDICTION) continue;
         void commitForQuest(args.questId).catch((err) => {
-          console.error(`[byo] commitForQuest threw:`, err);
+          const msg = (err as { shortMessage?: string })?.shortMessage ?? String(err).slice(0, 300);
+          console.error(`[byo] commitForQuest threw: ${msg}`);
         });
       }
     },
     onError: (err) => {
-      console.error(`[byo] QuestRegistered watcher error:`, err);
+      const msg = (err as { shortMessage?: string })?.shortMessage ?? String(err).slice(0, 300);
+      console.error(`[byo] QuestRegistered watcher error: ${msg}`);
     },
   });
 
   // 2) Periodically try to reveal any committed-but-not-revealed quests.
   const interval = setInterval(() => {
     void revealPass().catch((err) => {
-      console.error(`[byo] revealPass threw:`, err);
+      const msg = (err as { shortMessage?: string })?.shortMessage ?? String(err).slice(0, 300);
+      console.error(`[byo] revealPass threw: ${msg}`);
     });
   }, pollMs);
 

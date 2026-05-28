@@ -181,7 +181,7 @@ export default function LeaguePage() {
                               <a
                                 href={addressUrl(s.owner)}
                                 target="_blank"
-                                rel="noreferrer"
+                                rel="noopener noreferrer"
                                 className="hover:text-grass"
                               >
                                 {shortAddr(s.owner)}
