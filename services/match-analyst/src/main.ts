@@ -8,7 +8,7 @@
 // Payload format (ABI-encoded): (string homeTeam, string awayTeam)
 //   web/companion sends `encodeAbiParameters([{type:'string'},{type:'string'}], [home, away])`
 import "dotenv/config";
-import { decodeAbiParameters, type Hex } from "viem";
+import { decodeAbiParameters, hexToString, type Hex } from "viem";
 import { runAgent, type CalledEvent } from "./lib/agent-runner.ts";
 import { runLLM } from "./lib/llm.ts";
 
@@ -56,15 +56,25 @@ function teamName(t: Match["team1" | "team2"]): string {
   return t.name ?? "";
 }
 
-function decodePayload(payload: Hex): { home: string; away: string } {
+type MatchPayload =
+  | { kind: "match"; home: string; away: string }
+  | { kind: "prompt"; prompt: string };
+
+function decodePayload(payload: Hex): MatchPayload | null {
   try {
     const [home, away] = decodeAbiParameters(
       [{ type: "string" }, { type: "string" }],
       payload,
     ) as [string, string];
-    return { home, away };
+    if (home && away) return { kind: "match", home, away };
   } catch {
-    return { home: "", away: "" };
+    // Fall through to the Companion free-text payload path.
+  }
+  try {
+    const prompt = hexToString(payload).trim();
+    return prompt ? { kind: "prompt", prompt } : null;
+  } catch {
+    return null;
   }
 }
 
@@ -100,7 +110,40 @@ function offlineStub(home: string, away: string): string {
 }
 
 async function handle(ev: CalledEvent): Promise<string> {
-  const { home, away } = decodePayload(ev.payload);
+  const decoded = decodePayload(ev.payload);
+  if (!decoded) {
+    return "Could not decode payload - expected a Companion text prompt or ABI-encoded (string homeTeam, string awayTeam).";
+  }
+  if (decoded.kind === "prompt") {
+    if (
+      process.env.OFFLINE_MODE === "1" ||
+      process.env.OFFLINE_MODE === "true"
+    ) {
+      return [
+        `Match-analysis request: ${clip(decoded.prompt)}`,
+        "(OFFLINE_MODE stub - deterministic output for demo without an LLM key.)",
+        "No structured teams were supplied, so no schedule lookup was performed.",
+      ].join("\n");
+    }
+
+    try {
+      return await runLLM({
+        system:
+          "You are the Kickoff match-analyst. Produce a concise (<= 8 lines) football analysis response. " +
+          "Use only the user's prompt. If the prompt lacks concrete teams or match facts, say what is missing. " +
+          "No betting talk. No fabricated facts.",
+        user: `Fan request: ${clip(decoded.prompt)}`,
+        maxTokens: 512,
+      });
+    } catch (err) {
+      const msg =
+        (err as { shortMessage?: string })?.shortMessage ??
+        String(err).slice(0, 300);
+      console.error(`[match-analyst] LLM call failed: ${msg}`);
+      return "[match-analyst error] Could not answer the request right now.";
+    }
+  }
+  const { home, away } = decoded;
   if (!home || !away) {
     return "Could not decode payload — expected ABI-encoded (string homeTeam, string awayTeam).";
   }
@@ -114,8 +157,12 @@ async function handle(ev: CalledEvent): Promise<string> {
     const ctx = pickContext(sched, home, away);
     context = JSON.stringify(ctx);
   } catch (err) {
-    const msg = (err as { shortMessage?: string })?.shortMessage ?? String(err).slice(0, 300);
-    console.warn(`[match-analyst] schedule unavailable — falling back to context-free prompt: ${msg}`);
+    const msg =
+      (err as { shortMessage?: string })?.shortMessage ??
+      String(err).slice(0, 300);
+    console.warn(
+      `[match-analyst] schedule unavailable — falling back to context-free prompt: ${msg}`,
+    );
   }
 
   try {
@@ -130,7 +177,9 @@ async function handle(ev: CalledEvent): Promise<string> {
   } catch (err) {
     // Return a labelled stub instead of throwing into watchContractEvent —
     // throwing here would skip submitResult and lock the caller's payment.
-    const msg = (err as { shortMessage?: string })?.shortMessage ?? String(err).slice(0, 300);
+    const msg =
+      (err as { shortMessage?: string })?.shortMessage ??
+      String(err).slice(0, 300);
     console.error(`[match-analyst] LLM call failed: ${msg}`);
     return `[match-analyst error] LLM call failed. Pre-match preview for ${home} vs ${away} unavailable.`;
   }

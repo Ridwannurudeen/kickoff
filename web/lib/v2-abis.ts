@@ -235,24 +235,24 @@ export const trophyAbi = [
   },
   {
     type: "function",
-    name: "claimable",
+    name: "claimed",
     stateMutability: "view",
     inputs: [
-      { name: "user", type: "address" },
       { name: "trophyId", type: "uint256" },
+      { name: "user", type: "address" },
     ],
     outputs: [{ name: "", type: "bool" }],
   },
   {
     type: "function",
-    name: "trophyInfo",
+    name: "getRule",
     stateMutability: "view",
     inputs: [{ name: "trophyId", type: "uint256" }],
     outputs: [
       { name: "requiredXP", type: "uint64" },
       { name: "windowEnd", type: "uint64" },
-      { name: "maxSupply", type: "uint64" },
-      { name: "minted", type: "uint64" },
+      { name: "requiredQuestIds", type: "bytes32[]" },
+      { name: "exists", type: "bool" },
     ],
   },
   {
@@ -317,6 +317,7 @@ export const agentRegistryAbi = [
     inputs: [
       { name: "callId", type: "bytes32" },
       { name: "result", type: "bytes" },
+      { name: "signature", type: "bytes" },
     ],
     outputs: [],
   },
@@ -338,7 +339,8 @@ export const agentRegistryAbi = [
     name: "AgentRegistered",
     inputs: [
       { name: "agentId", type: "bytes32", indexed: true },
-      { name: "agentWallet", type: "address", indexed: true },
+      { name: "owner", type: "address", indexed: true },
+      { name: "agentWallet", type: "address", indexed: false },
       { name: "priceWei", type: "uint128", indexed: false },
     ],
   },
@@ -349,14 +351,16 @@ export const agentRegistryAbi = [
       { name: "callId", type: "bytes32", indexed: true },
       { name: "agentId", type: "bytes32", indexed: true },
       { name: "caller", type: "address", indexed: true },
+      { name: "paid", type: "uint256", indexed: false },
       { name: "payload", type: "bytes", indexed: false },
     ],
   },
   {
     type: "event",
-    name: "ResultSubmitted",
+    name: "Replied",
     inputs: [
       { name: "callId", type: "bytes32", indexed: true },
+      { name: "agentId", type: "bytes32", indexed: true },
       { name: "result", type: "bytes", indexed: false },
     ],
   },
@@ -369,6 +373,13 @@ export const agentRegistryAbi = [
 // resolved results.
 
 export const agentLeagueAbi = [
+  {
+    type: "function",
+    name: "activeSeasonId",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ name: "", type: "uint64" }],
+  },
   {
     type: "function",
     name: "openSeason",
@@ -429,18 +440,6 @@ export const agentLeagueAbi = [
   },
   {
     type: "function",
-    name: "activeSeason",
-    stateMutability: "view",
-    inputs: [],
-    outputs: [
-      { name: "seasonId", type: "uint64" },
-      { name: "startsAt", type: "uint64" },
-      { name: "endsAt", type: "uint64" },
-      { name: "open", type: "bool" },
-    ],
-  },
-  {
-    type: "function",
     name: "agentScore",
     stateMutability: "view",
     inputs: [
@@ -448,6 +447,33 @@ export const agentLeagueAbi = [
       { name: "agentId", type: "bytes32" },
     ],
     outputs: [{ name: "", type: "uint64" }],
+  },
+  {
+    type: "function",
+    name: "getSeason",
+    stateMutability: "view",
+    inputs: [{ name: "seasonId", type: "uint64" }],
+    outputs: [
+      { name: "startsAt", type: "uint64" },
+      { name: "endsAt", type: "uint64" },
+      { name: "status", type: "uint8" },
+      { name: "winnerAgentId", type: "bytes32" },
+      { name: "winnerScore", type: "uint64" },
+    ],
+  },
+  {
+    type: "function",
+    name: "getEntry",
+    stateMutability: "view",
+    inputs: [
+      { name: "seasonId", type: "uint64" },
+      { name: "agentId", type: "bytes32" },
+    ],
+    outputs: [
+      { name: "entered", type: "bool" },
+      { name: "score", type: "uint64" },
+      { name: "enterIndex", type: "uint64" },
+    ],
   },
   {
     type: "event",

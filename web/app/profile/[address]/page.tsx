@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useMemo } from "react";
 import { isAddress } from "viem";
+import { useReadContracts } from "wagmi";
 import { useT } from "@/components/I18nProvider";
 import { ChampionshipMark, LaurelWreath } from "@/components/ornaments";
 import { useFanScore } from "@/lib/v2-fan";
@@ -11,7 +13,13 @@ import { addressUrl } from "@/lib/config";
 import { fmtInt, shortAddr } from "@/lib/format";
 import { teamById } from "@/lib/teams";
 import { DEMO_LEADERBOARD } from "@/lib/v2-demo";
-import { FAN_REP_CONFIGURED } from "@/lib/v2-addresses";
+import { questEngineAbi } from "@/lib/v2-abis";
+import { QUESTS } from "@/lib/v2-catalog";
+import {
+  FAN_REP_CONFIGURED,
+  QUEST_ENGINE_CONFIGURED,
+  V2_ADDRESSES,
+} from "@/lib/v2-addresses";
 
 export default function ProfilePage() {
   const params = useParams<{ address: string }>();
@@ -30,15 +38,6 @@ export default function ProfilePage() {
     : -1;
   const demoRow = demoIdx >= 0 ? DEMO_LEADERBOARD[demoIdx] : undefined;
 
-  if (!valid) {
-    return (
-      <div className="tabula card flex flex-col items-center gap-3 py-16 text-center text-sm text-muted">
-        <LaurelWreath size={48} className="text-muted/40" />
-        <p>{t("common_error")}</p>
-      </div>
-    );
-  }
-
   const totalXp = fan ? Number(fan.total) : (demoRow?.totalXp ?? 0);
   const predAccBps = fan
     ? Number(fan.predictionAccuracyBps)
@@ -55,6 +54,84 @@ export default function ProfilePage() {
   const live = FAN_REP_CONFIGURED && !!fan?.hasFanId;
   const demoRank = demoRow ? demoIdx + 1 : 0;
   const isHonorRank = demoRank > 0 && demoRank <= 3;
+  const questCompletionContracts = useMemo(
+    () =>
+      addr && QUEST_ENGINE_CONFIGURED
+        ? QUESTS.map((quest) => ({
+            address: V2_ADDRESSES.questEngine,
+            abi: questEngineAbi,
+            functionName: "completed",
+            args: [quest.id, addr] as const,
+          }))
+        : [],
+    [addr],
+  );
+  const questCompletions = useReadContracts({
+    allowFailure: false,
+    contracts: questCompletionContracts,
+    query: { enabled: questCompletionContracts.length > 0 },
+  });
+  if (!valid) {
+    return (
+      <div className="tabula card flex flex-col items-center gap-3 py-16 text-center text-sm text-muted">
+        <LaurelWreath size={48} className="text-muted/40" />
+        <p>{t("common_error")}</p>
+      </div>
+    );
+  }
+  const completedFlags =
+    (questCompletions.data as readonly boolean[] | undefined) ?? [];
+  const completedQuests = QUESTS.filter((_, i) => completedFlags[i]);
+  const xpBreakdown = [
+    {
+      label: t("profile_dim_engagement"),
+      value: breadth,
+      tone: "bg-grass",
+    },
+    {
+      label: t("profile_dim_prediction"),
+      value: predAccBps,
+      tone: "bg-honor",
+    },
+    {
+      label: t("profile_dim_agent_league"),
+      value: Number(fan?.agentLeagueXp ?? 0n),
+      tone: "bg-marble",
+    },
+    {
+      label: t("profile_dim_donor"),
+      value: Number(fan?.donorXp ?? 0n),
+      tone: "bg-no",
+    },
+  ];
+  const maxBreakdown = Math.max(...xpBreakdown.map((x) => x.value), 1);
+  const mintedAt = Number(fan?.mintedAt ?? 0n);
+  const activity = [
+    ...(mintedAt > 0
+      ? [
+          {
+            title: t("profile_activity_fan_minted"),
+            detail: new Date(mintedAt * 1000).toLocaleDateString(),
+          },
+        ]
+      : []),
+    ...completedQuests.map((quest) => ({
+      title: t("profile_activity_quest_completed", {
+        quest: t(quest.titleKey),
+      }),
+      detail: t("quests_xp_reward", { xp: fmtInt(quest.xpReward) }),
+    })),
+    ...(Number(fan?.agentLeagueXp ?? 0n) > 0
+      ? [
+          {
+            title: t("profile_activity_agent_xp"),
+            detail: t("quests_xp_reward", {
+              xp: fmtInt(fan?.agentLeagueXp ?? 0n),
+            }),
+          },
+        ]
+      : []),
+  ];
 
   return (
     <div className="space-y-6">
@@ -159,6 +236,60 @@ export default function ProfilePage() {
               </div>
             </section>
           )}
+
+          <section>
+            <h2 className="mb-3 text-sm font-bold text-muted">
+              {t("profile_xp_breakdown")}
+            </h2>
+            <div className="card space-y-4 p-5">
+              {xpBreakdown.map((row) => (
+                <div key={row.label}>
+                  <div className="mb-1 flex items-center justify-between gap-3 text-xs">
+                    <span className="text-muted">{row.label}</span>
+                    <span className="font-mono tabular-nums text-white">
+                      {fmtInt(row.value)}
+                    </span>
+                  </div>
+                  <div className="h-1.5 overflow-hidden rounded-sm bg-pitch-bg">
+                    <div
+                      className={`h-full ${row.tone}`}
+                      style={{
+                        width:
+                          row.value === 0
+                            ? "0%"
+                            : `${Math.max(4, (row.value / maxBreakdown) * 100)}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section>
+            <h2 className="mb-3 text-sm font-bold text-muted">
+              {t("profile_activity")}
+            </h2>
+            <div className="card divide-y divide-pitch-border/60 overflow-hidden">
+              {activity.length === 0 ? (
+                <p className="p-5 text-sm text-muted">
+                  {t("profile_activity_empty")}
+                </p>
+              ) : (
+                activity.map((item, i) => (
+                  <div
+                    key={`${item.title}-${i}`}
+                    className="flex items-center justify-between gap-4 p-4 text-sm"
+                  >
+                    <span className="text-white">{item.title}</span>
+                    <span className="font-mono text-xs tabular-nums text-muted">
+                      {item.detail}
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
+          </section>
         </>
       )}
     </div>

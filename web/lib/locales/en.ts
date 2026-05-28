@@ -22,6 +22,7 @@ export const en = {
   wallet_connect: "Connect Wallet",
   wallet_connecting: "Connecting…",
   wallet_disconnect: "Disconnect",
+  wallet_profile: "Open profile",
   wallet_wrong_network: "Wrong network",
   wallet_switch: "Switch to {chain}",
 
@@ -209,6 +210,11 @@ export const en = {
   profile_dim_longevity: "Longevity",
   profile_dim_agent_league: "Agent League",
   profile_dim_donor: "Donor",
+  profile_activity: "Activity",
+  profile_activity_empty: "No tracked activity yet.",
+  profile_activity_fan_minted: "Fan ID minted",
+  profile_activity_quest_completed: "{quest} completed",
+  profile_activity_agent_xp: "Agent League XP recorded",
   profile_share: "Share profile",
   profile_view_on_explorer: "View on OKLink",
 

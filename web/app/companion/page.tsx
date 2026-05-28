@@ -2,7 +2,14 @@
 
 import { useMemo, useState } from "react";
 import { useAccount, useWriteContract } from "wagmi";
-import { toBytes, toHex } from "viem";
+import {
+  decodeAbiParameters,
+  decodeEventLog,
+  toBytes,
+  toHex,
+  type Hex,
+  type Log,
+} from "viem";
 import { useT } from "@/components/I18nProvider";
 import { AGENTS } from "@/lib/v2-catalog";
 import { agentRegistryAbi } from "@/lib/v2-abis";
@@ -11,6 +18,7 @@ import { txUrl } from "@/lib/config";
 import { formatOkb } from "@/lib/format";
 import { useToasts } from "@/lib/toast";
 import { LaurelWreath } from "@/components/ornaments";
+import { publicClient } from "@/lib/client";
 
 interface CompanionReply {
   id: number;
@@ -24,6 +32,107 @@ interface CompanionReply {
 function shortAddr(a?: `0x${string}`): string {
   if (!a) return "you";
   return `${a.slice(0, 6)}…${a.slice(-4)}`;
+}
+
+type AgentCall = {
+  callId: Hex;
+  agentId: Hex;
+};
+
+const REPLY_TIMEOUT_MS = 60_000;
+const REPLY_POLL_MS = 3_000;
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+function agentSlug(agentId: Hex): string {
+  return (
+    AGENTS.find((agent) => agent.id.toLowerCase() === agentId.toLowerCase())
+      ?.slug ?? `${agentId.slice(0, 10)}...`
+  );
+}
+
+function decodeTextReply(result: Hex): string {
+  try {
+    const [text] = decodeAbiParameters([{ type: "string" }], result) as [
+      string,
+    ];
+    return text;
+  } catch {
+    return result;
+  }
+}
+
+function decodeCalledLog(log: Log): AgentCall | null {
+  try {
+    const decoded = decodeEventLog({
+      abi: agentRegistryAbi,
+      data: log.data,
+      topics: log.topics,
+    }) as unknown as {
+      eventName: string;
+      args: { callId?: unknown; agentId?: unknown };
+    };
+    if (decoded.eventName !== "Called") return null;
+    if (
+      typeof decoded.args.callId !== "string" ||
+      typeof decoded.args.agentId !== "string"
+    ) {
+      return null;
+    }
+    return {
+      callId: decoded.args.callId as Hex,
+      agentId: decoded.args.agentId as Hex,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function decodeRepliedLog(
+  log: Log,
+): { callId: Hex; agentId: Hex; text: string } | null {
+  try {
+    const decoded = decodeEventLog({
+      abi: agentRegistryAbi,
+      data: log.data,
+      topics: log.topics,
+    }) as unknown as {
+      eventName: string;
+      args: { callId?: unknown; agentId?: unknown; result?: unknown };
+    };
+    if (decoded.eventName !== "Replied") return null;
+    if (
+      typeof decoded.args.callId !== "string" ||
+      typeof decoded.args.agentId !== "string" ||
+      typeof decoded.args.result !== "string"
+    ) {
+      return null;
+    }
+    return {
+      callId: decoded.args.callId as Hex,
+      agentId: decoded.args.agentId as Hex,
+      text: decodeTextReply(decoded.args.result as Hex),
+    };
+  } catch {
+    return null;
+  }
+}
+
+function formatReplies(
+  calls: AgentCall[],
+  replies: Map<string, string>,
+  timedOut = false,
+): string {
+  const lines = calls.map((call) => {
+    const reply = replies.get(call.callId.toLowerCase());
+    return `[${agentSlug(call.agentId)}]\n${reply ?? "Waiting for agent reply..."}`;
+  });
+  if (timedOut && replies.size < calls.length) {
+    lines.push(
+      "Some replies are still pending. The transaction is confirmed; refresh later or check the explorer if an agent service is delayed.",
+    );
+  }
+  return lines.join("\n\n");
 }
 
 export default function CompanionPage() {
@@ -58,6 +167,10 @@ export default function CompanionPage() {
 
   async function send() {
     if (!prompt.trim() || selected.size === 0) return;
+    if (!address) {
+      push({ kind: "info", title: t("common_connect_first"), ttl: 4000 });
+      return;
+    }
     const agentSlugs = AGENTS.filter((a) => selected.has(a.slug)).map(
       (a) => a.slug,
     );
@@ -102,6 +215,14 @@ export default function CompanionPage() {
         args: [agentIds, payloadHex],
         value: totalWei,
       });
+      const receipt = await publicClient().waitForTransactionReceipt({ hash });
+      if (receipt.status !== "success") {
+        throw new Error("Transaction reverted.");
+      }
+      const calls = receipt.logs
+        .map(decodeCalledLog)
+        .filter((call): call is AgentCall => Boolean(call));
+      const replyId = Date.now();
       push({
         kind: "success",
         title: t("companion_compose_label"),
@@ -111,15 +232,21 @@ export default function CompanionPage() {
       setHistory((h) => [
         ...h,
         {
-          id: Date.now(),
+          id: replyId,
           prompt,
-          reply: t("companion_thinking"),
+          reply:
+            calls.length > 0
+              ? formatReplies(calls, new Map())
+              : "Transaction confirmed, but no agent call events were found in the receipt.",
           agentSlugs,
           txHash: hash,
           caller: address,
         },
       ]);
       setPrompt("");
+      if (calls.length > 0) {
+        void waitForReplies(replyId, calls, receipt.blockNumber);
+      }
     } catch (e) {
       push({
         kind: "error",
@@ -131,6 +258,45 @@ export default function CompanionPage() {
       dismiss(id);
       setSending(false);
     }
+  }
+
+  async function waitForReplies(
+    replyId: number,
+    calls: AgentCall[],
+    fromBlock: bigint,
+  ): Promise<void> {
+    const replies = new Map<string, string>();
+    const wanted = new Set(calls.map((call) => call.callId.toLowerCase()));
+    const deadline = Date.now() + REPLY_TIMEOUT_MS;
+    while (Date.now() < deadline && replies.size < calls.length) {
+      const logs = await publicClient().getLogs({
+        address: V2_ADDRESSES.agentRegistry,
+        fromBlock,
+        toBlock: "latest",
+      });
+      for (const log of logs) {
+        const reply = decodeRepliedLog(log);
+        if (!reply) continue;
+        const key = reply.callId.toLowerCase();
+        if (wanted.has(key)) replies.set(key, reply.text);
+      }
+      setHistory((history) =>
+        history.map((item) =>
+          item.id === replyId
+            ? { ...item, reply: formatReplies(calls, replies) }
+            : item,
+        ),
+      );
+      if (replies.size >= calls.length) return;
+      await sleep(REPLY_POLL_MS);
+    }
+    setHistory((history) =>
+      history.map((item) =>
+        item.id === replyId
+          ? { ...item, reply: formatReplies(calls, replies, true) }
+          : item,
+      ),
+    );
   }
 
   return (

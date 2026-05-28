@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useAccount, useReadContract, useWriteContract } from "wagmi";
-import { keccak256, toBytes, parseUnits } from "viem";
+import { useQueryClient } from "@tanstack/react-query";
+import { isAddress, keccak256, toBytes, parseUnits } from "viem";
 import { useT } from "@/components/I18nProvider";
 import { LaurelWreath, Podium } from "@/components/ornaments";
 import { agentLeagueAbi, agentRegistryAbi } from "@/lib/v2-abis";
@@ -13,8 +14,11 @@ import {
 } from "@/lib/v2-addresses";
 import { txUrl, addressUrl } from "@/lib/config";
 import { fmtInt, shortAddr } from "@/lib/format";
+import { AGENTS } from "@/lib/v2-catalog";
 import { DEMO_LEAGUE_STANDINGS } from "@/lib/v2-demo";
 import { useToasts } from "@/lib/toast";
+import { publicClient } from "@/lib/client";
+import { waitForTransactionAndRefresh } from "@/lib/tx";
 
 type Standing = {
   agentId: `0x${string}`;
@@ -28,6 +32,7 @@ export default function LeaguePage() {
   const { address } = useAccount();
   const { writeContractAsync, isPending } = useWriteContract();
   const { push, dismiss } = useToasts();
+  const queryClient = useQueryClient();
 
   const [name, setName] = useState("");
   const [wallet, setWallet] = useState("");
@@ -47,31 +52,44 @@ export default function LeaguePage() {
   );
   const [recentEnterTs, setRecentEnterTs] = useState<number | null>(null);
   const [isEntering, setIsEntering] = useState(false);
+  const [localAgentNames, setLocalAgentNames] = useState<
+    Record<string, string>
+  >({});
 
   const demoRegistry = !AGENT_REGISTRY_CONFIGURED;
   const demoLeague = !AGENT_LEAGUE_CONFIGURED;
 
   // Live standings:
-  //   1. `activeSeason()` → grab the active season id
-  //   2. `leaderboard(seasonId)` → parallel arrays of (agentIds, scores, owners)
+  //   1. `activeSeasonId()` -> grab the active season id
+  //   2. `leaderboard(seasonId)` -> parallel arrays of (agentIds, scores, owners)
   // The on-chain registry doesn't store an agent display name (only an
   // endpointHint), so the "name" column renders a short agentId. Falls back to
   // DEMO_LEAGUE_STANDINGS when AgentLeague isn't deployed yet.
   const active = useReadContract({
     address: V2_ADDRESSES.agentLeague,
     abi: agentLeagueAbi,
-    functionName: "activeSeason",
+    functionName: "activeSeasonId",
     query: { enabled: !demoLeague },
   });
-  const liveSeasonId = (active.data?.[0] ?? 0n) as bigint;
-  const seasonOpen = (active.data?.[3] ?? false) as boolean;
+  const liveSeasonId = (active.data ?? 0n) as bigint;
+  const seasonOpen = liveSeasonId > 0n;
   const leaderboard = useReadContract({
     address: V2_ADDRESSES.agentLeague,
     abi: agentLeagueAbi,
     functionName: "leaderboard",
-    args: !demoLeague && active.data ? [liveSeasonId] : undefined,
-    query: { enabled: !demoLeague && !!active.data },
+    args: !demoLeague && liveSeasonId > 0n ? [liveSeasonId] : undefined,
+    query: { enabled: !demoLeague && liveSeasonId > 0n },
   });
+
+  const agentNames = useMemo(() => {
+    const names = new Map(
+      AGENTS.map((agent) => [agent.id.toLowerCase(), t(agent.nameKey)]),
+    );
+    for (const [agentId, agentName] of Object.entries(localAgentNames)) {
+      names.set(agentId, agentName);
+    }
+    return names;
+  }, [localAgentNames, t]);
 
   const standings: Standing[] = useMemo(() => {
     if (demoLeague) return DEMO_LEAGUE_STANDINGS;
@@ -84,7 +102,8 @@ export default function LeaguePage() {
     ];
     const rows: Standing[] = agentIds.map((agentId, i) => ({
       agentId,
-      name: `${agentId.slice(0, 10)}…`,
+      name:
+        agentNames.get(agentId.toLowerCase()) ?? `${agentId.slice(0, 10)}...`,
       owner:
         owners[i] ??
         ("0x0000000000000000000000000000000000000000" as `0x${string}`),
@@ -92,7 +111,7 @@ export default function LeaguePage() {
     }));
     rows.sort((a, b) => b.score - a.score);
     return rows;
-  }, [demoLeague, leaderboard.data]);
+  }, [agentNames, demoLeague, leaderboard.data]);
 
   const seasonId = demoLeague ? 1 : Number(liveSeasonId);
 
@@ -112,11 +131,13 @@ export default function LeaguePage() {
   }
 
   async function registerAgent() {
-    if (!name.trim() || !wallet.trim()) {
+    const agentName = name.trim();
+    const agentWallet = (wallet.trim() || address) as `0x${string}` | undefined;
+    if (!agentName) {
       push({
         kind: "info",
         title: t("league_register_cta"),
-        message: "Name and wallet are required.",
+        message: "Name is required.",
         ttl: 5000,
       });
       return;
@@ -129,6 +150,15 @@ export default function LeaguePage() {
       push({ kind: "info", title: t("common_connect_first"), ttl: 4000 });
       return;
     }
+    if (!agentWallet || !isAddress(agentWallet)) {
+      push({
+        kind: "info",
+        title: t("league_register_cta"),
+        message: "Agent wallet must be a valid address.",
+        ttl: 5000,
+      });
+      return;
+    }
     const id = push({
       kind: "pending",
       title: t("league_register_cta"),
@@ -136,30 +166,44 @@ export default function LeaguePage() {
     });
     try {
       const agentId = keccak256(
-        toBytes(`kickoff.v2.user-agent.${address}.${name}`),
+        toBytes(`kickoff.v2.user-agent.${address}.${agentName}`),
       );
       const priceWei = parseUnits(priceOkb as `${number}`, 18);
-      const hash = await writeContractAsync({
+      const existing = (await publicClient().readContract({
         address: V2_ADDRESSES.agentRegistry,
         abi: agentRegistryAbi,
-        functionName: "registerAgent",
-        args: [
-          agentId,
-          wallet as `0x${string}`,
-          priceWei,
-          endpoint || "https://",
-        ],
-      });
+        functionName: "getAgent",
+        args: [agentId],
+      })) as readonly [`0x${string}`, `0x${string}`, bigint, string, boolean];
+      const exists = existing[4];
+      if (exists && existing[0].toLowerCase() !== address.toLowerCase()) {
+        throw new Error("Agent ID is already owned by another wallet.");
+      }
+      let hash: `0x${string}` | null = null;
+      if (!exists) {
+        hash = await writeContractAsync({
+          address: V2_ADDRESSES.agentRegistry,
+          abi: agentRegistryAbi,
+          functionName: "registerAgent",
+          args: [agentId, agentWallet, priceWei, endpoint || "https://"],
+        });
+        await waitForTransactionAndRefresh(hash, queryClient);
+      }
       push({
-        kind: "success",
-        title: t("league_register_cta"),
-        href: txUrl(hash),
+        kind: exists ? "info" : "success",
+        title: exists ? "Agent already registered" : t("league_register_cta"),
+        href: hash ? txUrl(hash) : undefined,
         ttl: 9000,
       });
       // Stash for the Step-2 card. Form fields stay populated so the user
       // can see what they just registered before clicking Enter Season.
+      setLocalAgentNames((prev) => ({
+        ...prev,
+        [agentId.toLowerCase()]: agentName,
+      }));
       setPendingAgentId(agentId);
       setRegisterTxHash(hash);
+      if (!wallet.trim()) setWallet(agentWallet);
       refetchStandings();
     } catch (e) {
       push({
@@ -199,12 +243,35 @@ export default function LeaguePage() {
     });
     setIsEntering(true);
     try {
+      const sid = (await publicClient().readContract({
+        address: V2_ADDRESSES.agentLeague,
+        abi: agentLeagueAbi,
+        functionName: "activeSeasonId",
+      })) as bigint;
+      if (sid === 0n) throw new Error("No active Agent League season.");
+      const entry = (await publicClient().readContract({
+        address: V2_ADDRESSES.agentLeague,
+        abi: agentLeagueAbi,
+        functionName: "getEntry",
+        args: [sid, pendingAgentId],
+      })) as readonly [boolean, bigint, bigint];
+      if (entry[0]) {
+        push({
+          kind: "info",
+          title: "Agent already entered",
+          ttl: 7000,
+        });
+        refetchStandings();
+        setRecentEnterTs(Date.now());
+        return;
+      }
       const hash = await writeContractAsync({
         address: V2_ADDRESSES.agentLeague,
         abi: agentLeagueAbi,
         functionName: "enterAgent",
         args: [pendingAgentId],
       });
+      await waitForTransactionAndRefresh(hash, queryClient);
       push({
         kind: "success",
         title: "Agent entered season",

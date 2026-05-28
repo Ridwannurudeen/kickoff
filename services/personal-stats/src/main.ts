@@ -29,15 +29,19 @@ type Score = {
   longevityDays: bigint;
 };
 
-function decodePayload(payload: Hex): `0x${string}` | null {
+function decodePayload(
+  payload: Hex,
+  fallbackUser: `0x${string}`,
+): `0x${string}` {
   try {
     const [user] = decodeAbiParameters([{ type: "address" }], payload) as [
       `0x${string}`,
     ];
-    return isAddress(user) ? getAddress(user) : null;
+    if (isAddress(user)) return getAddress(user);
   } catch {
-    return null;
+    // Companion sends a free-text prompt; use the public caller address then.
   }
+  return getAddress(fallbackUser);
 }
 
 function recommendNextQuest(score: Score): string {
@@ -82,7 +86,7 @@ function formatBrief(user: string, score: Score, narrative?: string): string {
 }
 
 async function handle(ev: CalledEvent, ctx: AgentContext): Promise<string> {
-  const user = decodePayload(ev.payload);
+  const user = decodePayload(ev.payload, ev.caller);
   if (!user) {
     return "Could not decode payload — expected ABI-encoded (address user).";
   }
@@ -123,8 +127,12 @@ async function handle(ev: CalledEvent, ctx: AgentContext): Promise<string> {
         maxTokens: 256,
       });
     } catch (err) {
-      const msg = (err as { shortMessage?: string })?.shortMessage ?? String(err).slice(0, 300);
-      console.warn(`[personal-stats] LLM call failed — returning numbers-only brief: ${msg}`);
+      const msg =
+        (err as { shortMessage?: string })?.shortMessage ??
+        String(err).slice(0, 300);
+      console.warn(
+        `[personal-stats] LLM call failed — returning numbers-only brief: ${msg}`,
+      );
     }
   }
 

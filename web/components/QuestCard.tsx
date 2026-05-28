@@ -1,6 +1,7 @@
 "use client";
 
 import { useAccount, useReadContract, useWriteContract } from "wagmi";
+import { useQueryClient } from "@tanstack/react-query";
 import { useT } from "./I18nProvider";
 import { fmtInt } from "@/lib/format";
 import { txUrl } from "@/lib/config";
@@ -9,6 +10,7 @@ import { QUEST_ENGINE_CONFIGURED, V2_ADDRESSES } from "@/lib/v2-addresses";
 import type { Quest } from "@/lib/v2-types";
 import { useToasts } from "@/lib/toast";
 import { useFanScore } from "@/lib/v2-fan";
+import { waitForTransactionAndRefresh } from "@/lib/tx";
 
 type Status = "live" | "upcoming" | "closed";
 
@@ -26,6 +28,7 @@ export function QuestCard({ quest, now }: { quest: Quest; now: number }) {
   const { writeContractAsync, isPending } = useWriteContract();
   const { push, dismiss } = useToasts();
   const fan = useFanScore(address);
+  const queryClient = useQueryClient();
 
   const completed = useReadContract({
     address: V2_ADDRESSES.questEngine,
@@ -109,14 +112,15 @@ export function QuestCard({ quest, now }: { quest: Quest; now: number }) {
           args: [quest.id],
         });
       }
+      await waitForTransactionAndRefresh(hash, queryClient);
       push({
         kind: "success",
         title: t("quests_status_completed"),
         href: txUrl(hash),
         ttl: 9000,
       });
-      fan?.refetch();
-      void completed.refetch();
+      await fan?.refetch();
+      await completed.refetch();
     } catch (e) {
       push({
         kind: "error",

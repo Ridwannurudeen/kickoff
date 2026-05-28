@@ -10,17 +10,20 @@
 //   (string homeTeam, string awayTeam, uint8 homeGoals, uint8 awayGoals, string notes)
 //   web/companion encodes this with `encodeAbiParameters([...], [...])`.
 import "dotenv/config";
-import { decodeAbiParameters, type Hex } from "viem";
+import { decodeAbiParameters, hexToString, type Hex } from "viem";
 import { runAgent, type CalledEvent } from "./lib/agent-runner.ts";
 import { runLLM } from "./lib/llm.ts";
 
-type Decoded = {
-  home: string;
-  away: string;
-  homeGoals: number;
-  awayGoals: number;
-  notes: string;
-};
+type Decoded =
+  | {
+      kind: "final";
+      home: string;
+      away: string;
+      homeGoals: number;
+      awayGoals: number;
+      notes: string;
+    }
+  | { kind: "prompt"; prompt: string };
 
 // Cap untrusted on-chain strings before stuffing them into an LLM prompt.
 // Callers control the ABI-encoded payload, so a malicious caller could send a
@@ -44,6 +47,7 @@ function decodePayload(payload: Hex): Decoded | null {
     ) as [string, string, number, number, string];
     if (!home || !away) return null;
     return {
+      kind: "final",
       home,
       away,
       homeGoals: Number(hg),
@@ -51,17 +55,31 @@ function decodePayload(payload: Hex): Decoded | null {
       notes: notes ?? "",
     };
   } catch {
+    // Fall through to the Companion free-text payload path.
+  }
+  try {
+    const prompt = hexToString(payload).trim();
+    return prompt ? { kind: "prompt", prompt } : null;
+  } catch {
     return null;
   }
 }
 
 function verdict(d: Decoded): string {
+  if (d.kind === "prompt") return "No final score supplied.";
   if (d.homeGoals > d.awayGoals) return `${d.home} won.`;
   if (d.homeGoals < d.awayGoals) return `${d.away} won.`;
   return "Draw.";
 }
 
 function deterministicSummary(d: Decoded): string {
+  if (d.kind === "prompt") {
+    return [
+      `Highlights request: ${d.prompt}`,
+      "No final-score payload was supplied, so no match events were inferred.",
+      "(Deterministic fallback: this service has no LLM key configured.)",
+    ].join("\n");
+  }
   const lines = [
     `Final: ${d.home} ${d.homeGoals} - ${d.awayGoals} ${d.away}.`,
     verdict(d),
@@ -75,6 +93,13 @@ function deterministicSummary(d: Decoded): string {
 }
 
 function offlineStub(d: Decoded): string {
+  if (d.kind === "prompt") {
+    return [
+      "Highlights (OFFLINE_MODE stub):",
+      `Request: ${d.prompt}`,
+      "No LLM call made; no chain submission made.",
+    ].join("\n");
+  }
   return [
     `Highlights (OFFLINE_MODE stub):`,
     `Final: ${d.home} ${d.homeGoals} - ${d.awayGoals} ${d.away}.`,
@@ -98,6 +123,16 @@ async function handle(ev: CalledEvent): Promise<string> {
     return deterministicSummary(d);
   }
   try {
+    if (d.kind === "prompt") {
+      return await runLLM({
+        system:
+          "You are the Kickoff highlights writer. In <= 6 short lines, respond to the fan's request " +
+          "using only the supplied text. If no final score or match facts are present, say that clearly. " +
+          "Do NOT invent goal scorers, minutes, or events. No betting talk.",
+        user: `Fan request: ${clip(d.prompt)}`,
+        maxTokens: 384,
+      });
+    }
     return await runLLM({
       system:
         "You are the Kickoff highlights writer. In <= 6 short lines, write a " +
@@ -110,8 +145,12 @@ async function handle(ev: CalledEvent): Promise<string> {
       maxTokens: 384,
     });
   } catch (err) {
-    const msg = (err as { shortMessage?: string })?.shortMessage ?? String(err).slice(0, 300);
-    console.warn(`[highlights] LLM call failed — returning deterministic summary: ${msg}`);
+    const msg =
+      (err as { shortMessage?: string })?.shortMessage ??
+      String(err).slice(0, 300);
+    console.warn(
+      `[highlights] LLM call failed — returning deterministic summary: ${msg}`,
+    );
     return deterministicSummary(d);
   }
 }

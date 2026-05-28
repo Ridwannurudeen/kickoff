@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useAccount, useWriteContract } from "wagmi";
+import { useQueryClient } from "@tanstack/react-query";
 import { useT } from "@/components/I18nProvider";
 import { ChampionshipMark, LaurelWreath } from "@/components/ornaments";
 import { BuiltOnXLayerBadge } from "@/components/BuiltOnXLayerBadge";
@@ -22,6 +23,7 @@ import { txUrl } from "@/lib/config";
 import { fmtInt, shortAddr } from "@/lib/format";
 import { DEMO_PROTOCOL_STATS } from "@/lib/v2-demo";
 import { useToasts } from "@/lib/toast";
+import { waitForTransactionAndRefresh } from "@/lib/tx";
 
 const TICKER: Array<{ label: string; abbreviated: string; href: string }> = [
   {
@@ -62,6 +64,7 @@ export default function HomePage() {
   const fan = useFanScore(address);
   const { writeContractAsync, isPending } = useWriteContract();
   const { push, dismiss } = useToasts();
+  const queryClient = useQueryClient();
 
   const demo = !FAN_REP_CONFIGURED;
 
@@ -72,6 +75,10 @@ export default function HomePage() {
         title: t("common_demo_banner"),
         ttl: 4000,
       });
+      return;
+    }
+    if (!address) {
+      push({ kind: "info", title: t("common_connect_first"), ttl: 4000 });
       return;
     }
     const id = push({
@@ -86,13 +93,14 @@ export default function HomePage() {
         functionName: "mint",
         args: [],
       });
+      await waitForTransactionAndRefresh(hash, queryClient);
+      await fan?.refetch();
       push({
         kind: "success",
         title: t("home_hero_cta_mint"),
         href: txUrl(hash),
         ttl: 9000,
       });
-      fan?.refetch();
     } catch (e) {
       push({
         kind: "error",

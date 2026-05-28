@@ -33,20 +33,21 @@ export function ConnectButton() {
             </button>
           )}
           <NetworkIndicator correct={isCorrect} />
-          <button
-            onClick={() => disconnect()}
+          <Link
+            href={`/profile/${address}`}
             className="btn-ghost !py-1.5 !px-3 font-mono text-xs tabular-nums"
-            title={t("wallet_disconnect")}
+            title={t("wallet_profile")}
           >
             {shortAddr(address)}
+          </Link>
+          <button
+            onClick={() => disconnect()}
+            className="btn-ghost !py-1.5 !px-3 text-xs"
+            title={t("wallet_disconnect")}
+          >
+            {t("wallet_disconnect")}
           </button>
         </div>
-        <Link
-          href={`/profile/${address}`}
-          className="text-xs text-muted transition-colors hover:text-grass"
-        >
-          My profile →
-        </Link>
         {switchError && (
           <p className="max-w-sm rounded-lg border border-no/40 bg-no/10 px-3 py-2 text-right text-xs text-no">
             {switchError}
