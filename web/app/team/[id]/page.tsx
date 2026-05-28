@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useT } from "@/components/I18nProvider";
+import { Laurel } from "@/components/Laurel";
 import { TEAMS, teamById, teamsByGroup } from "@/lib/teams";
 import { QUESTS } from "@/lib/v2-catalog";
 import { QuestCard } from "@/components/QuestCard";
@@ -44,7 +45,12 @@ export default function TeamPage() {
             {team.flag}
           </span>
           <div>
-            <h1 className="text-2xl font-bold">{team.name}</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="font-display text-3xl tracking-wide sm:text-4xl">
+                {team.name}
+              </h1>
+              <Laurel size={16} className="text-honor/50" />
+            </div>
             <p className="text-sm text-muted">
               {t("team_group_label", { group: team.group })}
             </p>
@@ -76,6 +82,8 @@ export default function TeamPage() {
           </div>
         </div>
       </section>
+
+      <div className="divider-classical" />
 
       <section>
         <h2 className="mb-3 text-sm font-bold text-muted">

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { isAddress } from "viem";
 import { useT } from "@/components/I18nProvider";
+import { Laurel } from "@/components/Laurel";
 import { useFanScore } from "@/lib/v2-fan";
 import { addressUrl } from "@/lib/config";
 import { fmtInt, shortAddr } from "@/lib/format";
@@ -52,8 +53,13 @@ export default function ProfilePage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">{t("profile_title")}</h1>
-          <p className="font-mono text-sm text-muted">{shortAddr(addr!)}</p>
+          <div className="flex items-center gap-2">
+            <h1 className="font-display text-3xl tracking-wide sm:text-4xl">
+              {t("profile_title")}
+            </h1>
+            <Laurel size={16} className="text-honor" />
+          </div>
+          <p className="gold-ink mt-1 font-mono text-sm">{shortAddr(addr!)}</p>
         </div>
         <a
           href={addressUrl(addr!)}
@@ -71,7 +77,8 @@ export default function ProfilePage() {
         </div>
       ) : (
         <>
-          <section className="card grid grid-cols-2 gap-4 p-6 md:grid-cols-4">
+          <div className="divider-classical" />
+          <section className="card tabula grid grid-cols-2 gap-4 p-6 md:grid-cols-4">
             <Stat label={t("home_total_xp")} value={fmtInt(totalXp)} accent />
             <Stat
               label={t("profile_dim_prediction")}

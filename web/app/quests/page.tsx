@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useT } from "@/components/I18nProvider";
+import { Laurel } from "@/components/Laurel";
 import { QuestCard } from "@/components/QuestCard";
 import { QUESTS } from "@/lib/v2-catalog";
 import type { Quest, QuestType } from "@/lib/v2-types";
@@ -29,9 +30,16 @@ export default function QuestsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">{t("quests_title")}</h1>
-        <p className="text-sm text-muted">{t("quests_subtitle")}</p>
+        <h1 className="font-display text-3xl tracking-wide sm:text-4xl">
+          {t("quests_title")}
+        </h1>
+        <div className="mt-1 flex items-center gap-2">
+          <p className="text-sm text-muted">{t("quests_subtitle")}</p>
+          <Laurel size={16} className="text-honor/40" />
+        </div>
       </div>
+
+      <div className="divider-classical" />
 
       <div className="flex flex-wrap gap-2">
         {FILTERS.map((f) => (
