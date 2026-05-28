@@ -18,7 +18,7 @@
 
 const DEFAULT_PROVIDER = "anthropic";
 const DEFAULT_MODELS: Record<string, string> = {
-  anthropic: "claude-3-5-haiku-latest",
+  anthropic: "claude-haiku-4-5-20251001",
   groq: "llama-3.3-70b-versatile",
 };
 
