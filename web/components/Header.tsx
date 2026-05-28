@@ -7,7 +7,15 @@ import { LocaleSwitcher } from "./LocaleSwitcher";
 import { useT } from "./I18nProvider";
 import { Laurel } from "./Laurel";
 import { BuiltOnXLayerBadge } from "./BuiltOnXLayerBadge";
+import { CHAIN_ID } from "@/lib/config";
 import type { TranslationKey } from "@/lib/i18n";
+
+// X Layer testnet faucet URL. Could not be auto-verified from this
+// build environment (the OKX docs endpoints refused our connections);
+// this is the conventional path used by ecosystem projects. Override via
+// NEXT_PUBLIC_FAUCET_URL if the official URL changes.
+const FAUCET_URL =
+  process.env.NEXT_PUBLIC_FAUCET_URL ?? "https://www.okx.com/xlayer/faucet";
 
 const NAV: { href: string; key: TranslationKey }[] = [
   { href: "/quests", key: "nav_quests" },
@@ -57,6 +65,22 @@ export function Header() {
         </div>
         <div className="flex items-center gap-3">
           <LocaleSwitcher />
+          {/* Testnet-only faucet chip — sits immediately to the left of the
+              wallet button so users can grab gas before connecting. Hidden
+              on mainnet (chain 196) where it'd be misleading. */}
+          {CHAIN_ID !== 196 && (
+            <a
+              href={FAUCET_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Open X Layer testnet faucet (opens in a new tab)"
+              className="hidden items-center gap-1.5 rounded-full border border-honor/40 bg-pitch-panel px-3 py-1 text-xs font-semibold text-honor transition-colors hover:border-honor/70 hover:text-honor-glow sm:inline-flex"
+              title="Get free testnet OKB"
+            >
+              <span aria-hidden="true">⛽</span>
+              Faucet
+            </a>
+          )}
           <ConnectButton />
         </div>
       </div>
