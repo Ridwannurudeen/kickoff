@@ -14,17 +14,15 @@ import type { AgentDescriptor, Quest, Trophy } from "./v2-types";
 const id = (s: string): `0x${string}` => keccak256(toBytes(s));
 
 // ─── Quests ───────────────────────────────────────────────────────────────
-// Window timestamps are demo-friendly: "Mint your Fan ID" is open
-// indefinitely, the rest target the 2026-06-11 → 2026-07-19 tournament.
+// Six evergreen quests that mirror what `scripts/seed-v2.mjs` registers on
+// chain. Match-day, predict-score and daily-fact quests are owned by
+// `scripts/keeper-v2.mjs` and registered on a rolling window during the WC,
+// so they don't live in this static catalogue.
+//
+// QUEST_WINDOW_END matches seed-v2.mjs's default (2026-08-10 UTC).
 
-const TOURNAMENT_START = Math.floor(
-  new Date("2026-06-11T00:00:00Z").getTime() / 1000,
-);
-const TOURNAMENT_END = Math.floor(
-  new Date("2026-07-19T23:59:59Z").getTime() / 1000,
-);
-const MATCHDAY_1_KICKOFF = Math.floor(
-  new Date("2026-06-11T18:00:00Z").getTime() / 1000,
+const QUEST_WINDOW_END = Math.floor(
+  new Date("2026-08-10T00:00:00Z").getTime() / 1000,
 );
 
 export const QUESTS: Quest[] = [
@@ -34,31 +32,9 @@ export const QUESTS: Quest[] = [
     titleKey: "quest_mint_fanid_title",
     bodyKey: "quest_mint_fanid_body",
     startsAt: 0,
-    endsAt: TOURNAMENT_END,
-    xpReward: 50,
-    dim: "ENGAGEMENT_BREADTH",
-  },
-  {
-    id: id("kickoff.v2.quest.matchday-2026-06-11"),
-    type: "SELF_ATTEST",
-    titleKey: "quest_matchday_title",
-    bodyKey: "quest_matchday_body",
-    startsAt: TOURNAMENT_START,
-    endsAt: TOURNAMENT_START + 24 * 3600,
-    xpReward: 25,
-    dim: "ENGAGEMENT_BREADTH",
-    context: "Mexico vs South Africa · Mexico City",
-  },
-  {
-    id: id("kickoff.v2.quest.predict-2026-06-11-mex-rsa"),
-    type: "PREDICTION",
-    titleKey: "quest_predict_score_title",
-    bodyKey: "quest_predict_score_body",
-    startsAt: TOURNAMENT_START,
-    endsAt: MATCHDAY_1_KICKOFF,
+    endsAt: QUEST_WINDOW_END,
     xpReward: 100,
-    dim: "PREDICTION_ACCURACY",
-    context: "Mexico vs South Africa · 11 Jun 2026",
+    dim: "ENGAGEMENT_BREADTH",
   },
   {
     id: id("kickoff.v2.quest.team-profile"),
@@ -66,50 +42,49 @@ export const QUESTS: Quest[] = [
     titleKey: "quest_team_profile_title",
     bodyKey: "quest_team_profile_body",
     startsAt: 0,
-    endsAt: TOURNAMENT_END,
-    xpReward: 30,
+    endsAt: QUEST_WINDOW_END,
+    xpReward: 100,
     dim: "ENGAGEMENT_BREADTH",
   },
   {
-    id: id("kickoff.v2.quest.daily-fact-2026-06-11"),
+    id: id("kickoff.v2.quest.daily-fact"),
     type: "SELF_ATTEST",
     titleKey: "quest_daily_fact_title",
     bodyKey: "quest_daily_fact_body",
-    startsAt: TOURNAMENT_START,
-    endsAt: TOURNAMENT_START + 24 * 3600,
-    xpReward: 15,
+    startsAt: 0,
+    endsAt: QUEST_WINDOW_END,
+    xpReward: 50,
     dim: "ENGAGEMENT_BREADTH",
-    context: "Mexico vs South Africa",
   },
   {
-    id: id("kickoff.v2.quest.share-post-group-stage"),
+    id: id("kickoff.v2.quest.share-post"),
     type: "EXTERNAL_PROOF",
     titleKey: "quest_share_post_title",
     bodyKey: "quest_share_post_body",
-    startsAt: TOURNAMENT_START,
-    endsAt: TOURNAMENT_END,
-    xpReward: 40,
+    startsAt: 0,
+    endsAt: QUEST_WINDOW_END,
+    xpReward: 200,
     dim: "ENGAGEMENT_BREADTH",
   },
   {
     id: id("kickoff.v2.quest.group-stage-streak"),
     type: "SELF_ATTEST",
-    titleKey: "quest_group_streak_title",
-    bodyKey: "quest_group_streak_body",
-    startsAt: TOURNAMENT_START,
-    endsAt: TOURNAMENT_START + 14 * 24 * 3600,
-    xpReward: 200,
+    titleKey: "quest_group_stage_streak_title",
+    bodyKey: "quest_group_stage_streak_body",
+    startsAt: 0,
+    endsAt: QUEST_WINDOW_END,
+    xpReward: 500,
     dim: "ENGAGEMENT_BREADTH",
   },
   {
-    id: id("kickoff.v2.quest.deploy-agent"),
-    type: "EXTERNAL_PROOF",
-    titleKey: "quest_deploy_agent_title",
-    bodyKey: "quest_deploy_agent_body",
+    id: id("kickoff.v2.quest.deploy-your-agent"),
+    type: "SELF_ATTEST",
+    titleKey: "quest_deploy_your_agent_title",
+    bodyKey: "quest_deploy_your_agent_body",
     startsAt: 0,
-    endsAt: TOURNAMENT_END,
-    xpReward: 150,
-    dim: "AGENT_LEAGUE",
+    endsAt: QUEST_WINDOW_END,
+    xpReward: 1000,
+    dim: "ENGAGEMENT_BREADTH",
   },
 ];
 

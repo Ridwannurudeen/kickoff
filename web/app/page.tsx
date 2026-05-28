@@ -92,6 +92,7 @@ export default function HomePage() {
         href: txUrl(hash),
         ttl: 9000,
       });
+      fan?.refetch();
     } catch (e) {
       push({
         kind: "error",

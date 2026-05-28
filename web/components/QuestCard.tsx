@@ -8,6 +8,7 @@ import { questEngineAbi } from "@/lib/v2-abis";
 import { QUEST_ENGINE_CONFIGURED, V2_ADDRESSES } from "@/lib/v2-addresses";
 import type { Quest } from "@/lib/v2-types";
 import { useToasts } from "@/lib/toast";
+import { useFanScore } from "@/lib/v2-fan";
 
 type Status = "live" | "upcoming" | "closed";
 
@@ -24,6 +25,7 @@ export function QuestCard({ quest, now }: { quest: Quest; now: number }) {
   const demo = !QUEST_ENGINE_CONFIGURED;
   const { writeContractAsync, isPending } = useWriteContract();
   const { push, dismiss } = useToasts();
+  const fan = useFanScore(address);
 
   const completed = useReadContract({
     address: V2_ADDRESSES.questEngine,
@@ -84,6 +86,8 @@ export function QuestCard({ quest, now }: { quest: Quest; now: number }) {
         href: txUrl(hash),
         ttl: 9000,
       });
+      fan?.refetch();
+      void completed.refetch();
     } catch (e) {
       push({
         kind: "error",

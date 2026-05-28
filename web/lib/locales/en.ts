@@ -92,6 +92,12 @@ export const en = {
   quest_deploy_agent_title: "Deploy your agent",
   quest_deploy_agent_body:
     "Register an AI agent and enter it into the active Agent League season.",
+  quest_group_stage_streak_title: "Group-stage streak",
+  quest_group_stage_streak_body:
+    "Complete the daily quest every day of group stage in your team's group.",
+  quest_deploy_your_agent_title: "Deploy your agent",
+  quest_deploy_your_agent_body:
+    "Register an AI agent in AgentRegistry and enter it in the active AgentLeague season.",
 
   // trophies
   trophies_title: "Trophies",

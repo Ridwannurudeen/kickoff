@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useAccount, useWriteContract } from "wagmi";
+import { useMemo, useState } from "react";
+import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import { keccak256, toBytes, parseUnits } from "viem";
 import { useT } from "@/components/I18nProvider";
 import { LaurelWreath, Podium } from "@/components/ornaments";
@@ -15,6 +15,13 @@ import { txUrl, addressUrl } from "@/lib/config";
 import { fmtInt, shortAddr } from "@/lib/format";
 import { DEMO_LEAGUE_STANDINGS } from "@/lib/v2-demo";
 import { useToasts } from "@/lib/toast";
+
+type Standing = {
+  agentId: `0x${string}`;
+  name: string;
+  owner: `0x${string}`;
+  score: number;
+};
 
 export default function LeaguePage() {
   const { t } = useT();
@@ -30,8 +37,49 @@ export default function LeaguePage() {
   const demoRegistry = !AGENT_REGISTRY_CONFIGURED;
   const demoLeague = !AGENT_LEAGUE_CONFIGURED;
 
-  const standings = DEMO_LEAGUE_STANDINGS;
-  const seasonId = 1;
+  // Live standings:
+  //   1. `activeSeason()` → grab the active season id
+  //   2. `leaderboard(seasonId)` → parallel arrays of (agentIds, scores, owners)
+  // The on-chain registry doesn't store an agent display name (only an
+  // endpointHint), so the "name" column renders a short agentId. Falls back to
+  // DEMO_LEAGUE_STANDINGS when AgentLeague isn't deployed yet.
+  const active = useReadContract({
+    address: V2_ADDRESSES.agentLeague,
+    abi: agentLeagueAbi,
+    functionName: "activeSeason",
+    query: { enabled: !demoLeague },
+  });
+  const liveSeasonId = (active.data?.[0] ?? 0n) as bigint;
+  const leaderboard = useReadContract({
+    address: V2_ADDRESSES.agentLeague,
+    abi: agentLeagueAbi,
+    functionName: "leaderboard",
+    args: !demoLeague && active.data ? [liveSeasonId] : undefined,
+    query: { enabled: !demoLeague && !!active.data },
+  });
+
+  const standings: Standing[] = useMemo(() => {
+    if (demoLeague) return DEMO_LEAGUE_STANDINGS;
+    const data = leaderboard.data;
+    if (!data) return [];
+    const [agentIds, scores, owners] = data as readonly [
+      readonly `0x${string}`[],
+      readonly bigint[],
+      readonly `0x${string}`[],
+    ];
+    const rows: Standing[] = agentIds.map((agentId, i) => ({
+      agentId,
+      name: `${agentId.slice(0, 10)}…`,
+      owner:
+        owners[i] ??
+        ("0x0000000000000000000000000000000000000000" as `0x${string}`),
+      score: Number(scores[i] ?? 0n),
+    }));
+    rows.sort((a, b) => b.score - a.score);
+    return rows;
+  }, [demoLeague, leaderboard.data]);
+
+  const seasonId = demoLeague ? 1 : Number(liveSeasonId);
 
   const topThree = ([1, 2, 3] as const).map((rank) => {
     const entry = standings[rank - 1];
@@ -42,6 +90,11 @@ export default function LeaguePage() {
     };
   });
   const rest = standings.slice(3);
+
+  function refetchStandings(): void {
+    void active.refetch();
+    void leaderboard.refetch();
+  }
 
   async function registerAgent() {
     if (!name.trim() || !wallet.trim()) {
@@ -88,6 +141,10 @@ export default function LeaguePage() {
         href: txUrl(hash),
         ttl: 9000,
       });
+      setName("");
+      setWallet("");
+      setEndpoint("");
+      setPriceOkb("0.0001");
       // Best-effort follow-up: enter the just-registered agent into the active
       // season. If this leg fails (e.g. no active season), the registry tx
       // still stands and the user can try `enterAgent` again later.
@@ -99,10 +156,19 @@ export default function LeaguePage() {
             functionName: "enterAgent",
             args: [agentId],
           });
-        } catch {
-          // ignore — surfaced separately
+        } catch (enterErr) {
+          push({
+            kind: "error",
+            title: "Could not enter season",
+            message:
+              enterErr instanceof Error
+                ? enterErr.message.split("\n")[0]
+                : "AgentLeague.enterAgent reverted — your agent is registered but not in the active season; try the Enter step manually.",
+            ttl: 9000,
+          });
         }
       }
+      refetchStandings();
     } catch (e) {
       push({
         kind: "error",

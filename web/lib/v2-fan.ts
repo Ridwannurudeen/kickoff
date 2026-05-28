@@ -52,5 +52,11 @@ export function useFanScore(user: `0x${string}` | undefined) {
     engagementBreadth: (score.data?.[2] ?? 0n) as bigint,
     longevityDays: (score.data?.[3] ?? 0n) as bigint,
     favoriteTeams: (faves.data ?? []) as readonly number[],
+    refetch: (): void => {
+      void score.refetch();
+      void hasFanId.refetch();
+      void fanId.refetch();
+      void faves.refetch();
+    },
   };
 }

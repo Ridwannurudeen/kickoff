@@ -146,11 +146,11 @@ const agentRegistryAbi = [
 // ---------------------------------------------------------------------------
 
 function agentIdOf(name) {
-  return keccak256(toBytes(name));
+  return keccak256(toBytes(`kickoff.v2.agent.${name}`));
 }
 
 function questIdOf(name) {
-  return keccak256(toBytes(name));
+  return keccak256(toBytes(`kickoff.v2.quest.${name}`));
 }
 
 function agentWalletFor(name, defaultAddr) {
@@ -170,7 +170,7 @@ async function seedQuests(pub, wallet, qe, deployer, opts) {
   );
 
   const quests = [
-    { name: 'fan-id', type: QUEST_TYPE.SELF_ATTEST, xp: 100n, dim: DIM_ENG, config: '0x' },
+    { name: 'mint-fan-id', type: QUEST_TYPE.SELF_ATTEST, xp: 100n, dim: DIM_ENG, config: '0x' },
     { name: 'team-profile', type: QUEST_TYPE.SELF_ATTEST, xp: 100n, dim: DIM_ENG, config: '0x' },
     { name: 'daily-fact', type: QUEST_TYPE.SELF_ATTEST, xp: 50n, dim: DIM_ENG, config: '0x' },
     { name: 'share-post', type: QUEST_TYPE.EXTERNAL_PROOF, xp: 200n, dim: DIM_ENG, config: sharePostConfig },

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { CHAIN_NAME } from "@/lib/config";
@@ -40,6 +41,12 @@ export function ConnectButton() {
             {shortAddr(address)}
           </button>
         </div>
+        <Link
+          href={`/profile/${address}`}
+          className="text-xs text-muted transition-colors hover:text-grass"
+        >
+          My profile →
+        </Link>
         {switchError && (
           <p className="max-w-sm rounded-lg border border-no/40 bg-no/10 px-3 py-2 text-right text-xs text-no">
             {switchError}
