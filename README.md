@@ -1,20 +1,58 @@
-# Kickoff
+<p align="center">
+  <img src="web/public/logo.png" width="120" alt="Kickoff K mark"/>
+</p>
 
-**The global World Cup 2026 fan platform on X Layer.**
+<h1 align="center">Kickoff</h1>
 
-Kickoff is a free-to-play fan platform built around World Cup 2026, live on **X Layer**, OKX's OP Stack L2. A user connects an OKX Wallet → mints a free, soulbound **Fan ID** → picks favorite teams → completes free **Quests** during the tournament → earns **XP** + a multi-dimensional **Fan Reputation** score → claims commemorative **NFT Trophies** at milestones → talks to a **multi-agent AI Companion** for personalized briefings.
+<p align="center"><strong>The global World Cup 2026 fan platform on X Layer.</strong></p>
 
-**No money in for outcomes. No money out from outcomes. No randomness with stakes.** Every quest completion, every Companion call, and every league prediction is a real on-chain transaction.
+<p align="center">
+  Connect an OKX Wallet → mint a free, soulbound <strong>Fan ID</strong> → pick favorite teams → complete free <strong>Quests</strong> → earn <strong>XP</strong> + a multi-dimensional <strong>Fan Reputation</strong> → claim commemorative <strong>NFT Trophies</strong> → talk to a <strong>multi-agent AI Companion</strong>. No money in for outcomes. No money out from outcomes. Every quest completion is a real X Layer transaction.
+</p>
 
-**Live:** https://kickoff.gudman.xyz · **X:** [@kickoff_w2026](https://x.com/kickoff_w2026) · **Built for** [#BuildX](https://x.com/hashtag/BuildX) on [@XLayerOfficial](https://x.com/XLayerOfficial).
+<p align="center">
+  <img src="https://img.shields.io/badge/Solidity-0.8.26-blue?logo=solidity" alt="Solidity 0.8.26"/>
+  <img src="https://img.shields.io/badge/forge%20test-218%2F218%20passing-success" alt="Foundry tests 218/218 passing"/>
+  <img src="https://img.shields.io/badge/license-MIT-honor" alt="License MIT"/>
+  <img src="https://img.shields.io/badge/X%20Layer-testnet%201952-16c060" alt="X Layer testnet 1952"/>
+  <img src="https://img.shields.io/badge/Built%20for-%23BuildX-d4af37" alt="Built for #BuildX"/>
+  <a href="https://kickoff.gudman.xyz"><img src="https://img.shields.io/badge/live%20demo-kickoff.gudman.xyz-grass?logo=vercel" alt="Live demo"/></a>
+</p>
+
+<p align="center">
+  <img src="web/public/banner.png" width="100%" alt="Kickoff banner — green K mark on a deep pitch background"/>
+</p>
+
+<p align="center">
+  <a href="https://kickoff.gudman.xyz">Live demo</a> ·
+  <a href="https://x.com/kickoff_w2026">X (Twitter)</a> ·
+  <a href="docs/KICKOFF-V2-DESIGN.md">Design doc</a>
+</p>
+
+---
+
+## Table of contents
+
+- [Why Kickoff](#why-kickoff)
+- [Architecture](#architecture)
+- [How it works](#how-it-works)
+- [Contracts](#contracts)
+- [Deployed addresses (X Layer testnet, chain 1952)](#deployed-addresses-x-layer-testnet-chain-1952)
+- [Live on-chain artefacts](#live-on-chain-artefacts)
+- [Monorepo layout](#monorepo-layout)
+- [Quickstart](#quickstart)
+- [Environment variables](#environment-variables)
+- [What's real vs simulated (honest scope)](#whats-real-vs-simulated-honest-scope)
+- [Where to next](#where-to-next)
+- [License](#license)
 
 ---
 
 ## Why Kickoff
 
-- **A composable Fan Reputation primitive, not just another app.** `FanRep` is a soulbound ERC-721 (one per wallet) that carries a multi-dimensional on-chain reputation — prediction accuracy, engagement breadth, longevity. Any X Layer app can read it via `score(address)` and build on top. The Fan ID is the *primitive*; Quests, Trophies, and the league are first-party consumers.
+- **A composable Fan Reputation primitive, not just another app.** `FanRep` is a soulbound ERC-721 (one per wallet) carrying a multi-dimensional on-chain reputation — prediction accuracy, engagement breadth, longevity. Any X Layer app can read `score(address)` and build on top. Quests, Trophies, and the league are first-party consumers of the same primitive.
 - **A permissionless AI Agent platform, not a single Companion.** `AgentRegistry` lets anyone register an autonomous agent (their backend, their LLM, their logic) and charge OKB per call. Kickoff seeds three first-party agents — `match-analyst`, `personal-stats`, `highlights` — but the registry itself is open.
-- **Bring-Your-Own-Agent league — the OnchainOS thesis demonstrated end-to-end.** `AgentLeague` is a free-skill, free-entry prediction tournament for AI agents. Builders deploy an agent, register it, enter it, and compete with Kickoff's own agents for XP, reputation, and the AI Champion trophy. No money wagered, no money paid out. Fork [`agents/v2-example-byo/`](agents/v2-example-byo/) and ship your own.
+- **Bring-Your-Own-Agent league — the OnchainOS thesis end-to-end.** `AgentLeague` is a free-skill, free-entry prediction tournament for AI agents. Builders deploy an agent, register it, enter it, and compete with Kickoff's own agents for XP, reputation, and the AI Champion trophy. Fork [`agents/v2-example-byo/`](agents/v2-example-byo/) and ship your own.
 - **Three OKX X Cup tracks hit by design.** Social (Fan ID + global/team leaderboards + shareable profiles), NFT (commemorative ERC-1155 Trophies + composable Fan Rep SBT), and AI Agent (multi-agent Companion + permissionless registry + BYO league).
 - **OKX-native end to end.** OKX Wallet to connect, OKB for gas and for agent service fees, sub-cent costs, OKLink for verifiable proof.
 
@@ -22,39 +60,37 @@ Kickoff is a free-to-play fan platform built around World Cup 2026, live on **X 
 
 ## Architecture
 
-```
-                       OKX Wallet (OKB gas)
-                              |
-                        web/ (Next.js dApp)
-                              |
-      +-------------+---------+---------+----------------+
-      |             |                   |                |
-   FanRep.sol  QuestEngine.sol     Trophy.sol      AgentRegistry.sol
-   (SBT, ERC-721,  (XP, quest defs,   (ERC-1155       (agents, OKB fees,
-   multi-dim       commit/reveal       commemoratives, on-chain calls,
-   reputation)     predictions,        deterministic   payments,
-                   self-attest,        gating, no      composeAgents)
-                   external-proof)     randomness)            |
-                       |                                      |
-              OptimisticOracle  (reused, settles match results)
-                       |
-              keeper (rolling 7d quest window + propose + settle)
-
-                                                    AgentLeague.sol
-                                                    (BYO seasons +
-                                                     commit/reveal +
-                                                     leaderboard +
-                                                     AI Champion trophy)
-                                                              |
-              off-chain agent services (each watches its Called event):
-                 - match-analyst   (pre-match preview)
-                 - personal-stats  (XP trajectory + recommended quest)
-                 - highlights      (post-match summary)
-```
+<p align="center">
+  <img src="docs/images/architecture.svg" alt="Kickoff v2 architecture — 5 new contracts + reused OO + CT + 3 services" width="100%"/>
+</p>
 
 See [`docs/KICKOFF-V2-DESIGN.md`](docs/KICKOFF-V2-DESIGN.md) for the design rationale (single source of truth), [`docs/DEMO_SCRIPT_V2.md`](docs/DEMO_SCRIPT_V2.md) for the demo walkthrough, and [`docs/SUBMISSION.md`](docs/SUBMISSION.md) for the X Cup submission draft.
 
-### Contracts (Solidity 0.8.26 · OpenZeppelin v5 · Foundry)
+---
+
+## How it works
+
+### One click, three on-chain replies
+
+<p align="center">
+  <img src="docs/images/flow-companion.svg" alt="Companion flow — composeAgents fans out to 3 agents; each replies via submitResult" width="100%"/>
+</p>
+
+The Companion UI calls `AgentRegistry.composeAgents([match-analyst, personal-stats, highlights], payload)` in a single tx. Each agent's off-chain service watches its `Called` event, hits its LLM, and posts the signed reply back on-chain via `submitResult` within ~5 seconds.
+
+### Bring-Your-Own-Agent lifecycle
+
+<p align="center">
+  <img src="docs/images/flow-byo.svg" alt="BYO agent lifecycle — register, enter, commit, reveal, score" width="100%"/>
+</p>
+
+A builder forks [`agents/v2-example-byo/`](agents/v2-example-byo/), runs `registerAgent` → `enterAgent` → posts a hashed `submitPrediction` before kickoff → after the OptimisticOracle settles, anyone calls `scorePrediction` and the contract scales XP by closeness. Season 1 is open; the example agent has run the full cycle and earned 1000 XP.
+
+---
+
+## Contracts
+
+Solidity 0.8.26 · OpenZeppelin v5 · Foundry.
 
 | Contract | Role |
 |---|---|
@@ -66,10 +102,13 @@ See [`docs/KICKOFF-V2-DESIGN.md`](docs/KICKOFF-V2-DESIGN.md) for the design rati
 | [`OptimisticOracle`](contracts/src/OptimisticOracle.sol) | **Reused from v1, unchanged.** Propose / 120s liveness / settle / dispute / cancel. The sole resolution path; the deployer's `ORACLE_ROLE` on `ConditionalTokens` is revoked at deploy time. |
 | [`ConditionalTokens`](contracts/src/ConditionalTokens.sol) | **Reused from v1**, used here only as a general-purpose result store (`conditionStatus` + `payoutNumerators`) for match outcomes — no betting surface. |
 | [`MockUSDC`](contracts/src/MockUSDC.sol) | 6-decimal collateral token referenced by `ConditionalTokens.prepareCondition`. Not used for any payout in v2. |
+| **Tests** | **218 total** across 9 Foundry suites — `cd contracts && forge test`. |
 
-**Test coverage:** `forge test` runs **211 tests across 9 suites** — all green.
+---
 
-### Deployed addresses (X Layer testnet, chain 1952)
+## Deployed addresses (X Layer testnet, chain 1952)
+
+> Mainnet (chain 196) is gated on third-party audit per [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 | Contract | Address |
 |---|---|
@@ -82,13 +121,14 @@ See [`docs/KICKOFF-V2-DESIGN.md`](docs/KICKOFF-V2-DESIGN.md) for the design rati
 | `ConditionalTokens` | [`0xCB893c645F822667e0409942B6109f4590637A39`](https://www.oklink.com/xlayer-test/address/0xCB893c645F822667e0409942B6109f4590637A39) |
 | `MockUSDC` | [`0x21dF7e14AeD79022fE1bcF2BFF3342Bc10E93D5A`](https://www.oklink.com/xlayer-test/address/0x21dF7e14AeD79022fE1bcF2BFF3342Bc10E93D5A) |
 
-Mainnet (chain 196) is **not yet deployed** — gated on third-party audit per [`docs/ROADMAP.md`](docs/ROADMAP.md).
+---
 
-### Live on-chain artefacts (testnet)
+## Live on-chain artefacts
 
-- **AgentLeague season 1** is open. One BYO example agent has run the full cycle on-chain: registered → entered → committed a hashed prediction before kickoff → revealed after the OO settled → 1000 XP credited.
-- **Three first-party Companion services** are live on the VPS, each registered as a separate on-chain agent with its own wallet. Calls land within ~5s and submit real Claude Haiku 4.5 responses on-chain via `submitResult`.
-- **Honest scope:** the real World Cup begins 2026-06-11, after the submission window. Prediction quests in the demo settle against clearly-labeled simulated friendlies. The same oracle path handles live matches in June–July.
+- **6 evergreen quests registered on chain** — `mint-fan-id`, `team-profile`, `daily-fact`, `share-post`, `group-stage-streak`, `deploy-your-agent`.
+- **AgentLeague Season 1 is open.** One BYO example agent has run the full cycle on-chain: registered → entered → committed a hashed prediction before kickoff → revealed after the OO settled → **1000 XP** credited.
+- **3 first-party Companion services are live on the VPS**, each registered as a separate on-chain agent with its own wallet. `composeAgents` calls land within **~5s** and submit real Claude Haiku 4.5 responses on-chain via `submitResult`.
+- **218 Foundry tests** across 9 suites — `cd contracts && forge test`. Source receipts for the lifecycle txs in [`docs/DEMO_SCRIPT_V2.md`](docs/DEMO_SCRIPT_V2.md).
 
 ---
 
@@ -133,7 +173,7 @@ Dependencies are vendored under `contracts/lib/` — plain `git clone` gives you
 ```bash
 cd contracts
 forge build
-forge test       # 211 tests, all green
+forge test       # 218 tests, all green
 ```
 
 ### Web dApp
@@ -209,6 +249,14 @@ Copy each `.env.example` / `env-example` to `.env` (or `.env.local`) in its pack
 - **Real, on-chain, now (testnet):** Fan ID mint, the three quest types, XP credit, Trophy claim, multi-agent Companion calls, AgentLeague entries + commit/reveal predictions, the full propose → 120s liveness → settle oracle cycle, and the BYO example agent's full lifecycle.
 - **Simulated until the tournament:** the match-result feed. WC 2026 group stage starts Jun 11, 2026. Prediction quests in the demo settle against clearly-labeled simulated friendlies; the on-screen "SIMULATED MATCH" banner is wired on the resolution panel.
 - **Gated (not yet live):** mainnet deployment, independent third-party audit, the API-FOOTBALL production result feed — tracked in [`docs/ROADMAP.md`](docs/ROADMAP.md).
+
+---
+
+## Where to next
+
+- [`docs/KICKOFF-V2-DESIGN.md`](docs/KICKOFF-V2-DESIGN.md) — design doc (single source of truth)
+- [`docs/SECURITY.md`](docs/SECURITY.md) — security review + per-contract notes
+- [`docs/ROADMAP.md`](docs/ROADMAP.md) — phase plan (submission → audit → mainnet → live tournament)
 
 ---
 

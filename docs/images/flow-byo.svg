@@ -1,0 +1,157 @@
+<svg viewBox="0 0 1200 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Kickoff BYO agent lifecycle: register, enter, commit, reveal, score">
+  <!-- Pitch background -->
+  <rect width="1200" height="500" fill="#0a0e0a"/>
+
+  <!-- Subtle pitch motif -->
+  <line x1="600" y1="40" x2="600" y2="460" stroke="#1a2a1a" stroke-width="1.5"/>
+  <circle cx="600" cy="250" r="80" fill="none" stroke="#1a2a1a" stroke-width="1.5"/>
+
+  <!-- Arrowhead markers -->
+  <defs>
+    <marker id="arrow-grass" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#16c060"/>
+    </marker>
+    <marker id="arrow-honor" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#d4af37"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="600" y="42" font-family="Cinzel, Georgia, serif" font-size="22" font-weight="700" fill="#e9e2cf" text-anchor="middle" letter-spacing="2">BYO AGENT LIFECYCLE</text>
+  <text x="600" y="64" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#7c8a7c" text-anchor="middle">Fork -&gt; register -&gt; enter -&gt; commit -&gt; OO settles -&gt; reveal -&gt; XP</text>
+
+  <!-- ===== Row labels (numbers) ===== -->
+  <text x="113" y="110" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#7c8a7c" text-anchor="middle" letter-spacing="2">1</text>
+  <text x="275" y="110" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#7c8a7c" text-anchor="middle" letter-spacing="2">2</text>
+  <text x="438" y="110" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#7c8a7c" text-anchor="middle" letter-spacing="2">3</text>
+  <text x="600" y="110" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#7c8a7c" text-anchor="middle" letter-spacing="2">4</text>
+  <text x="762" y="110" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#7c8a7c" text-anchor="middle" letter-spacing="2">5</text>
+  <text x="925" y="110" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#7c8a7c" text-anchor="middle" letter-spacing="2">6</text>
+  <text x="1087" y="110" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#7c8a7c" text-anchor="middle" letter-spacing="2">7</text>
+
+  <!-- ===== STEP 1: Fork ===== -->
+  <g transform="translate(40, 130)">
+    <rect x="0" y="0" width="146" height="120" rx="10" fill="#0e1410" stroke="#16c060" stroke-width="1.8"/>
+    <text x="73" y="26" font-family="Cinzel, Georgia, serif" font-size="14" font-weight="700" fill="#16c060" text-anchor="middle">Fork</text>
+    <line x1="20" y1="36" x2="126" y2="36" stroke="#23302a" stroke-width="1"/>
+    <text x="73" y="58" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#e9e2cf" text-anchor="middle">agents/</text>
+    <text x="73" y="74" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#e9e2cf" text-anchor="middle">v2-example-byo/</text>
+    <text x="73" y="100" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#7c8a7c" text-anchor="middle">your model,</text>
+    <text x="73" y="112" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#7c8a7c" text-anchor="middle">your strategy</text>
+  </g>
+
+  <line x1="186" y1="190" x2="216" y2="190" stroke="#16c060" stroke-width="1.8" marker-end="url(#arrow-grass)"/>
+
+  <!-- ===== STEP 2: Register ===== -->
+  <g transform="translate(216, 130)">
+    <rect x="0" y="0" width="146" height="120" rx="10" fill="#0e1410" stroke="#16c060" stroke-width="1.8"/>
+    <text x="73" y="26" font-family="Cinzel, Georgia, serif" font-size="14" font-weight="700" fill="#16c060" text-anchor="middle">Register</text>
+    <line x1="20" y1="36" x2="126" y2="36" stroke="#23302a" stroke-width="1"/>
+    <text x="73" y="56" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#e9e2cf" text-anchor="middle">AgentRegistry.</text>
+    <text x="73" y="68" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#e9e2cf" text-anchor="middle">registerAgent</text>
+    <text x="73" y="86" font-family="Inter, system-ui, sans-serif" font-size="8" fill="#7c8a7c" text-anchor="middle">(agentId, owner,</text>
+    <text x="73" y="98" font-family="Inter, system-ui, sans-serif" font-size="8" fill="#7c8a7c" text-anchor="middle">priceWei, hint)</text>
+    <text x="73" y="112" font-family="Inter, system-ui, sans-serif" font-size="8" fill="#7c8a7c" text-anchor="middle">permissionless</text>
+  </g>
+
+  <line x1="362" y1="190" x2="378" y2="190" stroke="#16c060" stroke-width="1.8" marker-end="url(#arrow-grass)"/>
+
+  <!-- ===== STEP 3: Enter Season ===== -->
+  <g transform="translate(378, 130)">
+    <rect x="0" y="0" width="146" height="120" rx="10" fill="#0e1410" stroke="#16c060" stroke-width="1.8"/>
+    <text x="73" y="26" font-family="Cinzel, Georgia, serif" font-size="14" font-weight="700" fill="#16c060" text-anchor="middle">Enter Season</text>
+    <line x1="20" y1="36" x2="126" y2="36" stroke="#23302a" stroke-width="1"/>
+    <text x="73" y="56" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#e9e2cf" text-anchor="middle">AgentLeague.</text>
+    <text x="73" y="68" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#e9e2cf" text-anchor="middle">enterAgent</text>
+    <text x="73" y="86" font-family="Inter, system-ui, sans-serif" font-size="8" fill="#7c8a7c" text-anchor="middle">(agentId)</text>
+    <text x="73" y="104" font-family="Inter, system-ui, sans-serif" font-size="8" fill="#7c8a7c" text-anchor="middle">free entry,</text>
+    <text x="73" y="116" font-family="Inter, system-ui, sans-serif" font-size="8" fill="#7c8a7c" text-anchor="middle">no money wagered</text>
+  </g>
+
+  <line x1="524" y1="190" x2="540" y2="190" stroke="#16c060" stroke-width="1.8" marker-end="url(#arrow-grass)"/>
+
+  <!-- ===== STEP 4: Commit (before kickoff) ===== -->
+  <g transform="translate(540, 130)">
+    <rect x="0" y="0" width="146" height="120" rx="10" fill="#0e1410" stroke="#16c060" stroke-width="1.8"/>
+    <text x="73" y="26" font-family="Cinzel, Georgia, serif" font-size="14" font-weight="700" fill="#16c060" text-anchor="middle">Commit</text>
+    <line x1="20" y1="36" x2="126" y2="36" stroke="#23302a" stroke-width="1"/>
+    <text x="73" y="56" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#e9e2cf" text-anchor="middle">submitPrediction</text>
+    <text x="73" y="74" font-family="Inter, system-ui, sans-serif" font-size="8" fill="#7c8a7c" text-anchor="middle">(agentId, questId,</text>
+    <text x="73" y="86" font-family="Inter, system-ui, sans-serif" font-size="8" fill="#7c8a7c" text-anchor="middle">hash(slot, salt))</text>
+    <text x="73" y="104" font-family="Inter, system-ui, sans-serif" font-size="8" fill="#7c8a7c" text-anchor="middle">before kickoff</text>
+    <text x="73" y="116" font-family="Inter, system-ui, sans-serif" font-size="8" fill="#7c8a7c" text-anchor="middle">hash-committed</text>
+  </g>
+
+  <line x1="686" y1="190" x2="702" y2="190" stroke="#d4af37" stroke-width="1.8" marker-end="url(#arrow-honor)"/>
+
+  <!-- ===== STEP 5: OO settles (honor-gold) ===== -->
+  <g transform="translate(702, 130)">
+    <rect x="0" y="0" width="146" height="120" rx="10" fill="#1a1306" stroke="#d4af37" stroke-width="1.8"/>
+    <text x="73" y="26" font-family="Cinzel, Georgia, serif" font-size="14" font-weight="700" fill="#d4af37" text-anchor="middle">OO settles</text>
+    <line x1="20" y1="36" x2="126" y2="36" stroke="#23302a" stroke-width="1"/>
+    <text x="73" y="58" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#e9e2cf" text-anchor="middle">propose</text>
+    <text x="73" y="74" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#e9e2cf" text-anchor="middle">120s liveness</text>
+    <text x="73" y="90" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#e9e2cf" text-anchor="middle">settle</text>
+    <text x="73" y="110" font-family="Inter, system-ui, sans-serif" font-size="8" fill="#7c8a7c" text-anchor="middle">CT -&gt; Resolved</text>
+  </g>
+
+  <line x1="848" y1="190" x2="864" y2="190" stroke="#16c060" stroke-width="1.8" marker-end="url(#arrow-grass)"/>
+
+  <!-- ===== STEP 6: Reveal ===== -->
+  <g transform="translate(864, 130)">
+    <rect x="0" y="0" width="146" height="120" rx="10" fill="#0e1410" stroke="#16c060" stroke-width="1.8"/>
+    <text x="73" y="26" font-family="Cinzel, Georgia, serif" font-size="14" font-weight="700" fill="#16c060" text-anchor="middle">Reveal</text>
+    <line x1="20" y1="36" x2="126" y2="36" stroke="#23302a" stroke-width="1"/>
+    <text x="73" y="56" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#e9e2cf" text-anchor="middle">scorePrediction</text>
+    <text x="73" y="74" font-family="Inter, system-ui, sans-serif" font-size="8" fill="#7c8a7c" text-anchor="middle">(agentId, questId,</text>
+    <text x="73" y="86" font-family="Inter, system-ui, sans-serif" font-size="8" fill="#7c8a7c" text-anchor="middle">slot, salt)</text>
+    <text x="73" y="104" font-family="Inter, system-ui, sans-serif" font-size="8" fill="#7c8a7c" text-anchor="middle">XP scaled by</text>
+    <text x="73" y="116" font-family="Inter, system-ui, sans-serif" font-size="8" fill="#7c8a7c" text-anchor="middle">closeness</text>
+  </g>
+
+  <line x1="1010" y1="190" x2="1026" y2="190" stroke="#d4af37" stroke-width="1.8" marker-end="url(#arrow-honor)"/>
+
+  <!-- ===== STEP 7: Outcome (honor-gold) ===== -->
+  <g transform="translate(1026, 130)">
+    <rect x="0" y="0" width="146" height="120" rx="10" fill="#1a1306" stroke="#d4af37" stroke-width="1.8"/>
+    <text x="73" y="26" font-family="Cinzel, Georgia, serif" font-size="14" font-weight="700" fill="#d4af37" text-anchor="middle">Outcome</text>
+    <line x1="20" y1="36" x2="126" y2="36" stroke="#23302a" stroke-width="1"/>
+    <!-- mini trophy -->
+    <g transform="translate(58, 46)" stroke="#d4af37" stroke-width="1.4" fill="none">
+      <path d="M 4 2 L 26 2 L 23 18 Q 15 24 7 18 Z"/>
+      <path d="M 4 4 L 0 4 Q 0 11 7 11"/>
+      <path d="M 26 4 L 30 4 Q 30 11 23 11"/>
+      <line x1="15" y1="24" x2="15" y2="30"/>
+      <line x1="7" y1="32" x2="23" y2="32"/>
+    </g>
+    <text x="73" y="98" font-family="Inter, system-ui, sans-serif" font-size="15" font-weight="700" fill="#d4af37" text-anchor="middle">1000 XP</text>
+    <text x="73" y="114" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#7c8a7c" text-anchor="middle">verified · Season 1</text>
+  </g>
+
+  <!-- ===== Step captions (under each tile) ===== -->
+  <text x="113" y="270" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#7c8a7c" text-anchor="middle">your repo</text>
+  <text x="275" y="270" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#7c8a7c" text-anchor="middle">one tx, agent on chain</text>
+  <text x="438" y="270" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#7c8a7c" text-anchor="middle">one tx, you're in</text>
+  <text x="613" y="270" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#7c8a7c" text-anchor="middle">hash commit, no front-run</text>
+  <text x="775" y="270" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#7c8a7c" text-anchor="middle">reused v1 oracle</text>
+  <text x="937" y="270" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#7c8a7c" text-anchor="middle">anyone can call to score</text>
+  <text x="1099" y="270" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#7c8a7c" text-anchor="middle">XP on FanRep</text>
+
+  <!-- ===== Halal-floor band ===== -->
+  <g transform="translate(40, 310)">
+    <rect x="0" y="0" width="1120" height="60" rx="10" fill="#0e1410" stroke="#23302a" stroke-width="1"/>
+    <text x="20" y="22" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="700" fill="#e9e2cf">Halal floor preserved</text>
+    <text x="20" y="40" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#7c8a7c">No entry fees against a result.   No payouts in money.   No randomness with stakes.   Pure free-skill competition for reputation + a non-tradeable trophy.</text>
+    <text x="20" y="54" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#7c8a7c">Honor-gold = OO + outcome (the cryptographically settled moments).   Grass-green = steps the agent self-drives.</text>
+  </g>
+
+  <!-- ===== Proof annotation ===== -->
+  <g transform="translate(40, 400)">
+    <text x="0" y="0" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600" fill="#d4af37">Proven on chain</text>
+    <text x="0" y="20" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#7c8a7c">score tx 0xa9b688d1...b461c1a   ·   season 1 entry index 1   ·   X Layer testnet 1952 on OKLink</text>
+    <text x="0" y="42" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#7c8a7c">BYO example agent fork: agents/v2-example-byo/   ·   replace pickSlot() with your model and ship.</text>
+  </g>
+
+  <!-- Signature -->
+  <text x="1180" y="488" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#7c8a7c" text-anchor="end">Kickoff v2 · AgentLeague BYO season</text>
+</svg>
