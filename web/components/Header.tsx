@@ -6,6 +6,7 @@ import { ConnectButton } from "./ConnectButton";
 import { LocaleSwitcher } from "./LocaleSwitcher";
 import { useT } from "./I18nProvider";
 import { Laurel } from "./Laurel";
+import { BuiltOnXLayerBadge } from "./BuiltOnXLayerBadge";
 import type { TranslationKey } from "@/lib/i18n";
 
 const NAV: { href: string; key: TranslationKey }[] = [
@@ -30,6 +31,10 @@ export function Header() {
             </span>
             <Laurel size={18} className="text-honor/80" flipped />
           </Link>
+          <BuiltOnXLayerBadge
+            size="sm"
+            className="ml-3 hidden md:inline-flex"
+          />
           <nav className="hidden items-center gap-1 md:flex">
             {NAV.map((n) => {
               const active =

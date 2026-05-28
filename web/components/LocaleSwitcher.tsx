@@ -30,7 +30,7 @@ export function LocaleSwitcher() {
                   setLocale(l.code as Locale);
                   setOpen(false);
                 }}
-                className={`flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm hover:bg-white/5 ${
+                className={`flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-white/5 focus-visible:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-honor/60 ${
                   l.code === locale ? "text-grass" : "text-white"
                 }`}
               >

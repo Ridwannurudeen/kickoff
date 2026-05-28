@@ -31,12 +31,13 @@ function nonEmpty(v: string | undefined): string | undefined {
 export const CHAIN_ID = Number(
   nonEmpty(process.env.NEXT_PUBLIC_CHAIN_ID) ?? "1952",
 );
+export const CHAIN_ID_HEX = `0x${CHAIN_ID.toString(16)}`;
 
 export const RPC_URL =
   nonEmpty(process.env.NEXT_PUBLIC_RPC_URL) ??
   (CHAIN_ID === 196
     ? "https://rpc.xlayer.tech"
-    : "https://testrpc.xlayer.tech");
+    : "https://testrpc.xlayer.tech/terigon");
 
 export const EXPLORER_URL = (
   nonEmpty(process.env.NEXT_PUBLIC_EXPLORER_URL) ??
@@ -47,7 +48,7 @@ export const EXPLORER_URL = (
 
 export const CHAIN_NAME =
   nonEmpty(process.env.NEXT_PUBLIC_CHAIN_NAME) ??
-  (CHAIN_ID === 196 ? "X Layer" : "X Layer Testnet");
+  (CHAIN_ID === 196 ? "X Layer Mainnet" : "X Layer Testnet");
 
 /** The viem Chain object for the configured network. Native OKB gas. */
 export const activeChain: Chain =

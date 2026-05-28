@@ -97,7 +97,7 @@ export function QuestCard({ quest, now }: { quest: Quest; now: number }) {
   }
 
   return (
-    <div className="card flex flex-col gap-3 p-5">
+    <div className="card flex flex-col gap-3 p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-grass/40">
       <div className="flex items-start justify-between gap-2">
         <span
           className={`pill ${

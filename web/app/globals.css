@@ -29,6 +29,16 @@ body {
   background: #23302a;
   border-radius: 4px;
 }
+::-webkit-scrollbar-thumb:hover {
+  background: #2e3a32;
+}
+
+/* Palette-matched text selection — default browser blue clashes with the
+   honor/grass scheme. */
+::selection {
+  background: rgba(60, 240, 138, 0.35);
+  color: #ffffff;
+}
 
 @layer components {
   .card {
@@ -73,6 +83,38 @@ body {
       0 0 1px rgba(244, 211, 94, 0.55),
       0 1px 12px rgba(212, 175, 55, 0.18);
     letter-spacing: 0.02em;
+  }
+
+  /* Visible keyboard focus rings on dark backgrounds. The default Tailwind
+     focus ring disappears against the pitch-bg palette, so we paint explicit
+     outlines that match each button's intent colour. */
+  .btn-primary:focus-visible {
+    outline: 2px solid rgb(60, 240, 138);
+    outline-offset: 2px;
+  }
+  .btn-ghost:focus-visible {
+    outline: 2px solid rgb(212, 175, 55);
+    outline-offset: 2px;
+  }
+
+  /* Skip-to-content link for keyboard users. Hidden off-screen until it
+     receives focus; render it as the first focusable element in layout.tsx
+     with an href pointing at the <main id="main"> landmark. */
+  .skip-link {
+    @apply absolute left-2 top-2 z-50 -translate-y-20 rounded-md bg-grass px-3 py-1.5 text-sm font-semibold text-black transition-transform focus:translate-y-0;
+  }
+}
+
+/* Respect prefers-reduced-motion. Disables the heavier ambient animations
+   while leaving layout intact. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-ticker,
+  .animate-glow-pulse,
+  .animate-shimmer,
+  .animate-podium-rise,
+  .animate-fade-up,
+  .animate-pulse-dot {
+    animation: none !important;
   }
 }
 

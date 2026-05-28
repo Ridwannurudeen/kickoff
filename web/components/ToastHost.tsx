@@ -16,6 +16,13 @@ const BORDER: Record<ToastKind, string> = {
   pending: "border-grass/30",
 };
 
+const TITLE_TONE: Record<ToastKind, string> = {
+  success: "text-grass",
+  error: "text-no",
+  info: "text-white",
+  pending: "text-honor",
+};
+
 export function ToastHost() {
   const { toasts, dismiss } = useToasts();
   return (
@@ -23,12 +30,24 @@ export function ToastHost() {
       {toasts.map((t) => (
         <div
           key={t.id}
-          className={`card pointer-events-auto border ${BORDER[t.kind]} bg-pitch-panel p-3 shadow-glow`}
+          role={t.kind === "error" ? "alert" : "status"}
+          className={`card pointer-events-auto max-w-sm border ${BORDER[t.kind]} animate-fade-up bg-pitch-panel p-3 shadow-glow`}
         >
           <div className="flex items-start gap-2">
-            <span className="text-base leading-5">{ICONS[t.kind]}</span>
+            {t.kind === "pending" ? (
+              <span
+                className="mt-1 inline-block h-2 w-2 flex-shrink-0 animate-pulse-dot rounded-full bg-honor"
+                aria-hidden
+              />
+            ) : (
+              <span className="text-base leading-5" aria-hidden>
+                {ICONS[t.kind]}
+              </span>
+            )}
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold">{t.title}</p>
+              <p className={`text-sm font-semibold ${TITLE_TONE[t.kind]}`}>
+                {t.title}
+              </p>
               {t.message && (
                 <p className="mt-0.5 break-words text-xs text-muted">
                   {t.message}
@@ -39,7 +58,7 @@ export function ToastHost() {
                   href={t.href}
                   target="_blank"
                   rel="noreferrer"
-                  className="mt-1 inline-block text-xs font-medium text-grass hover:underline"
+                  className="mt-1 inline-block text-xs font-medium text-grass hover:underline focus-visible:underline focus-visible:outline-none"
                 >
                   View on OKLink ↗
                 </a>
@@ -47,7 +66,7 @@ export function ToastHost() {
             </div>
             <button
               onClick={() => dismiss(t.id)}
-              className="text-muted hover:text-white"
+              className="rounded-md px-1 text-muted transition-colors hover:bg-white/5 hover:text-white focus-visible:bg-white/5 focus-visible:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-honor/60"
               aria-label="Dismiss"
             >
               ✕

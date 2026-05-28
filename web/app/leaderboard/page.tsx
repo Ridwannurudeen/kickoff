@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useT } from "@/components/I18nProvider";
+import { ChampionshipMark, LaurelWreath, Podium } from "@/components/ornaments";
 import { TEAMS } from "@/lib/teams";
 import { DEMO_LEADERBOARD } from "@/lib/v2-demo";
 import { addressUrl } from "@/lib/config";
@@ -20,13 +21,28 @@ export default function LeaderboardPage() {
   // global ordering with the chosen team shown in the breakdown.
   const rows = DEMO_LEADERBOARD;
 
+  const topThree = ([1, 2, 3] as const).map((rank) => {
+    const entry = rows[rank - 1];
+    return {
+      rank,
+      label: entry ? shortAddr(entry.address) : "—",
+      sublabel: entry ? `${fmtInt(entry.totalXp)} XP` : undefined,
+    };
+  });
+  const rest = rows.slice(3);
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-display text-3xl tracking-wide sm:text-4xl">
-          {t("leaderboard_title")}
-        </h1>
-        <p className="text-sm text-muted">{t("leaderboard_subtitle")}</p>
+      <div className="animate-fade-up">
+        <div className="flex items-center gap-3">
+          <h1 className="font-display text-3xl tracking-wide sm:text-4xl">
+            {t("leaderboard_title")}
+          </h1>
+          <ChampionshipMark size={36} className="text-honor/70" />
+        </div>
+        <p className="animate-fade-up text-sm text-muted [animation-delay:80ms]">
+          {t("leaderboard_subtitle")}
+        </p>
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -64,80 +80,97 @@ export default function LeaderboardPage() {
       </div>
 
       {rows.length === 0 ? (
-        <div className="card py-16 text-center text-sm text-muted">
-          {t("leaderboard_empty")}
+        /** Hardcoded English copy — translators can lift this into a new
+         *  `leaderboard_empty_hero` key when the locale files get a refresh. */
+        <div className="card tabula flex flex-col items-center gap-3 p-12 text-center">
+          <LaurelWreath size={48} className="text-muted/40" />
+          <p className="text-sm text-muted">
+            No fans on the board yet — be the first.
+          </p>
         </div>
       ) : (
-        <div className="card overflow-x-auto p-4">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-pitch-border text-left text-xs text-muted">
-                <th className="py-2 pr-3 font-medium">
-                  {t("leaderboard_col_rank")}
-                </th>
-                <th className="py-2 pr-3 font-medium">
-                  {t("leaderboard_col_fan")}
-                </th>
-                <th className="py-2 pr-3 font-medium">
-                  {t("leaderboard_col_xp")}
-                </th>
-                <th className="py-2 pr-3 font-medium">
-                  {t("leaderboard_col_accuracy")}
-                </th>
-                <th className="py-2 pr-3 font-medium">
-                  {t("leaderboard_col_breadth")}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r, i) => (
-                <tr
-                  key={r.address}
-                  className="border-b border-pitch-border/50 last:border-0"
-                >
-                  <td className="py-3 pr-3 font-bold text-muted">
-                    {i === 0 ? (
-                      <span className="gold-ink">I</span>
-                    ) : i === 1 || i === 2 ? (
-                      <span className="font-display font-semibold text-honor-glow">
-                        {i + 1}
-                      </span>
-                    ) : (
-                      i + 1
-                    )}
-                  </td>
-                  <td className="py-3 pr-3">
-                    <div className="flex items-center gap-2">
-                      <Link
-                        href={`/profile/${r.address}`}
-                        className="font-mono hover:text-grass"
+        <>
+          {/** Hardcoded English label — translators can lift this into a new
+           *  `leaderboard_podium_label` key when the locale files get a refresh. */}
+          <div className="tabula card mx-auto max-w-2xl animate-fade-up p-6 [animation-delay:140ms] md:p-8">
+            <div className="mb-4 text-center text-[10px] font-bold uppercase tracking-[0.2em] text-muted">
+              Top fans · all-time
+            </div>
+            <Podium topThree={topThree} className="mx-auto w-full" />
+          </div>
+
+          {rest.length > 0 && (
+            <>
+              <div className="divider-classical" />
+              <div className="card animate-fade-up overflow-x-auto p-4 [animation-delay:240ms]">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-pitch-border text-left text-xs text-muted">
+                      <th className="py-2 pr-3 font-medium">
+                        {t("leaderboard_col_rank")}
+                      </th>
+                      <th className="py-2 pr-3 font-medium">
+                        {t("leaderboard_col_fan")}
+                      </th>
+                      <th className="py-2 pr-3 font-medium">
+                        {t("leaderboard_col_xp")}
+                      </th>
+                      <th className="py-2 pr-3 font-medium">
+                        {t("leaderboard_col_accuracy")}
+                      </th>
+                      <th className="py-2 pr-3 font-medium">
+                        {t("leaderboard_col_breadth")}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rest.map((r, i) => (
+                      <tr
+                        key={r.address}
+                        className="border-b border-pitch-border/50 transition-colors last:border-0 hover:bg-pitch-panel/60"
                       >
-                        {shortAddr(r.address)}
-                      </Link>
-                      <a
-                        href={addressUrl(r.address)}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-xs text-muted hover:text-grass"
-                      >
-                        ↗
-                      </a>
-                    </div>
-                  </td>
-                  <td className="py-3 pr-3 font-semibold text-grass">
-                    {fmtInt(r.totalXp)}
-                  </td>
-                  <td className="py-3 pr-3 text-muted">
-                    {(r.predAccBps / 100).toFixed(1)}%
-                  </td>
-                  <td className="py-3 pr-3 text-muted">
-                    {fmtInt(r.engagement)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                        <td className="py-3 pr-3 font-display tracking-wide text-muted">
+                          {i + 4}
+                        </td>
+                        <td className="py-3 pr-3">
+                          <div className="flex items-center gap-2">
+                            <Link
+                              href={`/profile/${r.address}`}
+                              className="font-mono hover:text-grass"
+                            >
+                              {shortAddr(r.address)}
+                            </Link>
+                            <a
+                              href={addressUrl(r.address)}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-xs text-muted hover:text-grass"
+                            >
+                              ↗
+                            </a>
+                          </div>
+                        </td>
+                        <td
+                          className={`py-3 pr-3 font-semibold tabular-nums ${
+                            r.totalXp > 0 ? "text-grass" : "text-muted"
+                          }`}
+                        >
+                          {fmtInt(r.totalXp)}
+                        </td>
+                        <td className="py-3 pr-3 text-muted">
+                          {(r.predAccBps / 100).toFixed(1)}%
+                        </td>
+                        <td className="py-3 pr-3 text-muted">
+                          {fmtInt(r.engagement)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
+        </>
       )}
     </div>
   );

@@ -11,32 +11,40 @@ export function ConnectButton() {
   const { address, isConnected } = useAccount();
   const { connect, connectors, isPending } = useConnect();
   const { disconnect } = useDisconnect();
-  const { isCorrect, switchToXLayer, isSwitching } = useOnCorrectChain();
+  const { isCorrect, switchToXLayer, isSwitching, switchError } =
+    useOnCorrectChain();
   const [open, setOpen] = useState(false);
   const { t } = useT();
 
   if (isConnected && address) {
     return (
-      <div className="flex items-center gap-2">
-        {!isCorrect && (
+      <div className="flex flex-col items-end gap-2">
+        <div className="flex items-center gap-2">
+          {!isCorrect && (
+            <button
+              onClick={() => void switchToXLayer()}
+              disabled={isSwitching}
+              className="btn-primary !py-1.5 !px-3 text-xs"
+            >
+              {isSwitching
+                ? t("wallet_connecting")
+                : t("wallet_switch", { chain: CHAIN_NAME })}
+            </button>
+          )}
+          <NetworkIndicator correct={isCorrect} />
           <button
-            onClick={switchToXLayer}
-            disabled={isSwitching}
-            className="btn-primary !py-1.5 !px-3 text-xs"
+            onClick={() => disconnect()}
+            className="btn-ghost !py-1.5 !px-3 font-mono text-xs tabular-nums"
+            title={t("wallet_disconnect")}
           >
-            {isSwitching
-              ? t("wallet_connecting")
-              : t("wallet_switch", { chain: CHAIN_NAME })}
+            {shortAddr(address)}
           </button>
+        </div>
+        {switchError && (
+          <p className="max-w-sm rounded-lg border border-no/40 bg-no/10 px-3 py-2 text-right text-xs text-no">
+            {switchError}
+          </p>
         )}
-        <NetworkIndicator correct={isCorrect} />
-        <button
-          onClick={() => disconnect()}
-          className="btn-ghost !py-1.5 !px-3 font-mono text-xs"
-          title={t("wallet_disconnect")}
-        >
-          {shortAddr(address)}
-        </button>
       </div>
     );
   }
@@ -61,7 +69,7 @@ export function ConnectButton() {
                   connect({ connector: c });
                   setOpen(false);
                 }}
-                className="flex w-full items-center gap-2 rounded-md px-3 py-2.5 text-left text-sm hover:bg-white/5"
+                className="flex w-full items-center gap-2 rounded-md px-3 py-2.5 text-left text-sm transition-colors hover:bg-white/5 focus-visible:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-honor/60"
               >
                 {c.name}
               </button>
