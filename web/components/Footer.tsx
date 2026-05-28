@@ -94,7 +94,30 @@ export function Footer() {
           {/* Brand column */}
           <div className="flex flex-col gap-3">
             <BuiltOnXLayerBadge size="md" />
-            <p className="mt-3 text-xs leading-relaxed text-muted">
+            {/*
+             * OKX-ecosystem badge row — typographic only. We don't reproduce
+             * the OKX or X Layer official brand marks (the OKX brand-kit
+             * endpoints refused our connections during the upgrade pass; a
+             * reconstructed mark from memory would be inaccurate). Each chip
+             * names one piece of the ecosystem we lean on. When the owner
+             * supplies the official SVGs these chips can carry the marks
+             * directly without changing the layout.
+             */}
+            <ul className="mt-1 flex flex-wrap gap-1.5">
+              <li className="inline-flex items-center gap-1 rounded-md border border-pitch-border bg-pitch-bg px-2 py-1 text-[10px] font-semibold tracking-wide text-marble">
+                <span className="h-1.5 w-1.5 rounded-full bg-grass" />
+                OKX Wallet
+              </li>
+              <li className="inline-flex items-center gap-1 rounded-md border border-pitch-border bg-pitch-bg px-2 py-1 text-[10px] font-semibold tracking-wide text-marble">
+                <span className="h-1.5 w-1.5 rounded-full bg-grass" />
+                OKB gas
+              </li>
+              <li className="inline-flex items-center gap-1 rounded-md border border-pitch-border bg-pitch-bg px-2 py-1 text-[10px] font-semibold tracking-wide text-marble">
+                <span className="h-1.5 w-1.5 rounded-full bg-grass" />
+                OKLink
+              </li>
+            </ul>
+            <p className="mt-2 text-xs leading-relaxed text-muted">
               Honest scope — not affiliated with or endorsed by FIFA. World Cup
               is a generic phrase here; no licensed marks are displayed.
             </p>

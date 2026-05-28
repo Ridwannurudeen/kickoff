@@ -3,7 +3,12 @@
 import Link from "next/link";
 import { useAccount, useWriteContract } from "wagmi";
 import { useT } from "@/components/I18nProvider";
-import { LaurelWreath, PillarIcon } from "@/components/ornaments";
+import {
+  ChampionshipMark,
+  LaurelWreath,
+  PillarIcon,
+} from "@/components/ornaments";
+import { BuiltOnXLayerBadge } from "@/components/BuiltOnXLayerBadge";
 import { TxTicker } from "@/components/TxTicker";
 import { useCountUp } from "@/lib/useCountUp";
 import { useFanScore } from "@/lib/v2-fan";
@@ -104,10 +109,24 @@ export default function HomePage() {
           className="pointer-events-none absolute -right-12 -top-6 select-none text-honor/10"
         />
         <div className="relative z-10 max-w-2xl">
-          <p className="pill mb-4 text-grass">
-            <span className="h-2 w-2 animate-pulse-dot rounded-full bg-grass" />
-            {t("home_hero_eyebrow")}
-          </p>
+          {/*
+           * Eyebrow row carries the visible brand cues — live indicator,
+           * "WORLD CUP 2026" wordmark (text only, no FIFA-licensed mark
+           * is reproduced anywhere on this site), and a "Built on X Layer"
+           * chip. The wordmark gives the page its sports-event identity at
+           * a glance without infringing on any registered trademark.
+           */}
+          <div className="mb-4 flex flex-wrap items-center gap-2">
+            <p className="pill text-grass">
+              <span className="h-2 w-2 animate-pulse-dot rounded-full bg-grass" />
+              {t("home_hero_eyebrow")}
+            </p>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-honor/40 bg-pitch-panel px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.18em] text-honor">
+              <ChampionshipMark size={14} className="text-honor" aria-hidden />
+              World Cup 2026
+            </span>
+            <BuiltOnXLayerBadge size="sm" />
+          </div>
           <h1 className="animate-fade-up font-display text-4xl font-extrabold leading-tight tracking-wide sm:text-6xl">
             Kick<span className="text-grass">off</span>
           </h1>
@@ -129,6 +148,15 @@ export default function HomePage() {
             </Link>
           </div>
         </div>
+        {/* Bigger, gold-tinted ChampionshipMark anchored bottom-right of the
+           hero as a heritage centerpiece. Larger than the LaurelWreath
+           watermark (size 360 → laurel circle) and at a stronger opacity
+           so the trophy reads as the brand cue, not just background. */}
+        <ChampionshipMark
+          size={220}
+          className="pointer-events-none absolute -bottom-6 right-2 select-none text-honor/30 md:right-10"
+          aria-hidden
+        />
       </section>
 
       {/* Protocol-wide stats */}
@@ -288,11 +316,7 @@ function FanStat({
   mono?: boolean;
   gold?: boolean;
 }) {
-  const tone = gold
-    ? "gold-ink"
-    : accent
-      ? "text-grass"
-      : "text-white";
+  const tone = gold ? "gold-ink" : accent ? "text-grass" : "text-white";
   return (
     <div>
       <p className="text-xs text-muted">{label}</p>
