@@ -9,16 +9,11 @@
 import Link from "next/link";
 
 import { BuiltOnXLayerBadge } from "@/components/BuiltOnXLayerBadge";
-import { LaurelWreath } from "@/components/ornaments";
 
 export function CTASection(): JSX.Element {
   return (
     <section aria-labelledby="cta-heading">
       <div className="card tabula relative overflow-hidden p-8 text-center md:p-12">
-        <LaurelWreath
-          size={220}
-          className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 select-none text-honor/12"
-        />
         <div className="relative z-10 flex flex-col items-center gap-4">
           <p className="pill animate-fade-up text-grass">
             <span className="h-2 w-2 animate-pulse-dot rounded-full bg-grass" />

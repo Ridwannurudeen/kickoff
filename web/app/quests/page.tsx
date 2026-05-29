@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useT } from "@/components/I18nProvider";
-import { LaurelWreath } from "@/components/ornaments";
 import { QuestCard } from "@/components/QuestCard";
 import { useCountUp } from "@/lib/useCountUp";
 import { fmtInt } from "@/lib/format";
@@ -38,12 +37,9 @@ export default function QuestsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <div className="flex items-center gap-3">
-          <h1 className="animate-fade-up font-display text-3xl tracking-wide sm:text-4xl">
-            {t("quests_title")}
-          </h1>
-          <LaurelWreath size={28} className="text-honor/70" />
-        </div>
+        <h1 className="animate-fade-up font-display text-3xl uppercase tracking-wide sm:text-4xl">
+          {t("quests_title")}
+        </h1>
         <p className="animate-fade-up text-sm text-muted [animation-delay:80ms]">
           {t("quests_subtitle")}
         </p>
@@ -76,8 +72,7 @@ export default function QuestsPage() {
       {filtered.length === 0 ? (
         /** Hardcoded English copy — translators can lift this into a new
          *  `quests_empty_hero` key when the locale files get a refresh. */
-        <div className="card tabula flex flex-col items-center gap-3 p-12 text-center">
-          <LaurelWreath size={48} className="text-muted/40" />
+        <div className="card flex flex-col items-center gap-3 p-12 text-center">
           <p className="text-sm text-muted">{t("quests_empty")}</p>
         </div>
       ) : (

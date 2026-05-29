@@ -8,8 +8,6 @@
  * tokens.
  */
 
-import { ColumnOrnament, LaurelWreath } from "@/components/ornaments";
-
 type ContractRow = {
   name: string;
   blurb: string;
@@ -54,10 +52,6 @@ export function Architecture(): JSX.Element {
   return (
     <section aria-labelledby="architecture-heading">
       <div className="tabula card relative overflow-hidden p-6 md:p-10">
-        <LaurelWreath
-          size={260}
-          className="pointer-events-none absolute -right-10 -top-10 select-none text-honor/10"
-        />
         <h2
           id="architecture-heading"
           className="mb-2 animate-fade-up font-display text-2xl tracking-wide sm:text-3xl"
@@ -111,11 +105,6 @@ export function Architecture(): JSX.Element {
               tone="honor"
             />
           </div>
-
-          <ColumnOrnament
-            className="pointer-events-none absolute -bottom-4 right-2 text-honor/20"
-            size={48}
-          />
         </div>
 
         {/* Glossary */}

@@ -8,7 +8,7 @@
  */
 
 import Link from "next/link";
-import { LaurelWreath, PillarIcon } from "@/components/ornaments";
+import { PillarIcon } from "@/components/ornaments";
 
 type Track = {
   label: string;
@@ -90,12 +90,6 @@ export function Tracks(): JSX.Element {
             }`}
             style={{ animationDelay: `${track.delayMs}ms` }}
           >
-            {track.champion && (
-              <LaurelWreath
-                size={140}
-                className="pointer-events-none absolute -right-6 -top-6 select-none text-honor/15"
-              />
-            )}
             <div className="relative z-10 flex items-center justify-between">
               <span className="gold-ink text-[11px] uppercase tracking-[0.18em]">
                 {track.label}

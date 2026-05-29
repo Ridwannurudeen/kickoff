@@ -1,29 +1,26 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { LaurelWreath } from "@/components/ornaments";
 
 export const metadata: Metadata = {
   title: "404 — page not found",
   description: "The page you were looking for isn't here.",
 };
 
-// Custom 404. Reuses the classical design language (tabula + LaurelWreath +
-// honor accent) so the broken-path landing reads as part of the site, not
-// a stock Next.js fallback. Server-rendered, no client state.
+// Custom 404 styled as an "out of bounds" pitch moment so the broken-path
+// landing reads as part of the site, not a stock Next.js fallback.
+// Server-rendered, no client state.
 export default function NotFound(): JSX.Element {
   return (
     <div className="mx-auto max-w-xl py-12">
-      <section className="card tabula relative overflow-hidden p-10 text-center">
-        <LaurelWreath
-          size={200}
-          className="pointer-events-none absolute -right-6 -top-6 select-none text-honor/15"
-          aria-hidden
-        />
+      <section className="card relative overflow-hidden p-10 text-center">
         <div className="relative z-10 flex flex-col items-center gap-4">
-          <span className="gold-ink text-5xl tracking-wider" aria-hidden="true">
-            IV · O · IV
+          <span
+            className="font-display text-6xl tracking-wider text-grass"
+            aria-hidden="true"
+          >
+            4 · 0 · 4
           </span>
-          <h1 className="font-display text-3xl font-extrabold tracking-wide">
+          <h1 className="font-display text-3xl uppercase tracking-wide">
             Out of bounds
           </h1>
           <p className="max-w-sm text-sm text-muted">

@@ -17,7 +17,6 @@ import { AGENT_REGISTRY_CONFIGURED, V2_ADDRESSES } from "@/lib/v2-addresses";
 import { txUrl } from "@/lib/config";
 import { formatOkb } from "@/lib/format";
 import { useToasts } from "@/lib/toast";
-import { LaurelWreath } from "@/components/ornaments";
 import { publicClient } from "@/lib/client";
 
 interface CompanionReply {
@@ -303,9 +302,8 @@ export default function CompanionPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="animate-fade-up flex items-center gap-3 font-display text-3xl font-bold tracking-wide sm:text-4xl">
+        <h1 className="animate-fade-up font-display text-3xl uppercase tracking-wide sm:text-4xl">
           {t("companion_title")}
-          <LaurelWreath size={32} className="text-honor/60" />
         </h1>
         <p className="animate-fade-up [animation-delay:80ms] mt-1 text-sm text-muted">
           {t("companion_subtitle")}

@@ -9,14 +9,10 @@
  * Section copy is hardcoded English; parent extracts to i18n later.
  */
 
-import {
-  ChampionshipMark,
-  PillarIcon,
-  TrophyGlyph,
-} from "@/components/ornaments";
+import { ChampionshipMark, PillarIcon } from "@/components/ornaments";
 
 type Step = {
-  numeral: "I" | "II" | "III" | "IV";
+  numeral: string;
   title: string;
   subtitle: string;
   delayMs: number;
@@ -26,7 +22,7 @@ type Step = {
 // TODO: i18n — extract titles/subtitles to translation keys.
 const STEPS: Step[] = [
   {
-    numeral: "I",
+    numeral: "1",
     title: "Connect OKX Wallet",
     subtitle: "OKB pays gas. No deposits, no sign-ups, no custody.",
     delayMs: 80,
@@ -54,14 +50,14 @@ const STEPS: Step[] = [
     ),
   },
   {
-    numeral: "II",
+    numeral: "2",
     title: "Mint your Fan ID",
     subtitle: "One soulbound SBT per wallet. Free, gas-only, non-transferable.",
     delayMs: 160,
     glyph: <ChampionshipMark size={40} className="text-honor" aria-hidden />,
   },
   {
-    numeral: "III",
+    numeral: "3",
     title: "Complete quests",
     subtitle:
       "Watch matches, predict scores, share posts. Every action earns XP on chain.",
@@ -69,14 +65,14 @@ const STEPS: Step[] = [
     glyph: <PillarIcon pillar="quests" size={40} className="text-grass" />,
   },
   {
-    numeral: "IV",
+    numeral: "4",
     title: "Earn trophies, run agents",
     subtitle:
       "Claim ERC-1155 commemoratives. Deploy your own AI agent to the league.",
     delayMs: 320,
     glyph: (
       <span className="inline-flex items-center gap-1.5">
-        <TrophyGlyph id={5} size={32} className="text-honor" />
+        <ChampionshipMark size={32} className="text-honor" aria-hidden />
         <PillarIcon pillar="league" size={28} className="text-grass" />
       </span>
     ),
@@ -101,7 +97,7 @@ export function HowItWorks(): JSX.Element {
           >
             <div className="flex items-center justify-between">
               <span
-                className="gold-ink text-3xl"
+                className="font-display text-3xl text-grass"
                 aria-label={`Step ${step.numeral}`}
               >
                 {step.numeral}
