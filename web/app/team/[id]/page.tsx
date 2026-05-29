@@ -8,7 +8,7 @@ import { Flag } from "@/components/Flag";
 import { FixtureCard } from "@/components/FixtureCard";
 import { TEAMS, teamById, teamsByGroup } from "@/lib/teams";
 import { fixturesForTeam } from "@/lib/fixtures";
-import { QUESTS } from "@/lib/v2-catalog";
+import { matchQuestsForTeam } from "@/lib/v2-match-quests";
 import { QuestCard } from "@/components/QuestCard";
 
 export default function TeamPage() {
@@ -31,9 +31,7 @@ export default function TeamPage() {
 
   const groupTeams = teamsByGroup(team.group);
   const fixtures = fixturesForTeam(team.name);
-  const teamQuests = QUESTS.filter((q) =>
-    q.context ? q.context.includes(team.name) : false,
-  );
+  const teamQuests = matchQuestsForTeam(team.name);
 
   return (
     <div className="space-y-8">

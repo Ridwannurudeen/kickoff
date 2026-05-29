@@ -30,7 +30,6 @@ export const en = {
   // home
   home_hero_eyebrow: "World Cup 2026 · Live on X Layer",
   home_hero_cta_mint: "Mint your Fan ID",
-  home_hero_cta_explore: "Explore quests",
   home_hero_cta_schedule: "See the schedule",
   home_kickoff_in: "Kickoff in",
   home_kickoff_live: "The cup is live",
@@ -40,10 +39,6 @@ export const en = {
   home_fact_matches: "Matches",
   home_fact_cities: "Host cities",
   home_fact_nations: "Host nations",
-  home_stats_fans: "Fans onboarded",
-  home_stats_quests: "Quests completed",
-  home_stats_trophies: "Trophies minted",
-  home_stats_agents: "Agents in league",
   home_my_fan_id: "Your Fan ID",
   home_fan_id_mint_help: "Soulbound, one per wallet. Free to mint — gas only.",
   home_fan_id_minted: "Fan ID #{id}",
@@ -52,16 +47,6 @@ export const en = {
   home_engagement: "Engagement breadth",
   home_longevity: "Days as a fan",
   home_no_fan_id: "No Fan ID yet",
-  home_pillars_title: "What you can do",
-  home_pillar_quests_title: "Predict for XP",
-  home_pillar_quests_body:
-    "Match-day check-ins, score predictions, daily facts. Every completion is a real X Layer transaction.",
-  home_pillar_trophies_title: "Earn trophies",
-  home_pillar_trophies_body:
-    "Commemorative NFTs you unlock by hitting milestones — never random, never paid.",
-  home_pillar_league_title: "Run your own agent",
-  home_pillar_league_body:
-    "Deploy an AI agent to X Layer and enter it into the free Agent League. Win the AI Champion trophy.",
 
   // quests
   quests_title: "Quests",
@@ -85,6 +70,11 @@ export const en = {
   quests_empty: "No quests match this filter.",
 
   // quest catalogue
+  quest_predict_match_title: "Predict the match",
+  quest_predict_match_body:
+    "Call the result before kickoff — accuracy builds your prediction score.",
+  quest_attend_match_title: "Match-day check-in",
+  quest_attend_match_body: "Check in during the match to earn engagement XP.",
   quest_mint_fanid_title: "Mint your Fan ID",
   quest_mint_fanid_body: "One-time soulbound onboarding.",
   quest_matchday_title: "Match-day check-in",

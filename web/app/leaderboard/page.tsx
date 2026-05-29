@@ -133,7 +133,7 @@ function Stat({
     <div>
       <p className="text-xs text-muted">{label}</p>
       <p
-        className={`mt-1 font-display text-xl tabular-nums ${accent ? "text-grass" : "text-white"}`}
+        className={`mt-1 font-display text-xl font-extrabold tabular-nums ${accent ? "text-grass" : "text-white"}`}
       >
         {value}
       </p>

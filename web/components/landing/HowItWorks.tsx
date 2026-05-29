@@ -2,7 +2,7 @@
  * HowItWorks — 4-step visual flow showing how a user enters Kickoff.
  *
  * Connect OKX Wallet → Mint Fan ID → Complete Quests → Earn Trophies + Run
- * Agents. Each step is a numbered tabula card with a Roman numeral, a glyph,
+ * Agents. Each step is a numbered card with an Arabic numeral, a glyph,
  * a 1-line title, and a 2-line subtitle. Horizontal row on md+, stacked on
  * mobile. Staggered fade-up: 80 / 160 / 240 / 320 ms.
  *

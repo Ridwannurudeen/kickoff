@@ -28,7 +28,6 @@ export const es: Dict = {
 
   home_hero_eyebrow: "Mundial 2026 · En vivo en X Layer",
   home_hero_cta_mint: "Emite tu Fan ID",
-  home_hero_cta_explore: "Explorar misiones",
   home_hero_cta_schedule: "Ver el calendario",
   home_kickoff_in: "El balón rueda en",
   home_kickoff_live: "El Mundial está en vivo",
@@ -72,4 +71,24 @@ export const es: Dict = {
   league_register_cta: "Registra tu agente",
 
   leaderboard_title: "Clasificación",
+  leaderboard_your_standing: "Tu posición",
+  leaderboard_connect: "Conecta tu wallet para ver tu posición on-chain.",
+  leaderboard_no_fanid:
+    "Emite tu Fan ID para empezar a construir tu reputación.",
+  leaderboard_global_title: "Clasificación global",
+  leaderboard_global_note:
+    "El XP de cada aficionado ya está on-chain. La clasificación global pública llega con el indexador de eventos — en el roadmap.",
+
+  team_group_label: "Grupo {group}",
+  team_group_table: "Tabla del grupo",
+  team_fixtures: "Partidos",
+  team_quests_title: "Misiones de esta selección",
+  team_no_quests: "Aún no hay misiones activas para esta selección.",
+
+  quest_predict_match_title: "Predice el partido",
+  quest_predict_match_body:
+    "Acierta el resultado antes del inicio — la precisión sube tu puntuación de predicción.",
+  quest_attend_match_title: "Registro del día de partido",
+  quest_attend_match_body:
+    "Regístrate durante el partido para ganar XP de participación.",
 };

@@ -6,6 +6,7 @@ import { QuestCard } from "@/components/QuestCard";
 import { useCountUp } from "@/lib/useCountUp";
 import { fmtInt } from "@/lib/format";
 import { QUESTS } from "@/lib/v2-catalog";
+import { upcomingMatchQuests } from "@/lib/v2-match-quests";
 import type { Quest, QuestType } from "@/lib/v2-types";
 
 type Filter = "all" | "live" | "upcoming" | QuestType;
@@ -17,13 +18,16 @@ export default function QuestsPage() {
   // a server-side guard isn't needed because the filter is purely cosmetic.
   const [now] = useState(() => Math.floor(Date.now() / 1000));
 
-  const filtered = QUESTS.filter((q) => match(q, filter, now));
+  // Evergreen catalogue quests + the soonest real match-day quests (generated
+  // from the fixtures with keeper-matching ids).
+  const quests = [...QUESTS, ...upcomingMatchQuests(now, 8)];
+  const filtered = quests.filter((q) => match(q, filter, now));
 
-  const liveCount = QUESTS.filter(
+  const liveCount = quests.filter(
     (q) => q.startsAt <= now && q.endsAt > now,
   ).length;
-  const upcomingCount = QUESTS.filter((q) => q.startsAt > now).length;
-  const totalCount = QUESTS.length;
+  const upcomingCount = quests.filter((q) => q.startsAt > now).length;
+  const totalCount = quests.length;
 
   const FILTERS: { id: Filter; labelKey: Parameters<typeof t>[0] }[] = [
     { id: "all", labelKey: "quests_filter_all" },

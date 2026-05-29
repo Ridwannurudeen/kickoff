@@ -20,6 +20,28 @@ import {
   V2_ADDRESSES,
 } from "@/lib/v2-addresses";
 
+const MONTHS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+
+/** Deterministic UTC date — avoids the SSR/client locale hydration mismatch
+ *  that `toLocaleDateString()` causes. */
+function fmtUtcDate(unix: number): string {
+  const d = new Date(unix * 1000);
+  return `${MONTHS[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}`;
+}
+
 export default function ProfilePage() {
   const params = useParams<{ address: string }>();
   const { t } = useT();
@@ -92,7 +114,7 @@ export default function ProfilePage() {
       ? [
           {
             title: t("profile_activity_fan_minted"),
-            detail: new Date(mintedAt * 1000).toLocaleDateString(),
+            detail: fmtUtcDate(mintedAt),
           },
         ]
       : []),
