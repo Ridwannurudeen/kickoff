@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useT } from "@/components/I18nProvider";
 import { LaurelWreath } from "@/components/ornaments";
 import { QuestCard } from "@/components/QuestCard";
@@ -16,7 +16,7 @@ export default function QuestsPage() {
   const [filter, setFilter] = useState<Filter>("all");
   // `now` is captured once per render so quest status flickers stay rare;
   // a server-side guard isn't needed because the filter is purely cosmetic.
-  const now = useMemo(() => Math.floor(Date.now() / 1000), []);
+  const [now] = useState(() => Math.floor(Date.now() / 1000));
 
   const filtered = QUESTS.filter((q) => match(q, filter, now));
 

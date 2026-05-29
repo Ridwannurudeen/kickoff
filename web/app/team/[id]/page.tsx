@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useT } from "@/components/I18nProvider";
@@ -16,7 +16,7 @@ export default function TeamPage() {
   const params = useParams<{ id: string }>();
   const tid = Number(params?.id ?? "0");
   const team = teamById(tid);
-  const now = useMemo(() => Math.floor(Date.now() / 1000), []);
+  const [now] = useState(() => Math.floor(Date.now() / 1000));
 
   if (!team) {
     return (

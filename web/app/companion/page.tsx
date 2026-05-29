@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useAccount, useWriteContract } from "wagmi";
 import {
   decodeAbiParameters,
@@ -144,6 +144,7 @@ export default function CompanionPage() {
   const [prompt, setPrompt] = useState("");
   const [history, setHistory] = useState<CompanionReply[]>([]);
   const [sending, setSending] = useState(false);
+  const replySeq = useRef(0);
   const { writeContractAsync } = useWriteContract();
   const { push, dismiss } = useToasts();
 
@@ -222,7 +223,7 @@ export default function CompanionPage() {
       const calls = receipt.logs
         .map(decodeCalledLog)
         .filter((call): call is AgentCall => Boolean(call));
-      const replyId = Date.now();
+      const replyId = ++replySeq.current;
       push({
         kind: "success",
         title: t("companion_compose_label"),

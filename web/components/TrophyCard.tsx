@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   useAccount,
   useReadContract,
@@ -47,6 +47,7 @@ export function TrophyCard({
   const { writeContractAsync, isPending } = useWriteContract();
   const { push, dismiss } = useToasts();
   const queryClient = useQueryClient();
+  const [now] = useState(() => Math.floor(Date.now() / 1000));
 
   const owned = useReadContract({
     address: V2_ADDRESSES.trophy,
@@ -96,8 +97,7 @@ export function TrophyCard({
       Boolean,
     ) ??
       false);
-  const windowOpen =
-    windowEnd === 0 || Math.floor(Date.now() / 1000) <= windowEnd;
+  const windowOpen = windowEnd === 0 || now <= windowEnd;
   const ruleExists = Boolean(ruleData?.[3]);
   // In demo mode, fall back to a simple XP-threshold check so the UI is
   // still informative — users can see which trophies they'd be eligible for.
