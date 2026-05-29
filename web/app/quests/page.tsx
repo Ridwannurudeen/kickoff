@@ -50,9 +50,21 @@ export default function QuestsPage() {
       </div>
 
       <div className="grid grid-cols-3 gap-3 md:gap-4">
-        <QuestStat label="Live" value={liveCount} delayMs={160} />
-        <QuestStat label="Upcoming" value={upcomingCount} delayMs={220} />
-        <QuestStat label="Total" value={totalCount} delayMs={280} />
+        <QuestStat
+          label={t("quests_stat_live")}
+          value={liveCount}
+          delayMs={160}
+        />
+        <QuestStat
+          label={t("quests_stat_upcoming")}
+          value={upcomingCount}
+          delayMs={220}
+        />
+        <QuestStat
+          label={t("quests_stat_total")}
+          value={totalCount}
+          delayMs={280}
+        />
       </div>
 
       <div className="divider-classical" />

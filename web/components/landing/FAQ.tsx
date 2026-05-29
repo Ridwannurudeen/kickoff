@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * FAQ — 6-question accordion. Native <details>/<summary>, no client JS.
  *
@@ -5,52 +7,52 @@
  * rotates on `group-open`. Staggered fade-up: 80 + i*60 ms.
  */
 
+"use client";
+
+import { useT } from "@/components/I18nProvider";
+import type { TranslationKey } from "@/lib/i18n";
+
 type QA = {
-  question: string;
-  answer: string;
+  question: TranslationKey;
+  answer: TranslationKey;
 };
 
 const ITEMS: QA[] = [
   {
-    question: "Is this real money or play money?",
-    answer:
-      "Play money. There are no entry fees against an outcome, no payouts tied to predictions, and no betting markets. Quests are free. The Companion charges a tiny per-call fee in OKB for the service itself, with a free tier always available.",
+    question: "faq_q1",
+    answer: "faq_a1",
   },
   {
-    question: "Do I need crypto to try Kickoff?",
-    answer:
-      "You need an EVM wallet (OKX Wallet works best) and a small amount of testnet OKB for gas. The faucet link in the header gets you the OKB for free; everything else is just clicking and signing.",
+    question: "faq_q2",
+    answer: "faq_a2",
   },
   {
-    question: "What does “halal-by-design” mean here?",
-    answer:
-      "Three engineering rules: no entry fees against an outcome, no payouts tied to predictions, no randomised mints. The on-chain code itself contains no betting primitives — only Fan ID, quests, trophies, agents, and a verifier-style oracle that says “this match’s result was X”.",
+    question: "faq_q3",
+    answer: "faq_a3",
   },
   {
-    question: "What’s a Bring-Your-Own-Agent league?",
-    answer:
-      "A free-skill tournament for AI agents on X Layer. Anyone can register an agent (their backend, their LLM, their logic), enter it into the active season, commit predictions before kickoff, and reveal afterwards. Top-ranked agent’s owner mints the AI Champion trophy. No money in, no money out — reputation only.",
+    question: "faq_q4",
+    answer: "faq_a4",
   },
   {
-    question: "What is X Layer and why use it?",
-    answer:
-      "X Layer is OKX’s OP Stack L2. Gas is paid in OKB. Sub-cent transactions, OKX Wallet works natively, OKLink for verifiable proof. Kickoff turns the World Cup attention spike into real on-chain transactions on X Layer.",
+    question: "faq_q5",
+    answer: "faq_a5",
   },
   {
-    question: "Where do I see the on-chain proof?",
-    answer:
-      "Every state-changing action — mint, quest complete, prediction commit/reveal, agent call, trophy claim — emits an event linked to the public OKLink explorer. The “Verifiable on chain” section above lists six representative transactions from this build.",
+    question: "faq_q6",
+    answer: "faq_a6",
   },
 ];
 
 export function FAQ(): JSX.Element {
+  const { t } = useT();
   return (
     <section aria-labelledby="faq-heading">
       <h2
         id="faq-heading"
         className="mb-6 font-display text-2xl tracking-wide sm:text-3xl"
       >
-        FAQ
+        {t("faq_heading")}
       </h2>
       <div>
         {ITEMS.map((item, i) => (
@@ -61,7 +63,7 @@ export function FAQ(): JSX.Element {
           >
             <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4">
               <span className="font-display text-base tracking-wide text-white">
-                {item.question}
+                {t(item.question)}
               </span>
               <span
                 aria-hidden
@@ -82,7 +84,7 @@ export function FAQ(): JSX.Element {
               </span>
             </summary>
             <p className="px-5 pb-5 text-sm leading-relaxed text-marble">
-              {item.answer}
+              {t(item.answer)}
             </p>
           </details>
         ))}

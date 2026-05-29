@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * OnChainProof — verifiable receipts grid. Six real X Layer testnet
  * transactions from this build, each linked to its OKLink receipt. Proves
@@ -8,20 +10,24 @@
  * Stagger fade-up: card i gets (i * 60 + 120) ms.
  */
 
+"use client";
+
+import { useT } from "@/components/I18nProvider";
+import type { TranslationKey } from "@/lib/i18n";
+
 type Proof = {
   label: string;
-  description: string;
+  description: TranslationKey;
   abbreviated: string;
   href: string;
 };
 
 const OKLINK = "https://www.oklink.com/xlayer-test/tx/";
 
-// TODO: i18n — extract labels/descriptions to translation keys.
 const PROOFS: Proof[] = [
   {
     label: "AgentLeague.openSeason",
-    description: "Season 1 is active and accepting agent submissions.",
+    description: "proof_open_season",
     abbreviated: "0x5c0db17e…b51ab2",
     href:
       OKLINK +
@@ -29,7 +35,7 @@ const PROOFS: Proof[] = [
   },
   {
     label: "BYO.submitPrediction",
-    description: "A hash-committed score prediction posted before kickoff.",
+    description: "proof_submit_prediction",
     abbreviated: "0x1832db03…f3606ec",
     href:
       OKLINK +
@@ -37,7 +43,7 @@ const PROOFS: Proof[] = [
   },
   {
     label: "BYO.scorePrediction",
-    description: "Reveal after the OptimisticOracle settled. +1000 XP.",
+    description: "proof_score_prediction",
     abbreviated: "0xa9b688d1…e946f24",
     href:
       OKLINK +
@@ -45,7 +51,7 @@ const PROOFS: Proof[] = [
   },
   {
     label: "match-analyst.submitResult",
-    description: "Real Claude Haiku 4.5 pre-match preview written on chain.",
+    description: "proof_match_analyst",
     abbreviated: "0xd97e0d3f…19b6038",
     href:
       OKLINK +
@@ -53,7 +59,7 @@ const PROOFS: Proof[] = [
   },
   {
     label: "personal-stats.submitResult",
-    description: "Caller's FanRep XP-stats and coaching reply, on chain.",
+    description: "proof_personal_stats",
     abbreviated: "0x5a6bee5c…9505c51d",
     href:
       OKLINK +
@@ -61,7 +67,7 @@ const PROOFS: Proof[] = [
   },
   {
     label: "highlights.submitResult",
-    description: "Post-match summary grounded only in supplied facts.",
+    description: "proof_highlights",
     abbreviated: "0x3e8dd75c…3a9d9c94",
     href:
       OKLINK +
@@ -70,18 +76,16 @@ const PROOFS: Proof[] = [
 ];
 
 export function OnChainProof(): JSX.Element {
+  const { t } = useT();
   return (
     <section aria-labelledby="onchain-proof-heading">
       <h2
         id="onchain-proof-heading"
         className="mb-2 font-display text-2xl tracking-wide sm:text-3xl"
       >
-        Verifiable on chain
+        {t("proof_heading")}
       </h2>
-      <p className="mb-6 text-sm text-muted">
-        Every transaction below is on X Layer testnet. Click to see the receipt
-        on OKLink.
-      </p>
+      <p className="mb-6 text-sm text-muted">{t("proof_intro")}</p>
       <div className="divider-classical" />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
         {PROOFS.map((proof, i) => (
@@ -96,7 +100,7 @@ export function OnChainProof(): JSX.Element {
             <span className="text-[11px] font-semibold uppercase tracking-wide text-grass">
               {proof.label}
             </span>
-            <p className="text-sm text-white/90">{proof.description}</p>
+            <p className="text-sm text-white/90">{t(proof.description)}</p>
             <span className="mt-1 font-mono text-xs text-muted group-hover:text-grass">
               {proof.abbreviated}
             </span>

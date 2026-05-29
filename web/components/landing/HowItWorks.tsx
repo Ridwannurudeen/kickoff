@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * HowItWorks — 4-step visual flow showing how a user enters Kickoff.
  *
@@ -9,22 +11,25 @@
  * Section copy is hardcoded English; parent extracts to i18n later.
  */
 
+"use client";
+
 import { ChampionshipMark, PillarIcon } from "@/components/ornaments";
+import { useT } from "@/components/I18nProvider";
+import type { TranslationKey } from "@/lib/i18n";
 
 type Step = {
   numeral: string;
-  title: string;
-  subtitle: string;
+  title: TranslationKey;
+  subtitle: TranslationKey;
   delayMs: number;
   glyph: JSX.Element;
 };
 
-// TODO: i18n — extract titles/subtitles to translation keys.
 const STEPS: Step[] = [
   {
     numeral: "1",
-    title: "Connect OKX Wallet",
-    subtitle: "OKB pays gas. No deposits, no sign-ups, no custody.",
+    title: "how_step1_title",
+    subtitle: "how_step1_subtitle",
     delayMs: 80,
     glyph: (
       <svg
@@ -51,24 +56,22 @@ const STEPS: Step[] = [
   },
   {
     numeral: "2",
-    title: "Mint your Fan ID",
-    subtitle: "One soulbound SBT per wallet. Free, gas-only, non-transferable.",
+    title: "how_step2_title",
+    subtitle: "how_step2_subtitle",
     delayMs: 160,
     glyph: <ChampionshipMark size={40} className="text-honor" aria-hidden />,
   },
   {
     numeral: "3",
-    title: "Complete quests",
-    subtitle:
-      "Watch matches, predict scores, share posts. Every action earns XP on chain.",
+    title: "how_step3_title",
+    subtitle: "how_step3_subtitle",
     delayMs: 240,
     glyph: <PillarIcon pillar="quests" size={40} className="text-grass" />,
   },
   {
     numeral: "4",
-    title: "Earn trophies, run agents",
-    subtitle:
-      "Claim ERC-1155 commemoratives. Deploy your own AI agent to the league.",
+    title: "how_step4_title",
+    subtitle: "how_step4_subtitle",
     delayMs: 320,
     glyph: (
       <span className="inline-flex items-center gap-1.5">
@@ -80,13 +83,14 @@ const STEPS: Step[] = [
 ];
 
 export function HowItWorks(): JSX.Element {
+  const { t } = useT();
   return (
     <section aria-labelledby="how-it-works-heading">
       <h2
         id="how-it-works-heading"
         className="mb-6 font-display text-2xl uppercase tracking-wide sm:text-3xl"
       >
-        How Kickoff works
+        {t("how_heading")}
       </h2>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
         {STEPS.map((step) => (
@@ -98,7 +102,7 @@ export function HowItWorks(): JSX.Element {
             <div className="flex items-center justify-between">
               <span
                 className="font-display text-3xl text-grass"
-                aria-label={`Step ${step.numeral}`}
+                aria-label={t("how_step_aria", { numeral: step.numeral })}
               >
                 {step.numeral}
               </span>
@@ -107,9 +111,9 @@ export function HowItWorks(): JSX.Element {
               </span>
             </div>
             <h3 className="font-extrabold tracking-wide text-white">
-              {step.title}
+              {t(step.title)}
             </h3>
-            <p className="text-sm text-muted">{step.subtitle}</p>
+            <p className="text-sm text-muted">{t(step.subtitle)}</p>
           </div>
         ))}
       </div>

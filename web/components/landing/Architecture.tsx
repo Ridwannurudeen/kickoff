@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * Architecture — annotated visual of the Kickoff v2 contract layout.
  *
@@ -8,9 +10,14 @@
  * tokens.
  */
 
+"use client";
+
+import { useT } from "@/components/I18nProvider";
+import type { TranslationKey } from "@/lib/i18n";
+
 type ContractRow = {
   name: string;
-  blurb: string;
+  blurb: TranslationKey;
   tone: "grass" | "honor";
   glyph: JSX.Element;
 };
@@ -18,37 +25,38 @@ type ContractRow = {
 const ROWS: ContractRow[] = [
   {
     name: "FanRep",
-    blurb: "Soulbound ERC-721 + multi-dim reputation (score(address)).",
+    blurb: "arch_fanrep_blurb",
     tone: "honor",
     glyph: <SbtGlyph />,
   },
   {
     name: "QuestEngine",
-    blurb: "SELF_ATTEST / PREDICTION (commit-reveal) / EXTERNAL_PROOF.",
+    blurb: "arch_questengine_blurb",
     tone: "grass",
     glyph: <QuestGlyph />,
   },
   {
     name: "Trophy",
-    blurb: "ERC-1155 commemoratives. Deterministic gating. No randomness.",
+    blurb: "arch_trophy_blurb",
     tone: "honor",
     glyph: <TrophyTileGlyph />,
   },
   {
     name: "AgentRegistry",
-    blurb: "Permissionless agents. OKB per call. composeAgents fan-out.",
+    blurb: "arch_agentregistry_blurb",
     tone: "grass",
     glyph: <AgentGlyph />,
   },
   {
     name: "AgentLeague",
-    blurb: "Bring-Your-Own-Agent seasons. Commit-reveal. AI Champion trophy.",
+    blurb: "arch_agentleague_blurb",
     tone: "honor",
     glyph: <LeagueGlyph />,
   },
 ];
 
 export function Architecture(): JSX.Element {
+  const { t } = useT();
   return (
     <section aria-labelledby="architecture-heading">
       <div className="tabula card relative overflow-hidden p-6 md:p-10">
@@ -56,23 +64,30 @@ export function Architecture(): JSX.Element {
           id="architecture-heading"
           className="mb-2 animate-fade-up font-display text-2xl tracking-wide sm:text-3xl"
         >
-          Architecture at a glance
+          {t("arch_heading")}
         </h2>
         <p className="mb-6 animate-fade-up text-sm text-muted [animation-delay:60ms]">
-          Five new v2 contracts plus a reused bonded optimistic oracle, all on X
-          Layer testnet 1952.
+          {t("arch_intro")}
         </p>
 
         {/* Diagram */}
         <div
           className="relative animate-fade-up rounded-lg border border-pitch-border bg-pitch-panel/40 p-4 md:p-6 [animation-delay:120ms]"
-          aria-label="Contract architecture diagram"
+          aria-label={t("arch_diagram_aria")}
         >
           {/* Top row: wallet → web */}
           <div className="flex flex-col items-center gap-3 md:flex-row md:justify-center md:gap-6">
-            <DiagramTile label="OKX Wallet" sublabel="OKB gas" tone="grass" />
+            <DiagramTile
+              label={t("arch_tile_wallet")}
+              sublabel={t("arch_tile_wallet_sub")}
+              tone="grass"
+            />
             <Arrow />
-            <DiagramTile label="web" sublabel="Next.js" tone="grass" />
+            <DiagramTile
+              label={t("arch_tile_web")}
+              sublabel={t("arch_tile_web_sub")}
+              tone="grass"
+            />
           </div>
 
           {/* Hairline rule from web → contract bus */}
@@ -94,14 +109,14 @@ export function Architecture(): JSX.Element {
           {/* Bottom row: OO + keeper */}
           <div className="flex flex-col items-center gap-3 md:flex-row md:justify-center md:gap-6">
             <DiagramTile
-              label="OptimisticOracle"
-              sublabel="reused, bonded"
+              label={t("arch_tile_oracle")}
+              sublabel={t("arch_tile_oracle_sub")}
               tone="honor"
             />
             <Arrow />
             <DiagramTile
-              label="Keeper"
-              sublabel="openfootball / API-FOOTBALL"
+              label={t("arch_tile_keeper")}
+              sublabel={t("arch_tile_keeper_sub")}
               tone="honor"
             />
           </div>
@@ -133,7 +148,7 @@ export function Architecture(): JSX.Element {
                 >
                   {row.name}
                 </p>
-                <p className="text-sm text-muted">{row.blurb}</p>
+                <p className="text-sm text-muted">{t(row.blurb)}</p>
               </div>
             </li>
           ))}
@@ -146,7 +161,7 @@ export function Architecture(): JSX.Element {
             rel="noopener noreferrer"
             className="text-grass hover:underline"
           >
-            View contracts on OKLink →
+            {t("arch_view_contracts")} →
           </a>
         </p>
       </div>

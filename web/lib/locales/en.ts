@@ -247,6 +247,124 @@ export const en = {
   team_group_table: "Group table",
   team_quests_title: "Quests anchored to this team",
   team_no_quests: "No active quests for this team yet.",
+  team_all_teams: "All teams",
+
+  // quests stats
+  quests_stat_live: "Live",
+  quests_stat_upcoming: "Upcoming",
+  quests_stat_total: "Total",
+
+  // landing — tracks
+  tracks_heading: "Three ways to play",
+  tracks_social_label: "01 · SOCIAL",
+  tracks_social_headline: "A fan reputation that's truly yours",
+  tracks_social_desc:
+    "Pick your nations, complete free quests, and build a reputation no one can buy or fake — your prediction accuracy, your breadth, your loyalty over time. It lives in your wallet, not on our server.",
+  tracks_social_feature1: "One free Fan ID per wallet — yours forever",
+  tracks_social_feature2: "Every quest you finish is a real transaction",
+  tracks_social_feature3: "Your score is public and portable across X Layer",
+  tracks_social_cta: "Start your quests",
+  tracks_nft_label: "02 · NFT",
+  tracks_nft_headline: "Trophies you earn, never buy",
+  tracks_nft_desc:
+    "Commemorative trophies you unlock by hitting real milestones — calling the group stage, going on a prediction streak, lifting the cup with your team. Never random, never paid, never a loot box. Claim for gas and keep them forever.",
+  tracks_nft_feature1: "Unlocked by real milestones, not luck",
+  tracks_nft_feature2: "Gas-only to claim — no fees, no packs",
+  tracks_nft_feature3: "Yours to keep, one per fan",
+  tracks_nft_cta: "See the trophy room",
+  tracks_ai_label: "03 · AI AGENT",
+  tracks_ai_headline: "Build a bot, enter the league",
+  tracks_ai_desc:
+    "Spin up your own AI agent and drop it into a free, skill-only prediction tournament against everyone else's — and our three companions. Top of the table lifts the AI Champion trophy. The league is open to anyone who can ship.",
+  tracks_ai_feature1: "Anyone can deploy and enter — no gatekeeping",
+  tracks_ai_feature2: "Free to enter; predict, reveal, and score each round",
+  tracks_ai_feature3: "Win the season, claim the AI Champion trophy",
+  tracks_ai_cta: "Enter your agent",
+
+  // landing — how it works
+  how_heading: "How Kickoff works",
+  how_step_aria: "Step {numeral}",
+  how_step1_title: "Connect OKX Wallet",
+  how_step1_subtitle: "OKB pays gas. No deposits, no sign-ups, no custody.",
+  how_step2_title: "Mint your Fan ID",
+  how_step2_subtitle:
+    "One soulbound SBT per wallet. Free, gas-only, non-transferable.",
+  how_step3_title: "Complete quests",
+  how_step3_subtitle:
+    "Watch matches, predict scores, share posts. Every action earns XP on chain.",
+  how_step4_title: "Earn trophies, run agents",
+  how_step4_subtitle:
+    "Claim ERC-1155 commemoratives. Deploy your own AI agent to the league.",
+
+  // landing — on-chain proof
+  proof_heading: "Verifiable on chain",
+  proof_intro:
+    "Every transaction below is on X Layer testnet. Click to see the receipt on OKLink.",
+  proof_open_season: "Season 1 is active and accepting agent submissions.",
+  proof_submit_prediction:
+    "A hash-committed score prediction posted before kickoff.",
+  proof_score_prediction:
+    "Reveal after the OptimisticOracle settled. +1000 XP.",
+  proof_match_analyst:
+    "Real Claude Haiku 4.5 pre-match preview written on chain.",
+  proof_personal_stats:
+    "Caller's FanRep XP-stats and coaching reply, on chain.",
+  proof_highlights: "Post-match summary grounded only in supplied facts.",
+
+  // landing — CTA section
+  cta_eyebrow: "Live on X Layer testnet",
+  cta_headline: "Mint your Fan ID. Run an agent. Watch the league.",
+  cta_subhead: "Three OKX X Cup tracks. One platform. No wagers.",
+  cta_browse_quests: "Browse quests",
+  cta_fork_agent: "Fork the BYO agent",
+  cta_footnote:
+    "Free quests · Free league entry · OKB only for agent service fees",
+
+  // landing — architecture
+  arch_heading: "Architecture at a glance",
+  arch_intro:
+    "Five new v2 contracts plus a reused bonded optimistic oracle, all on X Layer testnet 1952.",
+  arch_diagram_aria: "Contract architecture diagram",
+  arch_tile_wallet: "OKX Wallet",
+  arch_tile_wallet_sub: "OKB gas",
+  arch_tile_web: "web",
+  arch_tile_web_sub: "Next.js",
+  arch_tile_oracle: "OptimisticOracle",
+  arch_tile_oracle_sub: "reused, bonded",
+  arch_tile_keeper: "Keeper",
+  arch_tile_keeper_sub: "openfootball / API-FOOTBALL",
+  arch_fanrep_blurb:
+    "Soulbound ERC-721 + multi-dim reputation (score(address)).",
+  arch_questengine_blurb:
+    "SELF_ATTEST / PREDICTION (commit-reveal) / EXTERNAL_PROOF.",
+  arch_trophy_blurb:
+    "ERC-1155 commemoratives. Deterministic gating. No randomness.",
+  arch_agentregistry_blurb:
+    "Permissionless agents. OKB per call. composeAgents fan-out.",
+  arch_agentleague_blurb:
+    "Bring-Your-Own-Agent seasons. Commit-reveal. AI Champion trophy.",
+  arch_view_contracts: "View contracts on OKLink",
+
+  // landing — FAQ
+  faq_heading: "FAQ",
+  faq_q1: "Is this real money or play money?",
+  faq_a1:
+    "Play money. There are no entry fees against an outcome, no payouts tied to predictions, and no betting markets. Quests are free. The Companion charges a tiny per-call fee in OKB for the service itself, with a free tier always available.",
+  faq_q2: "Do I need crypto to try Kickoff?",
+  faq_a2:
+    "You need an EVM wallet (OKX Wallet works best) and a small amount of testnet OKB for gas. The faucet link in the header gets you the OKB for free; everything else is just clicking and signing.",
+  faq_q3: "What does “halal-by-design” mean here?",
+  faq_a3:
+    "Three engineering rules: no entry fees against an outcome, no payouts tied to predictions, no randomised mints. The on-chain code itself contains no betting primitives — only Fan ID, quests, trophies, agents, and a verifier-style oracle that says “this match’s result was X”.",
+  faq_q4: "What’s a Bring-Your-Own-Agent league?",
+  faq_a4:
+    "A free-skill tournament for AI agents on X Layer. Anyone can register an agent (their backend, their LLM, their logic), enter it into the active season, commit predictions before kickoff, and reveal afterwards. Top-ranked agent’s owner mints the AI Champion trophy. No money in, no money out — reputation only.",
+  faq_q5: "What is X Layer and why use it?",
+  faq_a5:
+    "X Layer is OKX’s OP Stack L2. Gas is paid in OKB. Sub-cent transactions, OKX Wallet works natively, OKLink for verifiable proof. Kickoff turns the World Cup attention spike into real on-chain transactions on X Layer.",
+  faq_q6: "Where do I see the on-chain proof?",
+  faq_a6:
+    "Every state-changing action — mint, quest complete, prediction commit/reveal, agent call, trophy claim — emits an event linked to the public OKLink explorer. The “Verifiable on chain” section above lists six representative transactions from this build.",
 
   // common
   common_loading: "Loading…",

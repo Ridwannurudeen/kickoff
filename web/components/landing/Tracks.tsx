@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * Tracks — three large cards mapping Kickoff v2 to the three OKX X Cup tracks
  * it hits: Social, NFT, AI Agent. The AI Agent card is the headline (the v2
@@ -7,65 +9,65 @@
  * Stagger fade-up: 120 / 200 / 280 ms.
  */
 
+"use client";
+
 import Link from "next/link";
 import { PillarIcon } from "@/components/ornaments";
+import { useT } from "@/components/I18nProvider";
+import type { TranslationKey } from "@/lib/i18n";
 
 type Track = {
-  label: string;
-  headline: string;
-  description: string;
-  features: [string, string, string];
+  label: TranslationKey;
+  headline: TranslationKey;
+  description: TranslationKey;
+  features: [TranslationKey, TranslationKey, TranslationKey];
   href: string;
-  cta: string;
+  cta: TranslationKey;
   pillar: "quests" | "trophies" | "league";
   champion?: boolean;
   delayMs: number;
 };
 
-// TODO: i18n — extract track copy to translation keys.
 const TRACKS: Track[] = [
   {
-    label: "01 · SOCIAL",
-    headline: "A fan reputation that's truly yours",
-    description:
-      "Pick your nations, complete free quests, and build a reputation no one can buy or fake — your prediction accuracy, your breadth, your loyalty over time. It lives in your wallet, not on our server.",
+    label: "tracks_social_label",
+    headline: "tracks_social_headline",
+    description: "tracks_social_desc",
     features: [
-      "One free Fan ID per wallet — yours forever",
-      "Every quest you finish is a real transaction",
-      "Your score is public and portable across X Layer",
+      "tracks_social_feature1",
+      "tracks_social_feature2",
+      "tracks_social_feature3",
     ],
     href: "/quests",
-    cta: "Start your quests",
+    cta: "tracks_social_cta",
     pillar: "quests",
     delayMs: 120,
   },
   {
-    label: "02 · NFT",
-    headline: "Trophies you earn, never buy",
-    description:
-      "Commemorative trophies you unlock by hitting real milestones — calling the group stage, going on a prediction streak, lifting the cup with your team. Never random, never paid, never a loot box. Claim for gas and keep them forever.",
+    label: "tracks_nft_label",
+    headline: "tracks_nft_headline",
+    description: "tracks_nft_desc",
     features: [
-      "Unlocked by real milestones, not luck",
-      "Gas-only to claim — no fees, no packs",
-      "Yours to keep, one per fan",
+      "tracks_nft_feature1",
+      "tracks_nft_feature2",
+      "tracks_nft_feature3",
     ],
     href: "/trophies",
-    cta: "See the trophy room",
+    cta: "tracks_nft_cta",
     pillar: "trophies",
     delayMs: 200,
   },
   {
-    label: "03 · AI AGENT",
-    headline: "Build a bot, enter the league",
-    description:
-      "Spin up your own AI agent and drop it into a free, skill-only prediction tournament against everyone else's — and our three companions. Top of the table lifts the AI Champion trophy. The league is open to anyone who can ship.",
+    label: "tracks_ai_label",
+    headline: "tracks_ai_headline",
+    description: "tracks_ai_desc",
     features: [
-      "Anyone can deploy and enter — no gatekeeping",
-      "Free to enter; predict, reveal, and score each round",
-      "Win the season, claim the AI Champion trophy",
+      "tracks_ai_feature1",
+      "tracks_ai_feature2",
+      "tracks_ai_feature3",
     ],
     href: "/league",
-    cta: "Enter your agent",
+    cta: "tracks_ai_cta",
     pillar: "league",
     champion: true,
     delayMs: 280,
@@ -73,13 +75,14 @@ const TRACKS: Track[] = [
 ];
 
 export function Tracks(): JSX.Element {
+  const { t } = useT();
   return (
     <section aria-labelledby="tracks-heading">
       <h2
         id="tracks-heading"
         className="mb-6 font-display text-2xl uppercase tracking-wide sm:text-3xl"
       >
-        Three ways to play
+        {t("tracks_heading")}
       </h2>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {TRACKS.map((track) => (
@@ -92,7 +95,7 @@ export function Tracks(): JSX.Element {
           >
             <div className="relative z-10 flex items-center justify-between">
               <span className="gold-ink text-[11px] uppercase tracking-[0.18em]">
-                {track.label}
+                {t(track.label)}
               </span>
               <PillarIcon
                 pillar={track.pillar}
@@ -101,10 +104,10 @@ export function Tracks(): JSX.Element {
               />
             </div>
             <h3 className="relative z-10 font-display text-xl font-extrabold tracking-wide text-white">
-              {track.headline}
+              {t(track.headline)}
             </h3>
             <p className="relative z-10 text-sm text-muted">
-              {track.description}
+              {t(track.description)}
             </p>
             <ul className="relative z-10 space-y-1.5 text-sm text-white/90">
               {track.features.map((feature) => (
@@ -115,7 +118,7 @@ export function Tracks(): JSX.Element {
                       track.champion ? "bg-honor" : "bg-grass"
                     }`}
                   />
-                  <span>{feature}</span>
+                  <span>{t(feature)}</span>
                 </li>
               ))}
             </ul>
@@ -127,7 +130,7 @@ export function Tracks(): JSX.Element {
                   : "text-grass hover:underline"
               }`}
             >
-              {track.cta} →
+              {t(track.cta)} →
             </Link>
           </article>
         ))}

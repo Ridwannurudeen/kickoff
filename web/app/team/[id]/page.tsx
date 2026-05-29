@@ -140,7 +140,9 @@ export default function TeamPage() {
       )}
 
       <section>
-        <h2 className="mb-3 text-sm font-bold text-muted">All teams</h2>
+        <h2 className="mb-3 text-sm font-bold text-muted">
+          {t("team_all_teams")}
+        </h2>
         <div className="flex flex-wrap gap-2">
           {TEAMS.map((tm) => (
             <Link
