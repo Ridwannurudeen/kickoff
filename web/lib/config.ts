@@ -1,5 +1,4 @@
 import { defineChain, type Chain } from "viem";
-import { xLayer } from "viem/chains";
 
 /**
  * Chain configuration for Kickoff v2. The v2 product runs on X Layer with
@@ -51,22 +50,19 @@ export const CHAIN_NAME =
   (CHAIN_ID === 196 ? "X Layer Mainnet" : "X Layer Testnet");
 
 /** The viem Chain object for the configured network. Native OKB gas. */
-export const activeChain: Chain =
-  CHAIN_ID === 196
-    ? xLayer
-    : defineChain({
-        id: CHAIN_ID,
-        name: CHAIN_NAME,
-        nativeCurrency: { name: "OKB", symbol: "OKB", decimals: 18 },
-        rpcUrls: {
-          default: { http: [RPC_URL] },
-          public: { http: [RPC_URL] },
-        },
-        blockExplorers: {
-          default: { name: "OKLink", url: EXPLORER_URL },
-        },
-        testnet: CHAIN_ID !== 196,
-      });
+export const activeChain: Chain = defineChain({
+  id: CHAIN_ID,
+  name: CHAIN_NAME,
+  nativeCurrency: { name: "OKB", symbol: "OKB", decimals: 18 },
+  rpcUrls: {
+    default: { http: [RPC_URL] },
+    public: { http: [RPC_URL] },
+  },
+  blockExplorers: {
+    default: { name: "OKLink", url: EXPLORER_URL },
+  },
+  testnet: CHAIN_ID !== 196,
+});
 
 /** Builds an OKLink explorer URL for a tx hash. */
 export function txUrl(hash: string): string {
