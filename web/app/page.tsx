@@ -1,11 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useAccount, useWriteContract } from "wagmi";
 import { useQueryClient } from "@tanstack/react-query";
 import { useT } from "@/components/I18nProvider";
-import { ChampionshipMark, LaurelWreath } from "@/components/ornaments";
 import { BuiltOnXLayerBadge } from "@/components/BuiltOnXLayerBadge";
+import { Countdown } from "@/components/Countdown";
+import { FixtureCard } from "@/components/FixtureCard";
 import { TxTicker } from "@/components/TxTicker";
 import {
   Architecture,
@@ -21,7 +23,13 @@ import { fanRepAbi } from "@/lib/v2-abis";
 import { FAN_REP_CONFIGURED, V2_ADDRESSES } from "@/lib/v2-addresses";
 import { txUrl } from "@/lib/config";
 import { fmtInt, shortAddr } from "@/lib/format";
-import { DEMO_PROTOCOL_STATS } from "@/lib/v2-demo";
+import {
+  ALL_FIXTURES,
+  KICKOFF_UNIX,
+  daysUntilKickoff,
+  nextFixtures,
+} from "@/lib/fixtures";
+import { TEAMS } from "@/lib/teams";
 import { useToasts } from "@/lib/toast";
 import { waitForTransactionAndRefresh } from "@/lib/tx";
 
@@ -58,6 +66,15 @@ const TICKER: Array<{ label: string; abbreviated: string; href: string }> = [
   },
 ];
 
+// Real tournament facts, derived from the fixtures dataset — never fabricated.
+const HOST_CITY_COUNT = new Set(ALL_FIXTURES.map((f) => f.ground)).size;
+const TOURNAMENT_FACTS = [
+  { value: TEAMS.length, labelKey: "home_fact_teams" as const },
+  { value: ALL_FIXTURES.length, labelKey: "home_fact_matches" as const },
+  { value: HOST_CITY_COUNT, labelKey: "home_fact_cities" as const },
+  { value: 3, labelKey: "home_fact_nations" as const },
+];
+
 export default function HomePage() {
   const { t } = useT();
   const { address, isConnected } = useAccount();
@@ -65,6 +82,8 @@ export default function HomePage() {
   const { writeContractAsync, isPending } = useWriteContract();
   const { push, dismiss } = useToasts();
   const queryClient = useQueryClient();
+  const [now] = useState(() => Math.floor(Date.now() / 1000));
+  const upcoming = nextFixtures(now, 6);
 
   const demo = !FAN_REP_CONFIGURED;
 
@@ -117,35 +136,35 @@ export default function HomePage() {
     <div className="space-y-12">
       {/* Hero */}
       <section className="card relative overflow-hidden p-8 md:p-12">
-        <LaurelWreath
-          size={360}
-          className="pointer-events-none absolute -right-12 -top-6 select-none text-honor/10"
-        />
         <div className="relative z-10 max-w-2xl">
-          {/*
-           * Eyebrow row carries the visible brand cues — live indicator,
-           * "WORLD CUP 2026" wordmark (text only, no FIFA-licensed mark
-           * is reproduced anywhere on this site), and a "Built on X Layer"
-           * chip. The wordmark gives the page its sports-event identity at
-           * a glance without infringing on any registered trademark.
-           */}
+          {/* Eyebrow row — live indicator, "World Cup 2026" text wordmark
+             (no FIFA-licensed mark reproduced anywhere), and a "Built on
+             X Layer" chip. */}
           <div className="mb-4 flex flex-wrap items-center gap-2">
             <p className="pill text-grass">
               <span className="h-2 w-2 animate-pulse-dot rounded-full bg-grass" />
               {t("home_hero_eyebrow")}
             </p>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-honor/40 bg-pitch-panel px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.18em] text-honor">
-              <ChampionshipMark size={14} className="text-honor" aria-hidden />
+            <span className="inline-flex items-center rounded-full border border-honor/40 bg-pitch-panel px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.18em] text-honor">
               World Cup 2026
             </span>
             <BuiltOnXLayerBadge size="sm" />
           </div>
-          <h1 className="animate-fade-up font-display text-4xl font-extrabold leading-tight tracking-wide sm:text-6xl">
+          <h1 className="animate-fade-up font-display text-5xl uppercase leading-none tracking-wide sm:text-7xl">
             Kick<span className="text-grass">off</span>
           </h1>
           <p className="mt-3 animate-fade-up text-lg text-muted [animation-delay:60ms]">
             {t("brand_subtitle")}
           </p>
+          <div className="mt-6 animate-fade-up [animation-delay:90ms]">
+            <p className="mb-2 text-xs uppercase tracking-wide text-muted">
+              {t("home_kickoff_in")}
+            </p>
+            <Countdown
+              targetUnix={KICKOFF_UNIX}
+              passedLabel={t("home_kickoff_live")}
+            />
+          </div>
           <div className="mt-6 flex animate-fade-up flex-wrap items-center gap-3 [animation-delay:120ms]">
             {!fan?.hasFanId && (
               <button
@@ -156,44 +175,46 @@ export default function HomePage() {
                 {isPending ? t("wallet_connecting") : t("home_hero_cta_mint")}
               </button>
             )}
-            <Link href="/quests" className="btn-ghost">
-              {t("home_hero_cta_explore")}
+            <Link href="/schedule" className="btn-ghost">
+              {t("home_hero_cta_schedule")}
             </Link>
           </div>
         </div>
-        {/* Bigger, gold-tinted ChampionshipMark anchored bottom-right of the
-           hero as a heritage centerpiece. Larger than the LaurelWreath
-           watermark (size 360 → laurel circle) and at a stronger opacity
-           so the trophy reads as the brand cue, not just background. */}
-        <ChampionshipMark
-          size={220}
-          className="pointer-events-none absolute -bottom-6 right-2 select-none text-honor/30 md:right-10"
-          aria-hidden
-        />
       </section>
 
-      {/* Protocol-wide stats */}
+      {/* Real tournament facts — derived from the fixtures dataset, not invented */}
       <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <AnimatedStatCard
-          label={t("home_stats_fans")}
-          target={DEMO_PROTOCOL_STATS.fansOnboarded}
-          delayMs={160}
-        />
-        <AnimatedStatCard
-          label={t("home_stats_quests")}
-          target={DEMO_PROTOCOL_STATS.questsCompleted}
-          delayMs={220}
-        />
-        <AnimatedStatCard
-          label={t("home_stats_trophies")}
-          target={DEMO_PROTOCOL_STATS.trophiesMinted}
-          delayMs={280}
-        />
-        <AnimatedStatCard
-          label={t("home_stats_agents")}
-          target={DEMO_PROTOCOL_STATS.agentsInLeague}
-          delayMs={340}
-        />
+        {TOURNAMENT_FACTS.map((f, i) => (
+          <AnimatedStatCard
+            key={f.labelKey}
+            label={t(f.labelKey)}
+            target={f.value}
+            delayMs={160 + i * 60}
+          />
+        ))}
+      </section>
+
+      {/* Next matches */}
+      <section className="space-y-4">
+        <div className="flex items-end justify-between">
+          <h2 className="font-display text-2xl uppercase tracking-wide">
+            {t("home_next_matches")}
+          </h2>
+          <Link href="/schedule" className="text-sm text-grass hover:underline">
+            {t("home_full_schedule")} →
+          </Link>
+        </div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {upcoming.map((fx, i) => (
+            <div
+              key={`${fx.kickoffUnix}-${fx.team1}-${fx.team2}`}
+              className="animate-fade-up"
+              style={{ animationDelay: `${120 + i * 50}ms` }}
+            >
+              <FixtureCard fixture={fx} />
+            </div>
+          ))}
+        </div>
       </section>
 
       {demo && (
@@ -213,7 +234,6 @@ export default function HomePage() {
           </div>
         ) : !fan || !fan.hasFanId ? (
           <div className="card flex flex-col items-center gap-3 p-8 text-center">
-            <LaurelWreath size={48} className="text-honor/40" />
             <p className="font-semibold">{t("home_no_fan_id")}</p>
             <p className="max-w-md text-sm text-muted">
               {t("home_fan_id_mint_help")}
