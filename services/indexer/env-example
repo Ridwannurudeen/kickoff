@@ -1,0 +1,29 @@
+# kickoff-indexer — copy to .env and fill in. NEVER commit .env.
+#     cp env-example .env
+# Read at startup via dotenv.
+
+# --- Network (env-driven; never hardcode the testnet id) ---
+RPC_URL=https://testrpc.xlayer.tech/terigon
+CHAIN_ID=1952
+
+# --- FanRep contract (the soulbound Fan ID / reputation token) ---
+FAN_REP=
+
+# --- Backfill start. FanRep deploy block on X Layer testnet (binary-searched).
+#     Set to the real deploy block to avoid scanning empty history. ---
+DEPLOY_BLOCK=31343831
+
+# --- HTTP server the web app reads (kept on loopback; nginx need not expose it) ---
+PORT=3066
+
+# --- Scan tuning. RPC caps eth_getLogs at 100 blocks/call — do not exceed.
+#     Concurrency parallelises the backfill (~40min sequential → ~1min). ---
+BACKFILL_WINDOW=100
+BACKFILL_CONCURRENCY=20
+TAIL_INTERVAL_MS=30000
+SNAPSHOT_INTERVAL_MS=60000
+CONFIRMATIONS=5
+SCORE_CONCURRENCY=10
+
+# --- Where the JSON checkpoint + snapshot live (relative to the service dir) ---
+DATA_DIR=data
