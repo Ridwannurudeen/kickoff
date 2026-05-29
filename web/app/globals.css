@@ -118,10 +118,10 @@ body {
   }
 }
 
-/* Classical hairline divider with a centered laurel diamond. Place a
+/* Pitch halfway-line divider — a thin white rule fading at both ends with a
+   hollow center spot, echoing the markings at midfield. Place a
    <hr class="divider-classical" /> or wrap content in <div class="divider-classical">.
-   Uses a thin gradient rule that fades to transparent at both ends with a
-   marble-coloured center node. */
+   (Class name kept for back-compat across pages.) */
 .divider-classical {
   position: relative;
   height: 1px;
@@ -129,7 +129,7 @@ body {
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(212, 175, 55, 0.55),
+    rgba(233, 242, 233, 0.28),
     transparent
   );
 }
@@ -138,9 +138,10 @@ body {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 6px;
-  height: 6px;
-  transform: translate(-50%, -50%) rotate(45deg);
-  background: #d4af37;
-  box-shadow: 0 0 8px rgba(244, 211, 94, 0.5);
+  width: 10px;
+  height: 10px;
+  transform: translate(-50%, -50%);
+  border-radius: 9999px;
+  border: 1px solid rgba(233, 242, 233, 0.5);
+  background: transparent;
 }

@@ -43,9 +43,14 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
-        // Display-only face: used for page H1s, top-3 ranks, champion-trophy
-        // titles. Strictly NOT for body copy (it loses legibility under ~18px).
-        display: ["var(--font-cinzel)", "Georgia", "serif"],
+        // Display-only face: a bold condensed sports face for page H1s, big
+        // scorelines, top-3 ranks, and trophy titles. NOT for body copy.
+        display: [
+          "var(--font-display)",
+          '"Arial Narrow"',
+          "system-ui",
+          "sans-serif",
+        ],
       },
       boxShadow: {
         glow: "0 0 24px -6px rgba(60,240,138,0.35)",

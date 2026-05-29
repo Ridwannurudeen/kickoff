@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Cinzel } from "next/font/google";
+import { Inter, Anton } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { Header } from "@/components/Header";
@@ -8,12 +8,13 @@ import { Footer } from "@/components/Footer";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
-// Cinzel — display-only face for page H1s, top-3 ranks, and champion-trophy
-// titles. Restrained: never used for body copy, never below 18 px in practice.
-const cinzel = Cinzel({
+// Anton — bold condensed sports display face for page H1s, big scorelines,
+// top-3 ranks, and trophy titles. Single weight (400) by design; never used
+// for body copy.
+const anton = Anton({
   subsets: ["latin"],
-  weight: ["500", "700", "900"],
-  variable: "--font-cinzel",
+  weight: ["400"],
+  variable: "--font-display",
   display: "swap",
 });
 
@@ -92,7 +93,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${cinzel.variable}`}>
+    <html lang="en" className={`${inter.variable} ${anton.variable}`}>
       <body className="font-sans antialiased">
         <Providers>
           <a href="#main" className="skip-link">
