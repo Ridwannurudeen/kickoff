@@ -9,7 +9,7 @@ import {
 } from "wagmi";
 import { useQueryClient } from "@tanstack/react-query";
 import { useT } from "./I18nProvider";
-import { GreekKeyBorder, TrophyGlyph } from "./ornaments";
+import { TrophyGlyph } from "./ornaments";
 import { fmtInt } from "@/lib/format";
 import { txUrl } from "@/lib/config";
 import { questEngineAbi, trophyAbi } from "@/lib/v2-abis";
@@ -205,10 +205,8 @@ export function TrophyCard({
 
   if (isChampion) {
     return (
-      <div className="tabula card shadow-honor animate-glow-pulse animate-fade-up relative overflow-hidden">
-        <GreekKeyBorder className="text-honor/35" strokeWidth={1}>
-          {body}
-        </GreekKeyBorder>
+      <div className="tabula card shadow-honor animate-glow-pulse animate-fade-up relative overflow-hidden ring-1 ring-honor/40">
+        {body}
       </div>
     );
   }
