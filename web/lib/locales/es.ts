@@ -78,6 +78,17 @@ export const es: Dict = {
   leaderboard_global_title: "Clasificación global",
   leaderboard_filter_all: "Todos los aficionados",
   leaderboard_team_empty: "Aún no hay aficionados apoyando a esta selección.",
+
+  quests_pick_home: "Local",
+  quests_pick_draw: "Empate",
+  quests_pick_away: "Visitante",
+  quests_action_commit_pick: "Confirmar pronóstico",
+  quests_committed: "Confirmado",
+  quests_action_reveal: "Revelar y reclamar",
+  quests_result_pending:
+    "El resultado aún no se ha liquidado — vuelve tras el partido.",
+  quests_reveal_other_device:
+    "Revela desde el dispositivo donde lo confirmaste.",
   leaderboard_global_note:
     "El XP de cada aficionado ya está on-chain. La clasificación global pública llega con el indexador de eventos — en el roadmap.",
 

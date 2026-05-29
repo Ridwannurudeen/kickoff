@@ -11,6 +11,7 @@ import type { Quest } from "@/lib/v2-types";
 import { useToasts } from "@/lib/toast";
 import { useFanScore } from "@/lib/v2-fan";
 import { waitForTransactionAndRefresh } from "@/lib/tx";
+import { PredictionControls } from "./PredictionControls";
 
 type Status = "live" | "upcoming" | "closed";
 
@@ -46,12 +47,11 @@ export function QuestCard({ quest, now }: { quest: Quest; now: number }) {
         ? t("quests_status_upcoming")
         : t("quests_status_closed");
 
-  // PREDICTION still needs a slot picker tied to a live ConditionalTokens
-  // condition; that UI ships with v2.1, so we render the button as a
-  // visibly-pending pill. EXTERNAL_PROOF now goes through an admin signing
-  // route (/api/attest) and the user submits the returned signature on chain.
+  // PREDICTION quests use the commit→reveal slot picker (PredictionControls).
+  // EXTERNAL_PROOF goes through an admin signing route (/api/attest) and the
+  // user submits the returned signature on chain.
   const needsAttestation = quest.type === "EXTERNAL_PROOF";
-  const isV21Only = quest.type === "PREDICTION";
+  const isPrediction = quest.type === "PREDICTION";
 
   const ctaLabel = needsAttestation
     ? t("quests_action_submit_proof")
@@ -64,16 +64,6 @@ export function QuestCard({ quest, now }: { quest: Quest; now: number }) {
     }
     if (!address) {
       push({ kind: "info", title: t("common_connect_first"), ttl: 4000 });
-      return;
-    }
-    if (isV21Only) {
-      push({
-        kind: "info",
-        title: "Prediction quests · v2.1",
-        message:
-          "PREDICTION quests need a slot picker tied to a live ConditionalTokens condition — that UI ships with v2.1. The on-chain quest itself is registered; the BYO example agent already exercises the same commit-reveal path end-to-end.",
-        ttl: 10000,
-      });
       return;
     }
     const id = push({ kind: "pending", title: ctaLabel, ttl: 0 });
@@ -166,14 +156,13 @@ export function QuestCard({ quest, now }: { quest: Quest; now: number }) {
           <span className="pill border-grass/60 text-grass">
             {t("quests_status_completed")}
           </span>
-        ) : isV21Only ? (
-          <button
-            onClick={onPrimary}
-            className="pill border-honor/40 bg-pitch-panel text-[10px] uppercase tracking-wide text-honor transition-colors hover:border-honor/70"
-            title="Prediction quests ship in v2.1 — click for details"
-          >
-            Soon · v2.1
-          </button>
+        ) : isPrediction ? (
+          <PredictionControls
+            quest={quest}
+            status={status}
+            address={address}
+            onDone={() => completed.refetch()}
+          />
         ) : (
           <button
             onClick={onPrimary}
