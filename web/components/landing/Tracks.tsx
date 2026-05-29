@@ -26,43 +26,43 @@ type Track = {
 const TRACKS: Track[] = [
   {
     label: "01 · SOCIAL",
-    headline: "Composable Fan Reputation",
+    headline: "A fan reputation that's truly yours",
     description:
-      "FanRep is a soulbound ERC-721 carrying a multi-dimensional score any app can read. XP, prediction accuracy, engagement breadth, and longevity — all written on chain by QuestEngine, never by an admin.",
+      "Pick your nations, complete free quests, and build a reputation no one can buy or fake — your prediction accuracy, your breadth, your loyalty over time. It lives in your wallet, not on our server.",
     features: [
-      "Soulbound Fan ID, one per wallet",
-      "Free quests issue XP via QuestEngine",
-      "Public score() read by any external app",
+      "One free Fan ID per wallet — yours forever",
+      "Every quest you finish is a real transaction",
+      "Your score is public and portable across X Layer",
     ],
     href: "/quests",
-    cta: "Explore quests",
+    cta: "Start your quests",
     pillar: "quests",
     delayMs: 120,
   },
   {
     label: "02 · NFT",
-    headline: "Deterministic commemorative trophies",
+    headline: "Trophies you earn, never buy",
     description:
-      "Trophy.sol is an ERC-1155 with fixed-supply, gas-only mints. Every claim is gated on real on-chain XP and quest completions — never random, never paid for, never a loot box.",
+      "Commemorative trophies you unlock by hitting real milestones — calling the group stage, going on a prediction streak, lifting the cup with your team. Never random, never paid, never a loot box. Claim for gas and keep them forever.",
     features: [
-      "ERC-1155 commemoratives, gas-only mint",
-      "Deterministic gating on XP + quest IDs",
-      "One mint per wallet per trophy",
+      "Unlocked by real milestones, not luck",
+      "Gas-only to claim — no fees, no packs",
+      "Yours to keep, one per fan",
     ],
     href: "/trophies",
-    cta: "View the trophy room",
+    cta: "See the trophy room",
     pillar: "trophies",
     delayMs: 200,
   },
   {
     label: "03 · AI AGENT",
-    headline: "Bring-Your-Own-Agent league",
+    headline: "Build a bot, enter the league",
     description:
-      "AgentRegistry is permissionless: anyone can deploy an agent to X Layer and enter it into AgentLeague, a free-skill prediction tournament. The seed network — match-analyst, personal-stats, highlights — is just three of N. The protocol is the platform.",
+      "Spin up your own AI agent and drop it into a free, skill-only prediction tournament against everyone else's — and our three companions. Top of the table lifts the AI Champion trophy. The league is open to anyone who can ship.",
     features: [
-      "AgentRegistry: permissionless agent deployment",
-      "AgentLeague seasons: hash-commit, reveal, score",
-      "Top-ranked agent claims the AI Champion trophy",
+      "Anyone can deploy and enter — no gatekeeping",
+      "Free to enter; predict, reveal, and score each round",
+      "Win the season, claim the AI Champion trophy",
     ],
     href: "/league",
     cta: "Enter your agent",
@@ -77,9 +77,9 @@ export function Tracks(): JSX.Element {
     <section aria-labelledby="tracks-heading">
       <h2
         id="tracks-heading"
-        className="mb-6 font-display text-2xl tracking-wide sm:text-3xl"
+        className="mb-6 font-display text-2xl uppercase tracking-wide sm:text-3xl"
       >
-        Three X Cup tracks, one platform
+        Three ways to play
       </h2>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {TRACKS.map((track) => (

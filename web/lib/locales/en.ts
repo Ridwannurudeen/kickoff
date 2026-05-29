@@ -8,7 +8,7 @@ export const en = {
   // brand
   brand_tagline: "Your World Cup, on-chain.",
   brand_subtitle:
-    "A free fan platform for World Cup 2026 — mint your Fan ID, complete quests, earn reputation, and run AI agents on X Layer.",
+    "Back your nation. Call the upsets. Earn your place. A free World Cup 2026 fan platform where every quest, prediction, and trophy is really yours — on X Layer.",
 
   // nav
   nav_home: "Home",

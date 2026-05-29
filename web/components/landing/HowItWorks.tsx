@@ -84,7 +84,7 @@ export function HowItWorks(): JSX.Element {
     <section aria-labelledby="how-it-works-heading">
       <h2
         id="how-it-works-heading"
-        className="mb-6 font-display text-2xl tracking-wide sm:text-3xl"
+        className="mb-6 font-display text-2xl uppercase tracking-wide sm:text-3xl"
       >
         How Kickoff works
       </h2>
