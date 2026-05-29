@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { ConnectButton } from "./ConnectButton";
 import { LocaleSwitcher } from "./LocaleSwitcher";
 import { useT } from "./I18nProvider";
-import { Laurel } from "./Laurel";
 import { BuiltOnXLayerBadge } from "./BuiltOnXLayerBadge";
 import { CHAIN_ID } from "@/lib/config";
 import type { TranslationKey } from "@/lib/i18n";
@@ -18,6 +17,7 @@ const FAUCET_URL =
   process.env.NEXT_PUBLIC_FAUCET_URL ?? "https://www.okx.com/xlayer/faucet";
 
 const NAV: { href: string; key: TranslationKey }[] = [
+  { href: "/schedule", key: "nav_schedule" },
   { href: "/quests", key: "nav_quests" },
   { href: "/trophies", key: "nav_trophies" },
   { href: "/companion", key: "nav_companion" },
@@ -33,11 +33,9 @@ export function Header() {
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center gap-1.5">
-            <Laurel size={18} className="text-honor/80" />
-            <span className="text-lg font-extrabold tracking-tight">
+            <span className="font-display text-xl uppercase tracking-wide">
               Kick<span className="text-grass">off</span>
             </span>
-            <Laurel size={18} className="text-honor/80" flipped />
           </Link>
           <BuiltOnXLayerBadge
             size="sm"
@@ -53,8 +51,8 @@ export function Header() {
                   href={n.href}
                   className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors border-b-2 ${
                     active
-                      ? "border-honor/60 text-white"
-                      : "border-transparent text-muted hover:text-marble"
+                      ? "border-grass/70 text-white"
+                      : "border-transparent text-muted hover:text-white"
                   }`}
                 >
                   {t(n.key)}

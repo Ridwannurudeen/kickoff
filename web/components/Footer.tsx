@@ -7,6 +7,7 @@ import { ChampionshipMark } from "./ornaments";
 import type { TranslationKey } from "@/lib/i18n";
 
 const PRODUCT_LINKS: { href: string; key: TranslationKey }[] = [
+  { href: "/schedule", key: "nav_schedule" },
   { href: "/quests", key: "nav_quests" },
   { href: "/trophies", key: "nav_trophies" },
   { href: "/companion", key: "nav_companion" },

@@ -12,6 +12,7 @@ export const en = {
 
   // nav
   nav_home: "Home",
+  nav_schedule: "Schedule",
   nav_quests: "Quests",
   nav_trophies: "Trophies",
   nav_companion: "Companion",
@@ -198,9 +199,13 @@ export const en = {
   // leaderboard
   leaderboard_title: "Leaderboard",
   leaderboard_subtitle:
-    "Top fans by total XP. Live, derived from on-chain XPRecorded events.",
-  leaderboard_sort_global: "Global",
-  leaderboard_sort_team: "By team",
+    "Your on-chain Fan Reputation — XP, prediction accuracy, and breadth, read live from FanRep.",
+  leaderboard_your_standing: "Your standing",
+  leaderboard_connect: "Connect your wallet to see your on-chain standing.",
+  leaderboard_no_fanid: "Mint your Fan ID to start building your reputation.",
+  leaderboard_global_title: "Global ranking",
+  leaderboard_global_note:
+    "Every fan's XP is on-chain today. A public global ranking lands with the events indexer — tracked on the roadmap.",
   leaderboard_col_rank: "#",
   leaderboard_col_fan: "Fan",
   leaderboard_col_xp: "XP",
@@ -227,10 +232,19 @@ export const en = {
   profile_share: "Share profile",
   profile_view_on_explorer: "View on OKLink",
 
+  // schedule
+  schedule_title: "Match schedule",
+  schedule_subtitle:
+    "All 104 fixtures of World Cup 2026 — 12 groups, then the road to the Final.",
+  schedule_tab_fixtures: "Fixtures",
+  schedule_tab_groups: "Groups",
+  schedule_group_label: "Group {group}",
+
   // team page
   team_overview: "Overview",
   team_group_label: "Group {group}",
   team_fixtures: "Fixtures",
+  team_group_table: "Group table",
   team_quests_title: "Quests anchored to this team",
   team_no_quests: "No active quests for this team yet.",
 

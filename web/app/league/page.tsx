@@ -5,7 +5,7 @@ import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import { useQueryClient } from "@tanstack/react-query";
 import { isAddress, keccak256, toBytes, parseUnits } from "viem";
 import { useT } from "@/components/I18nProvider";
-import { LaurelWreath, Podium } from "@/components/ornaments";
+import { Podium } from "@/components/ornaments";
 import { agentLeagueAbi, agentRegistryAbi } from "@/lib/v2-abis";
 import {
   AGENT_LEAGUE_CONFIGURED,
@@ -15,7 +15,6 @@ import {
 import { txUrl, addressUrl } from "@/lib/config";
 import { fmtInt, shortAddr } from "@/lib/format";
 import { AGENTS } from "@/lib/v2-catalog";
-import { DEMO_LEAGUE_STANDINGS } from "@/lib/v2-demo";
 import { useToasts } from "@/lib/toast";
 import { publicClient } from "@/lib/client";
 import { waitForTransactionAndRefresh } from "@/lib/tx";
@@ -63,8 +62,8 @@ export default function LeaguePage() {
   //   1. `activeSeasonId()` -> grab the active season id
   //   2. `leaderboard(seasonId)` -> parallel arrays of (agentIds, scores, owners)
   // The on-chain registry doesn't store an agent display name (only an
-  // endpointHint), so the "name" column renders a short agentId. Falls back to
-  // DEMO_LEAGUE_STANDINGS when AgentLeague isn't deployed yet.
+  // endpointHint), so the "name" column renders a short agentId. Renders an
+  // honest empty state when AgentLeague isn't deployed or has no entries yet.
   const active = useReadContract({
     address: V2_ADDRESSES.agentLeague,
     abi: agentLeagueAbi,
@@ -92,7 +91,7 @@ export default function LeaguePage() {
   }, [localAgentNames, t]);
 
   const standings: Standing[] = useMemo(() => {
-    if (demoLeague) return DEMO_LEAGUE_STANDINGS;
+    if (demoLeague) return [];
     const data = leaderboard.data;
     if (!data) return [];
     const [agentIds, scores, owners] = data as readonly [
@@ -341,12 +340,9 @@ export default function LeaguePage() {
   return (
     <div className="space-y-8">
       <div className="animate-fade-up">
-        <div className="flex items-center gap-3">
-          <h1 className="font-display text-3xl tracking-wide sm:text-4xl">
-            {t("league_title")}
-          </h1>
-          <LaurelWreath size={32} className="text-honor/70" />
-        </div>
+        <h1 className="font-display text-3xl uppercase tracking-wide sm:text-4xl">
+          {t("league_title")}
+        </h1>
         <p className="text-sm text-muted">{t("league_subtitle")}</p>
       </div>
 
