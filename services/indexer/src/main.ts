@@ -70,7 +70,7 @@ const client: PublicClient = createPublicClient({
 const FAN_MINTED = parseAbiItem(
   "event FanMinted(address indexed user, uint256 indexed tokenId)",
 );
-const SCORE_ABI = [
+const FANREP_ABI = [
   {
     type: "function",
     name: "score",
@@ -83,6 +83,13 @@ const SCORE_ABI = [
       { name: "longevityDays", type: "uint64" },
     ],
   },
+  {
+    type: "function",
+    name: "favoriteTeamsOf",
+    stateMutability: "view",
+    inputs: [{ name: "user", type: "address" }],
+    outputs: [{ name: "", type: "uint16[]" }],
+  },
 ] as const;
 
 // ── state ─────────────────────────────────────────────────────────────────────
@@ -92,6 +99,7 @@ type Row = {
   predictionAccuracyBps: number;
   engagementBreadth: number;
   longevityDays: number;
+  favoriteTeams: number[];
 };
 const holders = new Set<`0x${string}`>();
 let lastScannedBlock = DEPLOY_BLOCK - 1n;
@@ -209,18 +217,27 @@ async function mapLimit<T, R>(
 
 async function readScore(address: `0x${string}`): Promise<Row | null> {
   try {
-    const s = (await client.readContract({
-      address: FAN_REP,
-      abi: SCORE_ABI,
-      functionName: "score",
-      args: [address],
-    })) as readonly [bigint, bigint, bigint, bigint];
+    const [s, faves] = (await Promise.all([
+      client.readContract({
+        address: FAN_REP,
+        abi: FANREP_ABI,
+        functionName: "score",
+        args: [address],
+      }),
+      client.readContract({
+        address: FAN_REP,
+        abi: FANREP_ABI,
+        functionName: "favoriteTeamsOf",
+        args: [address],
+      }),
+    ])) as [readonly [bigint, bigint, bigint, bigint], readonly number[]];
     return {
       address,
       total: Number(s[0]),
       predictionAccuracyBps: Number(s[1]),
       engagementBreadth: Number(s[2]),
       longevityDays: Number(s[3]),
+      favoriteTeams: faves.map(Number),
     };
   } catch {
     return null;

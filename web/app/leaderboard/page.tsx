@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useAccount } from "wagmi";
 import { useQuery } from "@tanstack/react-query";
@@ -7,7 +8,7 @@ import { useT } from "@/components/I18nProvider";
 import { Flag } from "@/components/Flag";
 import { Podium } from "@/components/ornaments";
 import { useFanScore } from "@/lib/v2-fan";
-import { teamById } from "@/lib/teams";
+import { teamById, TEAMS } from "@/lib/teams";
 import { addressUrl } from "@/lib/config";
 import { fmtInt, shortAddr } from "@/lib/format";
 
@@ -17,6 +18,7 @@ type LeaderRow = {
   predictionAccuracyBps: number;
   engagementBreadth: number;
   longevityDays: number;
+  favoriteTeams?: number[];
 };
 
 export default function LeaderboardPage() {
@@ -129,6 +131,7 @@ export default function LeaderboardPage() {
 
 function GlobalRanking({ address }: { address?: `0x${string}` }) {
   const { t } = useT();
+  const [teamId, setTeamId] = useState<number | "all">("all");
   const { data, isLoading } = useQuery({
     queryKey: ["global-leaderboard"],
     queryFn: async (): Promise<LeaderRow[]> => {
@@ -157,18 +160,52 @@ function GlobalRanking({ address }: { address?: `0x${string}` }) {
     );
   }
 
+  const filtered =
+    teamId === "all"
+      ? rows
+      : rows.filter((r) => r.favoriteTeams?.includes(teamId));
+
+  const teamFilter = (
+    <select
+      value={teamId}
+      onChange={(e) =>
+        setTeamId(e.target.value === "all" ? "all" : Number(e.target.value))
+      }
+      className="input max-w-xs"
+    >
+      <option value="all">{t("leaderboard_filter_all")}</option>
+      {TEAMS.map((tm) => (
+        <option key={tm.id} value={tm.id}>
+          {tm.name} · {t("team_group_label", { group: tm.group })}
+        </option>
+      ))}
+    </select>
+  );
+
+  if (filtered.length === 0) {
+    return (
+      <div className="space-y-4">
+        {teamFilter}
+        <div className="card p-8 text-center text-sm text-muted">
+          {t("leaderboard_team_empty")}
+        </div>
+      </div>
+    );
+  }
+
   const topThree = ([1, 2, 3] as const).map((rank) => {
-    const r = rows[rank - 1];
+    const r = filtered[rank - 1];
     return {
       rank,
       label: r ? shortAddr(r.address) : "—",
       sublabel: r ? `${fmtInt(r.total)} XP` : undefined,
     };
   });
-  const rest = rows.slice(3);
+  const rest = filtered.slice(3);
 
   return (
     <div className="space-y-6">
+      {teamFilter}
       <div className="card tabula mx-auto max-w-2xl p-6 md:p-8">
         <Podium topThree={topThree} className="mx-auto w-full" />
       </div>

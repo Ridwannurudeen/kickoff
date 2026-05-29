@@ -194,6 +194,8 @@ export const en = {
   leaderboard_connect: "Connect your wallet to see your on-chain standing.",
   leaderboard_no_fanid: "Mint your Fan ID to start building your reputation.",
   leaderboard_global_title: "Global ranking",
+  leaderboard_filter_all: "All fans",
+  leaderboard_team_empty: "No fans backing this team yet.",
   leaderboard_global_note:
     "Every fan's XP is on-chain today. A public global ranking lands with the events indexer — tracked on the roadmap.",
   leaderboard_col_rank: "#",

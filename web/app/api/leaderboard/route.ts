@@ -20,6 +20,7 @@ type Snapshot = {
     predictionAccuracyBps: number;
     engagementBreadth: number;
     longevityDays: number;
+    favoriteTeams: number[];
   }[];
 };
 

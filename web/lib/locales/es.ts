@@ -76,6 +76,8 @@ export const es: Dict = {
   leaderboard_no_fanid:
     "Emite tu Fan ID para empezar a construir tu reputación.",
   leaderboard_global_title: "Clasificación global",
+  leaderboard_filter_all: "Todos los aficionados",
+  leaderboard_team_empty: "Aún no hay aficionados apoyando a esta selección.",
   leaderboard_global_note:
     "El XP de cada aficionado ya está on-chain. La clasificación global pública llega con el indexador de eventos — en el roadmap.",
 
