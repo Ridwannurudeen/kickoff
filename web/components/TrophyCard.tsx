@@ -1,14 +1,26 @@
 "use client";
 
-import { useAccount, useReadContract, useWriteContract } from "wagmi";
+import { useMemo } from "react";
+import {
+  useAccount,
+  useReadContract,
+  useReadContracts,
+  useWriteContract,
+} from "wagmi";
+import { useQueryClient } from "@tanstack/react-query";
 import { useT } from "./I18nProvider";
 import { GreekKeyBorder, TrophyGlyph } from "./ornaments";
 import { fmtInt } from "@/lib/format";
 import { txUrl } from "@/lib/config";
-import { trophyAbi } from "@/lib/v2-abis";
-import { TROPHY_CONFIGURED, V2_ADDRESSES } from "@/lib/v2-addresses";
+import { questEngineAbi, trophyAbi } from "@/lib/v2-abis";
+import {
+  QUEST_ENGINE_CONFIGURED,
+  TROPHY_CONFIGURED,
+  V2_ADDRESSES,
+} from "@/lib/v2-addresses";
 import type { Trophy } from "@/lib/v2-types";
 import { useToasts } from "@/lib/toast";
+import { waitForTransactionAndRefresh } from "@/lib/tx";
 
 // Honor heuristic: the AI Champion (id 5) and Champion of Champions (id 7)
 // trophies are the two top-tier "champion" awards in lib/v2-catalog.ts. Only
@@ -34,6 +46,7 @@ export function TrophyCard({
   const demo = !TROPHY_CONFIGURED;
   const { writeContractAsync, isPending } = useWriteContract();
   const { push, dismiss } = useToasts();
+  const queryClient = useQueryClient();
 
   const owned = useReadContract({
     address: V2_ADDRESSES.trophy,
@@ -44,18 +57,57 @@ export function TrophyCard({
   });
   const isOwned = (owned.data ?? 0n) > 0n;
 
-  const claimable = useReadContract({
+  const rule = useReadContract({
     address: V2_ADDRESSES.trophy,
     abi: trophyAbi,
-    functionName: "claimable",
-    args: !demo && address ? [address, BigInt(trophy.id)] : undefined,
-    query: { enabled: !demo && !!address },
+    functionName: "getRule",
+    args: !demo ? [BigInt(trophy.id)] : undefined,
+    query: { enabled: !demo },
   });
+  const ruleData = rule.data as
+    | readonly [bigint, bigint, readonly `0x${string}`[], boolean]
+    | undefined;
+  const liveRequiredXp = Number(ruleData?.[0] ?? BigInt(trophy.requiredXP));
+  const windowEnd = Number(ruleData?.[1] ?? 0n);
+  const requiredQuestIds = useMemo(
+    () => [...(ruleData?.[2] ?? [])],
+    [ruleData],
+  );
+  const questCompletionContracts = useMemo(
+    () =>
+      !demo && address && QUEST_ENGINE_CONFIGURED
+        ? requiredQuestIds.map((questId) => ({
+            address: V2_ADDRESSES.questEngine,
+            abi: questEngineAbi,
+            functionName: "completed",
+            args: [questId, address] as const,
+          }))
+        : [],
+    [address, demo, requiredQuestIds],
+  );
+  const questCompletions = useReadContracts({
+    allowFailure: false,
+    contracts: questCompletionContracts,
+    query: { enabled: questCompletionContracts.length > 0 },
+  });
+  const completedRequiredQuests =
+    requiredQuestIds.length === 0 ||
+    ((questCompletions.data as readonly boolean[] | undefined)?.every(
+      Boolean,
+    ) ??
+      false);
+  const windowOpen =
+    windowEnd === 0 || Math.floor(Date.now() / 1000) <= windowEnd;
+  const ruleExists = Boolean(ruleData?.[3]);
   // In demo mode, fall back to a simple XP-threshold check so the UI is
   // still informative — users can see which trophies they'd be eligible for.
   const isClaimable = demo
     ? userXp >= trophy.requiredXP && trophy.requiredXP > 0
-    : Boolean(claimable.data);
+    : ruleExists &&
+      !isOwned &&
+      userXp >= liveRequiredXp &&
+      windowOpen &&
+      completedRequiredQuests;
 
   async function onClaim() {
     if (demo) {
@@ -74,6 +126,7 @@ export function TrophyCard({
         functionName: "claim",
         args: [BigInt(trophy.id)],
       });
+      await waitForTransactionAndRefresh(hash, queryClient);
       push({
         kind: "success",
         title: t("trophies_claimed"),
@@ -125,11 +178,11 @@ export function TrophyCard({
       </div>
       <div className="mt-1 text-xs text-muted">
         <p>{t(trophy.conditionKey)}</p>
-        {trophy.requiredXP > 0 && (
+        {liveRequiredXp > 0 && (
           <p className="mt-1">
             {t("trophies_progress", {
-              have: fmtInt(Math.min(userXp, trophy.requiredXP)),
-              need: fmtInt(trophy.requiredXP),
+              have: fmtInt(Math.min(userXp, liveRequiredXp)),
+              need: fmtInt(liveRequiredXp),
             })}
           </p>
         )}
