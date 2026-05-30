@@ -8,15 +8,17 @@
 
 html,
 body {
-  background: #0a0e0a;
+  background: #080b08;
   color: #e9f2e9;
 }
 
 body {
-  background-image:
-    radial-gradient(circle at 15% -10%, rgba(22, 192, 96, 0.12), transparent 40%),
-    radial-gradient(circle at 90% 0%, rgba(60, 240, 138, 0.08), transparent 35%),
-    radial-gradient(circle at 50% 110%, rgba(212, 175, 55, 0.05), transparent 45%);
+  /* Flat near-black with a single faint top sheen — no neon corner-glow. */
+  background-image: linear-gradient(
+    180deg,
+    rgba(22, 192, 96, 0.05),
+    transparent 220px
+  );
   min-height: 100vh;
 }
 
@@ -42,7 +44,33 @@ body {
 
 @layer components {
   .card {
-    @apply rounded-xl border border-pitch-border bg-pitch-card;
+    @apply rounded-lg border border-pitch-border bg-pitch-card shadow-card;
+  }
+  /* Interactive card/row — subtle lift + green edge on hover. */
+  .card-link {
+    @apply card transition-colors hover:border-grass/40 hover:bg-pitch-raised;
+  }
+  /* Section eyebrow label — small, uppercase, tracked. */
+  .label {
+    @apply text-[11px] font-semibold uppercase tracking-[0.14em] text-muted;
+  }
+  /* Dense list row with a hairline divider (sports-app lists). */
+  .row {
+    @apply flex items-center gap-3 border-b border-pitch-line px-3 py-2.5 last:border-0;
+  }
+  .row-link {
+    @apply row transition-colors hover:bg-pitch-raised;
+  }
+  /* Segmented control / tab pills. */
+  .seg {
+    @apply rounded-md px-3 py-1.5 text-sm font-semibold text-muted transition-colors hover:text-white;
+  }
+  .seg-active {
+    @apply bg-pitch-raised text-white;
+  }
+  /* Tabular numerals for scores/XP/ranks. */
+  .statnum {
+    @apply font-display tabular-nums tracking-wide;
   }
   .btn {
     @apply inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50;

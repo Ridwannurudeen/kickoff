@@ -9,18 +9,27 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // sportsbook-meets-crypto dark palette
+        // Sports-app dark palette — layered elevation (bg < surface < card < raised),
+        // crisp hairline borders, one green action color.
         pitch: {
-          bg: "#0a0e0a",
+          bg: "#080b08",
+          surface: "#0e120e",
           panel: "#121712",
-          card: "#161d16",
-          border: "#23302355",
+          card: "#141a14",
+          raised: "#1b221b",
+          border: "#ffffff14", // 1px hairline, ~8% white
+          line: "#ffffff0a", // even fainter divider
         },
         grass: {
           DEFAULT: "#16c060",
           dark: "#0e7a3d",
           glow: "#3cf08a",
         },
+        // Live + football result semantics (sports-app convention).
+        live: "#ff4d4f",
+        win: "#16c060",
+        draw: "#9aa3ab",
+        loss: "#f2545b",
         // Classical "honor" accent — used only for top-3 ranks, the AI Champion
         // / Champion-of-Champions trophies, and the "you won" moments. Never
         // for navigation, never for CTAs (the grass green stays the action
@@ -53,6 +62,9 @@ const config: Config = {
         ],
       },
       boxShadow: {
+        // Soft elevation for cards/rows (sports-app depth, not neon glow).
+        card: "0 1px 0 0 rgba(255,255,255,0.03) inset, 0 1px 2px rgba(0,0,0,0.5)",
+        raised: "0 2px 8px rgba(0,0,0,0.55)",
         glow: "0 0 24px -6px rgba(60,240,138,0.35)",
         honor: "0 0 28px -8px rgba(244,211,94,0.45)",
       },
