@@ -13,6 +13,7 @@
 "use client";
 
 import { useT } from "@/components/I18nProvider";
+import { SectionHeader } from "@/components/ui";
 import type { TranslationKey } from "@/lib/i18n";
 
 type ContractRow = {
@@ -59,20 +60,16 @@ export function Architecture(): JSX.Element {
   const { t } = useT();
   return (
     <section aria-labelledby="architecture-heading">
-      <div className="tabula card relative overflow-hidden p-6 md:p-10">
-        <h2
-          id="architecture-heading"
-          className="mb-2 animate-fade-up font-display text-2xl tracking-wide sm:text-3xl"
-        >
-          {t("arch_heading")}
-        </h2>
-        <p className="mb-6 animate-fade-up text-sm text-muted [animation-delay:60ms]">
-          {t("arch_intro")}
-        </p>
+      <h2 id="architecture-heading" className="sr-only">
+        {t("arch_heading")}
+      </h2>
+      <SectionHeader label={t("arch_heading")} />
+      <div className="card p-4 md:p-5">
+        <p className="mb-4 text-xs text-muted">{t("arch_intro")}</p>
 
         {/* Diagram */}
         <div
-          className="relative animate-fade-up rounded-lg border border-pitch-border bg-pitch-panel/40 p-4 md:p-6 [animation-delay:120ms]"
+          className="relative rounded-lg border border-pitch-border bg-pitch-panel/40 p-4"
           aria-label={t("arch_diagram_aria")}
         >
           {/* Top row: wallet → web */}
@@ -123,15 +120,11 @@ export function Architecture(): JSX.Element {
         </div>
 
         {/* Glossary */}
-        <ul className="mt-6 grid grid-cols-1 gap-2 md:grid-cols-2">
-          {ROWS.map((row, i) => (
-            <li
-              key={row.name}
-              className="card flex animate-fade-up items-start gap-3 p-3"
-              style={{ animationDelay: `${160 + i * 40}ms` }}
-            >
+        <ul className="mt-4 grid grid-cols-1 gap-2 md:grid-cols-2">
+          {ROWS.map((row) => (
+            <li key={row.name} className="flex items-start gap-2.5">
               <span
-                className={`mt-0.5 flex h-9 w-9 flex-none items-center justify-center rounded-md border ${
+                className={`mt-0.5 flex h-7 w-7 flex-none items-center justify-center rounded-md border ${
                   row.tone === "honor"
                     ? "border-honor/40 text-honor"
                     : "border-grass/40 text-grass"
@@ -142,19 +135,19 @@ export function Architecture(): JSX.Element {
               </span>
               <div className="min-w-0">
                 <p
-                  className={`font-extrabold tracking-wide ${
+                  className={`text-sm font-extrabold tracking-wide ${
                     row.tone === "honor" ? "text-honor" : "text-white"
                   }`}
                 >
                   {row.name}
                 </p>
-                <p className="text-sm text-muted">{t(row.blurb)}</p>
+                <p className="text-xs text-muted">{t(row.blurb)}</p>
               </div>
             </li>
           ))}
         </ul>
 
-        <p className="mt-6 text-center text-xs text-muted">
+        <p className="mt-4 text-center text-xs text-muted">
           <a
             href="https://www.oklink.com/xlayer-test"
             target="_blank"

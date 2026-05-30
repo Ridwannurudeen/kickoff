@@ -1,12 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useT } from "@/components/I18nProvider";
-import { Flag } from "@/components/Flag";
-import { FixtureCard } from "@/components/FixtureCard";
+import { Card, SegmentedControl, MatchRow, GroupTable } from "@/components/ui";
 import { ALL_FIXTURES } from "@/lib/fixtures";
-import { GROUP_LETTERS, teamsByGroup } from "@/lib/teams";
+import { GROUP_LETTERS } from "@/lib/teams";
 
 const MONTHS = [
   "Jan",
@@ -43,58 +41,21 @@ export default function SchedulePage() {
         <p className="text-sm text-muted">{t("schedule_subtitle")}</p>
       </div>
 
-      <div className="grid w-full max-w-xs grid-cols-2 gap-1 rounded-lg bg-pitch-bg p-1">
-        {(["fixtures", "groups"] as const).map((key) => (
-          <button
-            key={key}
-            onClick={() => setTab(key)}
-            className={`rounded-md px-4 py-2 text-sm font-semibold transition-colors ${
-              tab === key ? "bg-pitch-card text-white" : "text-muted"
-            }`}
-          >
-            {t(
-              key === "fixtures"
-                ? "schedule_tab_fixtures"
-                : "schedule_tab_groups",
-            )}
-          </button>
-        ))}
-      </div>
+      <SegmentedControl<Tab>
+        tabs={[
+          { id: "fixtures", label: t("schedule_tab_fixtures") },
+          { id: "groups", label: t("schedule_tab_groups") },
+        ]}
+        active={tab}
+        onChange={setTab}
+      />
 
       {tab === "fixtures" ? (
         <FixturesList />
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {GROUP_LETTERS.map((g) => (
-            <div key={g} className="card overflow-hidden">
-              <div className="border-b border-pitch-border bg-pitch-panel px-4 py-2 font-display text-sm uppercase tracking-wide">
-                {t("schedule_group_label", { group: g })}
-              </div>
-              <table className="w-full text-sm">
-                <tbody>
-                  {teamsByGroup(g).map((tm) => (
-                    <tr
-                      key={tm.id}
-                      className="border-b border-pitch-border/50 last:border-0"
-                    >
-                      <td className="py-2.5 pl-4 pr-3">
-                        <Link
-                          href={`/team/${tm.id}`}
-                          className="flex items-center gap-3 hover:text-grass"
-                        >
-                          <Flag
-                            code={tm.flag}
-                            title={tm.name}
-                            className="h-4 w-6"
-                          />
-                          <span className="text-white">{tm.name}</span>
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <GroupTable key={g} group={g} />
           ))}
         </div>
       )}
@@ -116,17 +77,17 @@ function FixturesList() {
     <div className="space-y-6">
       {blocks.map((block) => (
         <section key={block.date}>
-          <h2 className="mb-3 font-display text-lg uppercase tracking-wide text-muted">
-            {longDate(block.date)}
-          </h2>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="sticky top-0 z-10 -mx-1 mb-2 bg-pitch-bg/90 px-1 py-2 backdrop-blur">
+            <span className="label">{longDate(block.date)}</span>
+          </div>
+          <Card className="overflow-hidden">
             {block.items.map((fx) => (
-              <FixtureCard
+              <MatchRow
                 key={`${fx.kickoffUnix}-${fx.team1}-${fx.team2}`}
                 fixture={fx}
               />
             ))}
-          </div>
+          </Card>
         </section>
       ))}
     </div>

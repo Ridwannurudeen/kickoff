@@ -5,6 +5,7 @@ import { useT } from "@/components/I18nProvider";
 import { QuestCard } from "@/components/QuestCard";
 import { useCountUp } from "@/lib/useCountUp";
 import { fmtInt } from "@/lib/format";
+import { StatTile, SegmentedControl } from "@/components/ui";
 import { QUESTS } from "@/lib/v2-catalog";
 import { upcomingMatchQuests } from "@/lib/v2-match-quests";
 import type { Quest, QuestType } from "@/lib/v2-types";
@@ -50,40 +51,19 @@ export default function QuestsPage() {
       </div>
 
       <div className="grid grid-cols-3 gap-3 md:gap-4">
-        <QuestStat
-          label={t("quests_stat_live")}
-          value={liveCount}
-          delayMs={160}
-        />
-        <QuestStat
-          label={t("quests_stat_upcoming")}
-          value={upcomingCount}
-          delayMs={220}
-        />
-        <QuestStat
-          label={t("quests_stat_total")}
-          value={totalCount}
-          delayMs={280}
-        />
+        <QuestStat label={t("quests_stat_live")} value={liveCount} accent />
+        <QuestStat label={t("quests_stat_upcoming")} value={upcomingCount} />
+        <QuestStat label={t("quests_stat_total")} value={totalCount} />
       </div>
 
       <div className="divider-classical" />
 
-      <div className="flex flex-wrap gap-2">
-        {FILTERS.map((f) => (
-          <button
-            key={f.id}
-            onClick={() => setFilter(f.id)}
-            className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
-              filter === f.id
-                ? "bg-grass text-black"
-                : "border border-pitch-border bg-pitch-panel text-muted hover:bg-pitch-panel/60 hover:text-white"
-            }`}
-          >
-            {t(f.labelKey)}
-          </button>
-        ))}
-      </div>
+      <SegmentedControl
+        className="flex-wrap"
+        tabs={FILTERS.map((f) => ({ id: f.id, label: t(f.labelKey) }))}
+        active={filter}
+        onChange={setFilter}
+      />
 
       {filtered.length === 0 ? (
         /** Hardcoded English copy — translators can lift this into a new
@@ -92,15 +72,9 @@ export default function QuestsPage() {
           <p className="text-sm text-muted">{t("quests_empty")}</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((q, i) => (
-            <div
-              key={q.id}
-              className="animate-fade-up"
-              style={{ animationDelay: `${(i % 4) * 60 + 320}ms` }}
-            >
-              <QuestCard quest={q} now={now} />
-            </div>
+        <div className="card overflow-hidden p-0">
+          {filtered.map((q) => (
+            <QuestCard key={q.id} quest={q} now={now} />
           ))}
         </div>
       )}
@@ -111,23 +85,19 @@ export default function QuestsPage() {
 function QuestStat({
   label,
   value,
-  delayMs,
+  accent,
 }: {
   label: string;
   value: number;
-  delayMs: number;
+  accent?: boolean;
 }) {
   const animated = useCountUp(value, { durationMs: 900 });
   return (
-    <div
-      className="card animate-fade-up p-4"
-      style={{ animationDelay: `${delayMs}ms` }}
-    >
-      <p className="text-[10px] uppercase tracking-wide text-muted">{label}</p>
-      <p className="mt-1 font-display text-2xl tracking-wide text-white">
-        {fmtInt(Math.floor(animated))}
-      </p>
-    </div>
+    <StatTile
+      label={label}
+      value={fmtInt(Math.floor(animated))}
+      accent={accent}
+    />
   );
 }
 

@@ -13,6 +13,7 @@
 "use client";
 
 import { useT } from "@/components/I18nProvider";
+import { Card, SectionHeader } from "@/components/ui";
 import type { TranslationKey } from "@/lib/i18n";
 
 type Proof = {
@@ -79,34 +80,34 @@ export function OnChainProof(): JSX.Element {
   const { t } = useT();
   return (
     <section aria-labelledby="onchain-proof-heading">
-      <h2
-        id="onchain-proof-heading"
-        className="mb-2 font-display text-2xl tracking-wide sm:text-3xl"
-      >
+      <h2 id="onchain-proof-heading" className="sr-only">
         {t("proof_heading")}
       </h2>
-      <p className="mb-6 text-sm text-muted">{t("proof_intro")}</p>
-      <div className="divider-classical" />
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-        {PROOFS.map((proof, i) => (
+      <SectionHeader label={t("proof_heading")} />
+      <p className="mb-2 text-xs text-muted">{t("proof_intro")}</p>
+      <Card className="divide-y divide-pitch-line p-0">
+        {PROOFS.map((proof) => (
           <a
             key={proof.label}
             href={proof.href}
             target="_blank"
             rel="noopener noreferrer"
-            className="tabula card group flex animate-fade-up flex-col gap-2 p-4 transition-colors hover:border-grass/40"
-            style={{ animationDelay: `${i * 60 + 120}ms` }}
+            className="row-link group"
           >
-            <span className="text-[11px] font-semibold uppercase tracking-wide text-grass">
-              {proof.label}
-            </span>
-            <p className="text-sm text-white/90">{t(proof.description)}</p>
-            <span className="mt-1 font-mono text-xs text-muted group-hover:text-grass">
+            <div className="min-w-0 flex-1">
+              <div className="truncate text-[11px] font-semibold uppercase tracking-wide text-grass">
+                {proof.label}
+              </div>
+              <div className="truncate text-xs text-muted">
+                {t(proof.description)}
+              </div>
+            </div>
+            <span className="flex-none font-mono text-[11px] text-muted group-hover:text-grass">
               {proof.abbreviated}
             </span>
           </a>
         ))}
-      </div>
+      </Card>
     </section>
   );
 }

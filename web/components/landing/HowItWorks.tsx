@@ -15,13 +15,13 @@
 
 import { ChampionshipMark, PillarIcon } from "@/components/ornaments";
 import { useT } from "@/components/I18nProvider";
+import { Card, ListRow, SectionHeader } from "@/components/ui";
 import type { TranslationKey } from "@/lib/i18n";
 
 type Step = {
   numeral: string;
   title: TranslationKey;
   subtitle: TranslationKey;
-  delayMs: number;
   glyph: JSX.Element;
 };
 
@@ -30,12 +30,11 @@ const STEPS: Step[] = [
     numeral: "1",
     title: "how_step1_title",
     subtitle: "how_step1_subtitle",
-    delayMs: 80,
     glyph: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        width={40}
-        height={40}
+        width={24}
+        height={24}
         viewBox="0 0 32 32"
         fill="none"
         stroke="currentColor"
@@ -58,25 +57,22 @@ const STEPS: Step[] = [
     numeral: "2",
     title: "how_step2_title",
     subtitle: "how_step2_subtitle",
-    delayMs: 160,
-    glyph: <ChampionshipMark size={40} className="text-honor" aria-hidden />,
+    glyph: <ChampionshipMark size={24} className="text-honor" aria-hidden />,
   },
   {
     numeral: "3",
     title: "how_step3_title",
     subtitle: "how_step3_subtitle",
-    delayMs: 240,
-    glyph: <PillarIcon pillar="quests" size={40} className="text-grass" />,
+    glyph: <PillarIcon pillar="quests" size={24} className="text-grass" />,
   },
   {
     numeral: "4",
     title: "how_step4_title",
     subtitle: "how_step4_subtitle",
-    delayMs: 320,
     glyph: (
-      <span className="inline-flex items-center gap-1.5">
-        <ChampionshipMark size={32} className="text-honor" aria-hidden />
-        <PillarIcon pillar="league" size={28} className="text-grass" />
+      <span className="inline-flex items-center gap-1">
+        <ChampionshipMark size={20} className="text-honor" aria-hidden />
+        <PillarIcon pillar="league" size={18} className="text-grass" />
       </span>
     ),
   },
@@ -86,37 +82,32 @@ export function HowItWorks(): JSX.Element {
   const { t } = useT();
   return (
     <section aria-labelledby="how-it-works-heading">
-      <h2
-        id="how-it-works-heading"
-        className="mb-6 font-display text-2xl uppercase tracking-wide sm:text-3xl"
-      >
+      <h2 id="how-it-works-heading" className="sr-only">
         {t("how_heading")}
       </h2>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+      <SectionHeader label={t("how_heading")} />
+      <Card className="divide-y divide-pitch-line p-0">
         {STEPS.map((step) => (
-          <div
+          <ListRow
             key={step.numeral}
-            className="tabula card relative flex animate-fade-up flex-col gap-3 p-5"
-            style={{ animationDelay: `${step.delayMs}ms` }}
-          >
-            <div className="flex items-center justify-between">
+            left={
               <span
-                className="font-display text-3xl text-grass"
+                className="font-display text-xl text-grass"
                 aria-label={t("how_step_aria", { numeral: step.numeral })}
               >
                 {step.numeral}
               </span>
-              <span className="flex h-10 w-10 items-center justify-center">
+            }
+            title={t(step.title)}
+            subtitle={t(step.subtitle)}
+            right={
+              <span className="flex h-8 w-8 flex-none items-center justify-center">
                 {step.glyph}
               </span>
-            </div>
-            <h3 className="font-extrabold tracking-wide text-white">
-              {t(step.title)}
-            </h3>
-            <p className="text-sm text-muted">{t(step.subtitle)}</p>
-          </div>
+            }
+          />
         ))}
-      </div>
+      </Card>
     </section>
   );
 }

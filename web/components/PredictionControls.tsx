@@ -12,6 +12,7 @@ import { useToasts } from "@/lib/toast";
 import { waitForTransactionAndRefresh } from "@/lib/tx";
 import type { Quest } from "@/lib/v2-types";
 import type { TranslationKey } from "@/lib/i18n";
+import { Badge } from "./ui";
 
 const ZERO32 = `0x${"0".repeat(64)}`;
 const SLOTS: { slot: number; key: TranslationKey }[] = [
@@ -178,10 +179,10 @@ export function PredictionControls({
     const pick = stored ? t(SLOTS[stored.slot]?.key ?? "quests_committed") : "";
     return (
       <div className="flex items-center gap-2">
-        <span className="pill text-muted">
+        <Badge tone="neutral">
           {t("quests_committed")}
           {pick ? `: ${pick}` : ""}
-        </span>
+        </Badge>
         <button
           disabled={isPending}
           onClick={reveal}
@@ -195,22 +196,22 @@ export function PredictionControls({
 
   if (status !== "live") {
     return (
-      <span className="pill text-muted">
+      <Badge tone="neutral">
         {status === "upcoming"
           ? t("quests_status_upcoming")
           : t("quests_status_closed")}
-      </span>
+      </Badge>
     );
   }
 
   return (
-    <div className="flex flex-col items-end gap-2">
-      <div className="flex gap-1">
+    <div className="flex items-center gap-2">
+      <div className="inline-flex gap-1 rounded-lg border border-pitch-border bg-pitch-surface p-1">
         {SLOTS.map((s) => (
           <button
             key={s.slot}
             onClick={() => setPicked(s.slot)}
-            className={`pill text-xs ${picked === s.slot ? "border-grass text-grass" : "text-muted hover:text-white"}`}
+            className={`seg !px-2.5 !py-1 !text-xs ${picked === s.slot ? "seg-active !text-grass" : ""}`}
           >
             {t(s.key)}
           </button>

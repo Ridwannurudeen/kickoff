@@ -6,6 +6,13 @@ import { useQueryClient } from "@tanstack/react-query";
 import { isAddress, keccak256, toBytes, parseUnits } from "viem";
 import { useT } from "@/components/I18nProvider";
 import { Podium } from "@/components/ornaments";
+import {
+  SectionHeader,
+  Card,
+  Badge,
+  StatusDot,
+  ListRow,
+} from "@/components/ui";
 import { agentLeagueAbi, agentRegistryAbi } from "@/lib/v2-abis";
 import {
   AGENT_LEAGUE_CONFIGURED,
@@ -341,170 +348,173 @@ export default function LeaguePage() {
 
   return (
     <div className="space-y-8">
-      <div className="animate-fade-up">
-        <h1 className="font-display text-3xl uppercase tracking-wide sm:text-4xl">
-          {t("league_title")}
-        </h1>
-        <p className="text-sm text-muted">{t("league_subtitle")}</p>
+      <div className="animate-fade-up flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="font-display text-3xl uppercase tracking-wide sm:text-4xl">
+            {t("league_title")}
+          </h1>
+          <p className="text-sm text-muted">{t("league_subtitle")}</p>
+        </div>
+        {!demoLeague &&
+          (seasonOpen ? (
+            <Badge tone="grass">
+              <StatusDot tone="grass" pulse />
+              {t("league_season_top3", { id: seasonId })}
+            </Badge>
+          ) : (
+            <Badge tone="neutral">
+              <StatusDot tone="upcoming" />
+              {t("league_no_season_btn")}
+            </Badge>
+          ))}
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Standings */}
         <section className="animate-fade-up space-y-6 [animation-delay:180ms] lg:col-span-2">
+          <SectionHeader label={t("league_standings_rank")} />
           {standings.length === 0 ? (
-            <div className="card py-16 text-center text-sm text-muted">
+            <Card className="py-16 text-center text-sm text-muted">
               {t("league_empty")}
-            </div>
+            </Card>
           ) : (
             <>
               {/* Podium honor moment — top 3 */}
-              <div className="tabula card mx-auto max-w-xl p-6 md:p-8">
+              <Card className="tabula mx-auto max-w-xl p-6 md:p-8">
                 <div className="mb-4 text-center text-[10px] font-bold uppercase tracking-[0.2em] text-muted">
                   {t("league_season_top3", { id: seasonId })}
                 </div>
                 <Podium topThree={topThree} className="mx-auto w-full" />
-              </div>
+              </Card>
 
               {rest.length > 0 && (
-                <>
-                  <div className="divider-classical" />
-                  <div className="card overflow-x-auto p-4">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="border-b border-pitch-border text-left text-[10px] uppercase tracking-wide text-muted">
-                          <th className="py-2 pr-3 font-medium">
-                            {t("league_standings_rank")}
-                          </th>
-                          <th className="py-2 pr-3 font-medium">
-                            {t("league_standings_agent")}
-                          </th>
-                          <th className="py-2 pr-3 font-medium">
-                            {t("league_standings_owner")}
-                          </th>
-                          <th className="py-2 pr-3 text-right font-medium">
-                            {t("league_standings_score")}
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {rest.map((s, i) => (
-                          <tr
-                            key={s.agentId}
-                            className="border-b border-pitch-border/50 transition-colors last:border-0 hover:bg-pitch-panel/60"
-                          >
-                            <td className="py-3 pr-3 font-display tracking-wide text-muted">
-                              {i + 4}
-                            </td>
-                            <td className="py-3 pr-3 font-mono text-xs">
-                              {s.name}
-                            </td>
-                            <td className="py-3 pr-3 font-mono text-xs text-muted">
-                              <a
-                                href={addressUrl(s.owner)}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="hover:text-grass"
-                              >
-                                {shortAddr(s.owner)}
-                              </a>
-                            </td>
-                            <td
-                              className={`py-3 pr-3 text-right font-semibold tabular-nums ${
-                                s.score > 0 ? "text-grass" : "text-muted"
-                              }`}
-                            >
-                              {fmtInt(s.score)}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                <Card className="overflow-hidden p-0">
+                  <div className="row text-left">
+                    <span className="w-8 flex-none label">
+                      {t("league_standings_rank")}
+                    </span>
+                    <span className="min-w-0 flex-1 label">
+                      {t("league_standings_agent")}
+                    </span>
+                    <span className="label">{t("league_standings_score")}</span>
                   </div>
-                </>
+                  {rest.map((s, i) => (
+                    <ListRow
+                      key={s.agentId}
+                      left={
+                        <span className="statnum w-8 flex-none text-center text-muted">
+                          {i + 4}
+                        </span>
+                      }
+                      title={<span className="font-mono">{s.name}</span>}
+                      subtitle={
+                        <a
+                          href={addressUrl(s.owner)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-mono hover:text-grass"
+                        >
+                          {shortAddr(s.owner)}
+                        </a>
+                      }
+                      right={
+                        <span
+                          className={`statnum text-base ${
+                            s.score > 0 ? "text-grass" : "text-muted"
+                          }`}
+                        >
+                          {fmtInt(s.score)}
+                        </span>
+                      }
+                    />
+                  ))}
+                </Card>
               )}
             </>
           )}
 
           {/* How it works */}
-          <div className="card p-5">
-            <h3 className="mb-2 font-bold text-white">
-              {t("league_how_title")}
-            </h3>
-            <ol className="list-decimal space-y-1 pl-5 text-sm text-muted">
-              <li>{t("league_how_step1")}</li>
-              <li>{t("league_how_step2")}</li>
-              <li>{t("league_how_step3")}</li>
-              <li>{t("league_how_step4")}</li>
-              <li>{t("league_how_step5")}</li>
-            </ol>
+          <div>
+            <SectionHeader label={t("league_how_title")} />
+            <Card className="p-5">
+              <ol className="space-y-2 text-xs text-muted">
+                {[
+                  t("league_how_step1"),
+                  t("league_how_step2"),
+                  t("league_how_step3"),
+                  t("league_how_step4"),
+                  t("league_how_step5"),
+                ].map((step, i) => (
+                  <li key={i} className="flex items-start gap-2.5">
+                    <span className="statnum flex h-5 w-5 flex-none items-center justify-center rounded-full bg-pitch-raised text-[11px] text-grass">
+                      {i + 1}
+                    </span>
+                    <span className="pt-0.5 leading-relaxed">{step}</span>
+                  </li>
+                ))}
+              </ol>
+            </Card>
           </div>
         </section>
 
-        {/* Section break between standings and the register-agent CTA on the
-            mobile stack. On desktop the two sit side-by-side so the divider is
-            redundant; hide it there. */}
-        <div className="divider-classical lg:hidden" />
-
         {/* Register-your-agent panel */}
-        <section className="tabula h-fit animate-fade-up p-5 [animation-delay:300ms]">
-          {pendingAgentId ? (
-            <div className="space-y-3">
-              <h3 className="font-bold text-white">
-                {t("league_registered_heading")}
-              </h3>
-              <div className="space-y-1 text-xs text-muted">
-                <div>
-                  <span className="text-muted/70">
-                    {t("league_agent_id_label")}
-                  </span>{" "}
-                  <span className="font-mono text-white">
-                    {pendingAgentId.slice(0, 10)}…
-                  </span>
-                </div>
-                {registerTxHash && (
+        <section className="animate-fade-up h-fit [animation-delay:300ms]">
+          <SectionHeader label={t("league_register_cta")} />
+          <Card className="tabula p-5">
+            {pendingAgentId ? (
+              <div className="space-y-3">
+                <h3 className="font-bold text-white">
+                  {t("league_registered_heading")}
+                </h3>
+                <div className="space-y-1 text-xs text-muted">
                   <div>
-                    <a
-                      href={txUrl(registerTxHash)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="font-mono text-grass hover:underline"
-                    >
-                      {t("league_view_register_tx")}
-                    </a>
+                    <span className="text-muted/70">
+                      {t("league_agent_id_label")}
+                    </span>{" "}
+                    <span className="font-mono text-white">
+                      {pendingAgentId.slice(0, 10)}…
+                    </span>
                   </div>
+                  {registerTxHash && (
+                    <div>
+                      <a
+                        href={txUrl(registerTxHash)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-mono text-grass hover:underline"
+                      >
+                        {t("league_view_register_tx")}
+                      </a>
+                    </div>
+                  )}
+                </div>
+                {!demoLeague && (!seasonOpen || liveSeasonId === 0n) ? (
+                  <button
+                    disabled
+                    title={t("league_no_season_title")}
+                    className="btn-primary w-full cursor-not-allowed opacity-60"
+                  >
+                    {t("league_no_season_btn")}
+                  </button>
+                ) : (
+                  <button
+                    onClick={enterPendingAgent}
+                    disabled={isEntering || isPending}
+                    className="btn-primary w-full"
+                  >
+                    {isEntering
+                      ? t("wallet_connecting")
+                      : t("league_enter_season_step2", { id: seasonId })}
+                  </button>
                 )}
+                <button
+                  onClick={resetRegisterForm}
+                  className="btn-ghost w-full text-xs"
+                >
+                  {t("league_register_another")}
+                </button>
               </div>
-              {!demoLeague && (!seasonOpen || liveSeasonId === 0n) ? (
-                <button
-                  disabled
-                  title={t("league_no_season_title")}
-                  className="btn-primary w-full cursor-not-allowed opacity-60"
-                >
-                  {t("league_no_season_btn")}
-                </button>
-              ) : (
-                <button
-                  onClick={enterPendingAgent}
-                  disabled={isEntering || isPending}
-                  className="btn-primary w-full"
-                >
-                  {isEntering
-                    ? t("wallet_connecting")
-                    : t("league_enter_season_step2", { id: seasonId })}
-                </button>
-              )}
-              <button
-                onClick={resetRegisterForm}
-                className="btn-ghost w-full text-xs"
-              >
-                {t("league_register_another")}
-              </button>
-            </div>
-          ) : (
-            <>
-              <h3 className="mb-3 font-bold text-white">
-                {t("league_register_cta")}
-              </h3>
+            ) : (
               <div className="space-y-2.5">
                 <label className="block">
                   <span className="mb-1 block text-xs text-muted">
@@ -560,8 +570,8 @@ export default function LeaguePage() {
                     : t("league_register_cta")}
                 </button>
               </div>
-            </>
-          )}
+            )}
+          </Card>
         </section>
       </div>
     </div>

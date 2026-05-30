@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { Card } from "@/components/ui";
 
 export const metadata: Metadata = {
   title: "404 — page not found",
@@ -12,10 +13,10 @@ export const metadata: Metadata = {
 export default function NotFound(): JSX.Element {
   return (
     <div className="mx-auto max-w-xl py-12">
-      <section className="card relative overflow-hidden p-10 text-center">
-        <div className="relative z-10 flex flex-col items-center gap-4">
+      <Card className="p-10 text-center">
+        <div className="flex flex-col items-center gap-4">
           <span
-            className="font-display text-6xl tracking-wider text-grass"
+            className="statnum text-6xl tracking-wider text-grass"
             aria-hidden="true"
           >
             4 · 0 · 4
@@ -45,7 +46,7 @@ export default function NotFound(): JSX.Element {
             </Link>
           </div>
         </div>
-      </section>
+      </Card>
     </div>
   );
 }

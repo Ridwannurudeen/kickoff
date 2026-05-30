@@ -19,22 +19,19 @@ export function CTASection(): JSX.Element {
   const { t } = useT();
   return (
     <section aria-labelledby="cta-heading">
-      <div className="card tabula relative overflow-hidden p-8 text-center md:p-12">
-        <div className="relative z-10 flex flex-col items-center gap-4">
-          <p className="pill animate-fade-up text-grass">
-            <span className="h-2 w-2 animate-pulse-dot rounded-full bg-grass" />
-            {t("cta_eyebrow")}
-          </p>
+      <div className="card flex flex-col items-center gap-3 p-5 text-center md:flex-row md:justify-between md:text-left">
+        <div className="min-w-0">
+          <p className="label text-grass">{t("cta_eyebrow")}</p>
           <h2
             id="cta-heading"
-            className="animate-fade-up font-display text-3xl tracking-wide sm:text-4xl [animation-delay:80ms]"
+            className="mt-1 font-display text-xl tracking-wide sm:text-2xl"
           >
             {t("cta_headline")}
           </h2>
-          <p className="animate-fade-up text-muted [animation-delay:140ms]">
-            {t("cta_subhead")}
-          </p>
-          <div className="mt-2 flex animate-fade-up flex-wrap items-center justify-center gap-3 [animation-delay:200ms]">
+          <p className="mt-1 text-sm text-muted">{t("cta_subhead")}</p>
+        </div>
+        <div className="flex flex-none flex-col items-center gap-2">
+          <div className="flex flex-wrap items-center justify-center gap-3">
             <Link href="/quests" className="btn-primary">
               {t("cta_browse_quests")}
             </Link>
@@ -47,10 +44,8 @@ export function CTASection(): JSX.Element {
               {t("cta_fork_agent")}
             </a>
           </div>
-          <div className="mt-2 flex animate-fade-up flex-col items-center gap-2 [animation-delay:280ms]">
-            <BuiltOnXLayerBadge size="md" />
-            <p className="text-xs text-muted">{t("cta_footnote")}</p>
-          </div>
+          <BuiltOnXLayerBadge size="sm" />
+          <p className="text-xs text-muted">{t("cta_footnote")}</p>
         </div>
       </div>
     </section>

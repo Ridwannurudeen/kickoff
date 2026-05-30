@@ -18,6 +18,7 @@ import { txUrl } from "@/lib/config";
 import { formatOkb } from "@/lib/format";
 import { useToasts } from "@/lib/toast";
 import { publicClient } from "@/lib/client";
+import { Card, Badge, StatusDot, SectionHeader } from "@/components/ui";
 
 interface CompanionReply {
   id: number;
@@ -310,126 +311,130 @@ export default function CompanionPage() {
         </p>
       </div>
 
-      {/* Agent picker */}
+      {/* Agent picker + compose form */}
       <section className="animate-fade-up [animation-delay:160ms]">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
-          {t("companion_pick_agents")}
-        </p>
+        <SectionHeader label={t("companion_pick_agents")} />
         <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
           {AGENTS.map((a) => {
             const active = selected.has(a.slug);
             return (
               <button
                 key={a.slug}
+                type="button"
+                aria-pressed={active}
                 onClick={() => toggle(a.slug)}
-                className={`card flex flex-col items-start gap-1 p-4 text-left transition-colors ${
-                  active
-                    ? "border-grass/60 ring-1 ring-grass/40"
-                    : "hover:border-grass/30"
-                }`}
+                className="text-left"
               >
-                <p className="font-bold text-white">{t(a.nameKey)}</p>
-                <p className="text-xs text-muted">{t(a.descKey)}</p>
-                <p className="mt-1 text-xs text-grass">{a.priceLabel}</p>
+                <Card
+                  interactive
+                  className={`flex h-full flex-col gap-1 p-4 ${
+                    active ? "border-grass/60 ring-1 ring-grass/40" : ""
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="font-bold text-white">{t(a.nameKey)}</p>
+                    <StatusDot tone={active ? "grass" : "neutral"} />
+                  </div>
+                  <p className="text-xs text-muted">{t(a.descKey)}</p>
+                  <div className="mt-1">
+                    <Badge tone={active ? "grass" : "neutral"}>
+                      {a.priceLabel}
+                    </Badge>
+                  </div>
+                </Card>
               </button>
             );
           })}
         </div>
 
-        <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-          <input
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            placeholder={t("companion_input_placeholder")}
-            className="input flex-1"
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !sending) send();
-            }}
-          />
-          <button
-            onClick={send}
-            disabled={!prompt.trim() || selected.size === 0 || sending}
-            className="btn-primary"
-          >
-            {sending ? t("companion_thinking") : t("companion_send")}
-          </button>
-        </div>
-        <p className="mt-2 text-xs text-muted">
-          {t("companion_total_cost")}:{" "}
-          <span className="font-mono text-white">
-            {formatOkb(totalWei)} OKB
-          </span>
-        </p>
+        <Card className="mt-4 p-4">
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <input
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder={t("companion_input_placeholder")}
+              className="input flex-1"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !sending) send();
+              }}
+            />
+            <button
+              onClick={send}
+              disabled={!prompt.trim() || selected.size === 0 || sending}
+              className="btn-primary"
+            >
+              {sending ? t("companion_thinking") : t("companion_compose_label")}
+            </button>
+          </div>
+          <p className="mt-3 flex items-center gap-1.5 text-xs text-muted">
+            <span>{t("companion_total_cost")}</span>
+            <span className="statnum text-sm text-white">
+              {formatOkb(totalWei)} OKB
+            </span>
+            {demo && (
+              <span className="ml-auto">
+                <Badge tone="honor">{t("companion_demo_notice")}</Badge>
+              </span>
+            )}
+          </p>
+        </Card>
       </section>
 
-      <div className="divider-classical" />
-
-      {/* Conversation — each message reads as an inscribed dedication slab. */}
+      {/* Replies */}
       <section className="space-y-3">
         {history.length === 0 ? (
-          <p className="tabula card py-8 text-center text-xs text-muted">
+          <Card className="py-10 text-center text-xs text-muted">
             {demo
               ? t("companion_demo_notice")
               : t("companion_input_placeholder")}
-          </p>
+          </Card>
         ) : (
           history.map((m) => (
-            <article
-              key={m.id}
-              className="tabula card grid grid-cols-1 gap-3 p-4 md:grid-cols-[1fr_3fr_1fr] md:items-start md:gap-4"
-            >
-              {/* LEFT — caller identity */}
-              <div className="flex items-center gap-2 text-xs text-muted">
-                <span
-                  aria-hidden
-                  className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-pitch-border bg-pitch-bg text-honor/80"
-                >
-                  ?
+            <Card key={m.id} className="space-y-3 p-4">
+              <div className="flex flex-wrap items-center gap-2">
+                {m.agentSlugs.map((s) => (
+                  <Badge key={s} tone="grass">
+                    {s}
+                  </Badge>
+                ))}
+                <span className="ml-auto inline-flex items-center gap-1.5 text-xs text-muted">
+                  {m.txHash ? (
+                    <a
+                      href={txUrl(m.txHash)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-grass hover:underline"
+                    >
+                      <StatusDot tone="completed" />
+                      {shortAddr(m.txHash)} ↗
+                    </a>
+                  ) : (
+                    <>
+                      <StatusDot tone="grass" pulse />
+                      <span>{shortAddr(m.caller)}</span>
+                    </>
+                  )}
                 </span>
-                <div className="flex flex-col">
-                  <span className="font-semibold uppercase tracking-wide text-marble/70">
-                    Querent
-                  </span>
-                  <span className="font-mono text-[11px] text-muted">
-                    {shortAddr(m.caller)}
-                  </span>
-                </div>
               </div>
 
-              {/* CENTER — the inscription itself */}
-              <div className="space-y-2">
-                <p className="text-xs text-muted">{m.prompt}</p>
-                <p className="whitespace-pre-wrap text-sm text-marble">
-                  {m.reply}
-                </p>
-                <div className="flex flex-wrap gap-1">
-                  {m.agentSlugs.map((s) => (
-                    <span key={s} className="pill text-[10px]">
-                      {s}
-                    </span>
-                  ))}
-                </div>
-              </div>
+              <p className="text-xs text-muted">{m.prompt}</p>
+              <p className="whitespace-pre-wrap text-sm text-white">
+                {m.reply}
+              </p>
 
-              {/* RIGHT — on-chain witness */}
-              <div className="flex items-start justify-start md:justify-end">
-                {m.txHash ? (
-                  <a
-                    href={txUrl(m.txHash)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 rounded-full bg-honor px-2.5 py-0.5 text-[10px] font-semibold text-pitch-bg hover:opacity-90"
-                  >
-                    Inscribed on-chain ↗
-                  </a>
-                ) : (
-                  <span className="inline-flex items-center gap-1.5 text-[10px] text-muted">
-                    <span className="animate-pulse-dot inline-block h-1.5 w-1.5 rounded-full bg-grass-glow" />
-                    Pending
-                  </span>
-                )}
-              </div>
-            </article>
+              <p className="flex items-center gap-1.5 text-xs text-muted">
+                <span>{t("companion_total_cost")}</span>
+                <span className="statnum text-white">
+                  {formatOkb(
+                    AGENTS.filter((a) => m.agentSlugs.includes(a.slug)).reduce(
+                      (sum, a) => sum + a.priceWei,
+                      0n,
+                    ),
+                  )}{" "}
+                  OKB
+                </span>
+              </p>
+            </Card>
           ))
         )}
       </section>

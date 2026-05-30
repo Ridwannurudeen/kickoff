@@ -10,6 +10,7 @@
 "use client";
 
 import { useT } from "@/components/I18nProvider";
+import { Card, SectionHeader } from "@/components/ui";
 import type { TranslationKey } from "@/lib/i18n";
 
 type QA = {
@@ -48,21 +49,15 @@ export function FAQ(): JSX.Element {
   const { t } = useT();
   return (
     <section aria-labelledby="faq-heading">
-      <h2
-        id="faq-heading"
-        className="mb-6 font-display text-2xl tracking-wide sm:text-3xl"
-      >
+      <h2 id="faq-heading" className="sr-only">
         {t("faq_heading")}
       </h2>
-      <div>
-        {ITEMS.map((item, i) => (
-          <details
-            key={item.question}
-            className="tabula card group mb-3 animate-fade-up overflow-hidden"
-            style={{ animationDelay: `${80 + i * 60}ms` }}
-          >
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4">
-              <span className="font-display text-base tracking-wide text-white">
+      <SectionHeader label={t("faq_heading")} />
+      <Card className="divide-y divide-pitch-line p-0">
+        {ITEMS.map((item) => (
+          <details key={item.question} className="group">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-3">
+              <span className="text-sm font-semibold text-white">
                 {t(item.question)}
               </span>
               <span
@@ -70,8 +65,8 @@ export function FAQ(): JSX.Element {
                 className="flex-none text-honor transition-transform group-open:rotate-90"
               >
                 <svg
-                  width={14}
-                  height={14}
+                  width={12}
+                  height={12}
                   viewBox="0 0 14 14"
                   fill="none"
                   stroke="currentColor"
@@ -83,12 +78,12 @@ export function FAQ(): JSX.Element {
                 </svg>
               </span>
             </summary>
-            <p className="px-5 pb-5 text-sm leading-relaxed text-marble">
+            <p className="px-4 pb-4 text-xs leading-relaxed text-marble">
               {t(item.answer)}
             </p>
           </details>
         ))}
-      </div>
+      </Card>
     </section>
   );
 }

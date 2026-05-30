@@ -10,6 +10,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { useT } from "./I18nProvider";
 import { TrophyGlyph } from "./ornaments";
+import { Badge, Card } from "./ui";
 import { fmtInt } from "@/lib/format";
 import { txUrl } from "@/lib/config";
 import { questEngineAbi, trophyAbi } from "@/lib/v2-abis";
@@ -146,47 +147,72 @@ export function TrophyCard({
   }
 
   const isChampion = isChampionTrophy(trophy);
+  const pct =
+    liveRequiredXp > 0
+      ? Math.min(100, Math.round((userXp / liveRequiredXp) * 100))
+      : 0;
 
-  const body = (
-    <div className="flex flex-col gap-3 p-5">
-      <div className="flex items-center justify-between">
+  return (
+    <Card
+      className={`animate-fade-up flex flex-col gap-3 p-5 ${
+        isChampion
+          ? "tabula ring-1 ring-honor/25"
+          : isOwned
+            ? "border-grass/30"
+            : ""
+      }`}
+    >
+      <div className="flex items-start justify-between">
         <TrophyGlyph
           id={trophy.id}
-          size={64}
+          size={56}
           honor={isChampion}
           className={isChampion ? "text-honor" : "text-grass"}
         />
         {isOwned ? (
-          <span className="pill border-grass/60 text-grass">
-            {t("trophies_claimed")}
-          </span>
+          <Badge tone="grass">{t("trophies_claimed")}</Badge>
+        ) : isChampion ? (
+          <Badge tone="honor">{t("trophies_locked")}</Badge>
         ) : (
-          <span className="pill">{t("trophies_locked")}</span>
+          <Badge tone="neutral">{t("trophies_locked")}</Badge>
         )}
       </div>
+
       <div>
         <h3
           className={
             isChampion
-              ? "gold-ink font-bold"
-              : "font-extrabold tracking-wide text-white"
+              ? "gold-ink text-base font-bold"
+              : "text-base font-extrabold tracking-wide text-white"
           }
         >
           {t(trophy.nameKey)}
         </h3>
         <p className="mt-1 text-sm text-muted">{t(trophy.descKey)}</p>
       </div>
-      <div className="mt-1 text-xs text-muted">
-        <p>{t(trophy.conditionKey)}</p>
-        {liveRequiredXp > 0 && (
-          <p className="mt-1">
-            {t("trophies_progress", {
-              have: fmtInt(Math.min(userXp, liveRequiredXp)),
-              need: fmtInt(liveRequiredXp),
-            })}
-          </p>
-        )}
-      </div>
+
+      <p className="text-xs text-muted">{t(trophy.conditionKey)}</p>
+
+      {liveRequiredXp > 0 && (
+        <div className="mt-auto">
+          <div className="mb-1 flex items-baseline justify-between text-[11px] font-semibold text-muted">
+            <span className="label">XP</span>
+            <span className="statnum text-white">
+              {t("trophies_progress", {
+                have: fmtInt(Math.min(userXp, liveRequiredXp)),
+                need: fmtInt(liveRequiredXp),
+              })}
+            </span>
+          </div>
+          <div className="h-1.5 overflow-hidden rounded-sm bg-pitch-bg">
+            <div
+              className={`h-full ${isChampion ? "bg-honor" : "bg-grass"}`}
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+        </div>
+      )}
+
       {!isOwned && (
         <button
           onClick={onClaim}
@@ -200,24 +226,6 @@ export function TrophyCard({
           {isPending ? t("wallet_connecting") : t("trophies_claim")}
         </button>
       )}
-    </div>
-  );
-
-  if (isChampion) {
-    return (
-      <div className="tabula card shadow-honor animate-glow-pulse animate-fade-up relative overflow-hidden ring-1 ring-honor/40">
-        {body}
-      </div>
-    );
-  }
-
-  return (
-    <div
-      className={`card animate-fade-up relative overflow-hidden ${
-        isOwned ? "border-grass/40 shadow-glow" : ""
-      }`}
-    >
-      {body}
-    </div>
+    </Card>
   );
 }

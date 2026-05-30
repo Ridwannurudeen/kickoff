@@ -14,6 +14,7 @@
 import Link from "next/link";
 import { PillarIcon } from "@/components/ornaments";
 import { useT } from "@/components/I18nProvider";
+import { Card, SectionHeader } from "@/components/ui";
 import type { TranslationKey } from "@/lib/i18n";
 
 type Track = {
@@ -25,7 +26,6 @@ type Track = {
   cta: TranslationKey;
   pillar: "quests" | "trophies" | "league";
   champion?: boolean;
-  delayMs: number;
 };
 
 const TRACKS: Track[] = [
@@ -41,7 +41,6 @@ const TRACKS: Track[] = [
     href: "/quests",
     cta: "tracks_social_cta",
     pillar: "quests",
-    delayMs: 120,
   },
   {
     label: "tracks_nft_label",
@@ -55,7 +54,6 @@ const TRACKS: Track[] = [
     href: "/trophies",
     cta: "tracks_nft_cta",
     pillar: "trophies",
-    delayMs: 200,
   },
   {
     label: "tracks_ai_label",
@@ -70,7 +68,6 @@ const TRACKS: Track[] = [
     cta: "tracks_ai_cta",
     pillar: "league",
     champion: true,
-    delayMs: 280,
   },
 ];
 
@@ -78,38 +75,31 @@ export function Tracks(): JSX.Element {
   const { t } = useT();
   return (
     <section aria-labelledby="tracks-heading">
-      <h2
-        id="tracks-heading"
-        className="mb-6 font-display text-2xl uppercase tracking-wide sm:text-3xl"
-      >
+      <h2 id="tracks-heading" className="sr-only">
         {t("tracks_heading")}
       </h2>
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <SectionHeader label={t("tracks_heading")} />
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
         {TRACKS.map((track) => (
-          <article
+          <Card
             key={track.label}
-            className={`tabula card relative flex animate-fade-up flex-col gap-4 overflow-hidden p-6 ${
-              track.champion ? "shadow-honor" : ""
-            }`}
-            style={{ animationDelay: `${track.delayMs}ms` }}
+            className={`flex flex-col gap-2.5 p-4 ${track.champion ? "shadow-honor" : ""}`}
           >
-            <div className="relative z-10 flex items-center justify-between">
-              <span className="gold-ink text-[11px] uppercase tracking-[0.18em]">
+            <div className="flex items-center justify-between">
+              <span className="gold-ink text-[10px] uppercase tracking-[0.18em]">
                 {t(track.label)}
               </span>
               <PillarIcon
                 pillar={track.pillar}
-                size={32}
+                size={22}
                 className={track.champion ? "text-honor" : "text-grass"}
               />
             </div>
-            <h3 className="relative z-10 font-display text-xl font-extrabold tracking-wide text-white">
+            <h3 className="font-display text-base font-extrabold tracking-wide text-white">
               {t(track.headline)}
             </h3>
-            <p className="relative z-10 text-sm text-muted">
-              {t(track.description)}
-            </p>
-            <ul className="relative z-10 space-y-1.5 text-sm text-white/90">
+            <p className="text-xs text-muted">{t(track.description)}</p>
+            <ul className="space-y-1 text-xs text-white/90">
               {track.features.map((feature) => (
                 <li key={feature} className="flex items-start gap-2">
                   <span
@@ -124,7 +114,7 @@ export function Tracks(): JSX.Element {
             </ul>
             <Link
               href={track.href}
-              className={`relative z-10 mt-1 text-xs font-medium ${
+              className={`mt-1 text-xs font-medium ${
                 track.champion
                   ? "text-honor hover:underline"
                   : "text-grass hover:underline"
@@ -132,7 +122,7 @@ export function Tracks(): JSX.Element {
             >
               {t(track.cta)} →
             </Link>
-          </article>
+          </Card>
         ))}
       </div>
     </section>

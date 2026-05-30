@@ -7,8 +7,14 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useT } from "@/components/I18nProvider";
 import { BuiltOnXLayerBadge } from "@/components/BuiltOnXLayerBadge";
 import { Countdown } from "@/components/Countdown";
-import { FixtureCard } from "@/components/FixtureCard";
 import { TxTicker } from "@/components/TxTicker";
+import {
+  Card,
+  MatchRow,
+  SectionHeader,
+  StatTile,
+  StatusDot,
+} from "@/components/ui";
 import {
   Architecture,
   CTASection,
@@ -17,18 +23,12 @@ import {
   OnChainProof,
   Tracks,
 } from "@/components/landing";
-import { useCountUp } from "@/lib/useCountUp";
 import { useFanScore } from "@/lib/v2-fan";
 import { fanRepAbi } from "@/lib/v2-abis";
 import { FAN_REP_CONFIGURED, V2_ADDRESSES } from "@/lib/v2-addresses";
 import { txUrl } from "@/lib/config";
 import { fmtInt, shortAddr } from "@/lib/format";
-import {
-  ALL_FIXTURES,
-  KICKOFF_UNIX,
-  daysUntilKickoff,
-  nextFixtures,
-} from "@/lib/fixtures";
+import { ALL_FIXTURES, KICKOFF_UNIX, nextFixtures } from "@/lib/fixtures";
 import { TEAMS } from "@/lib/teams";
 import { useToasts } from "@/lib/toast";
 import { waitForTransactionAndRefresh } from "@/lib/tx";
@@ -133,88 +133,72 @@ export default function HomePage() {
   }
 
   return (
-    <div className="space-y-12">
-      {/* Hero */}
-      <section className="card relative overflow-hidden p-8 md:p-12">
-        <div className="relative z-10 max-w-2xl">
-          {/* Eyebrow row — live indicator, "World Cup 2026" text wordmark
-             (no FIFA-licensed mark reproduced anywhere), and a "Built on
-             X Layer" chip. */}
-          <div className="mb-4 flex flex-wrap items-center gap-2">
-            <p className="pill text-grass">
-              <span className="h-2 w-2 animate-pulse-dot rounded-full bg-grass" />
-              {t("home_hero_eyebrow")}
-            </p>
-            <span className="inline-flex items-center rounded-full border border-honor/40 bg-pitch-panel px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.18em] text-honor">
-              World Cup 2026
-            </span>
-            <BuiltOnXLayerBadge size="sm" />
+    <div className="space-y-8">
+      {/* Compact hero — wordmark + live countdown + subtitle + CTAs */}
+      <section className="card p-5 md:p-6">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="pill text-grass">
+            <StatusDot tone="grass" pulse />
+            {t("home_hero_eyebrow")}
+          </span>
+          <BuiltOnXLayerBadge size="sm" />
+        </div>
+        <div className="mt-4 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+          <div className="min-w-0">
+            <h1 className="font-display text-4xl uppercase leading-none tracking-wide sm:text-5xl">
+              Kick<span className="text-grass">off</span>
+            </h1>
+            <p className="mt-2 text-sm text-muted">{t("brand_subtitle")}</p>
           </div>
-          <h1 className="animate-fade-up font-display text-5xl uppercase leading-none tracking-wide sm:text-7xl">
-            Kick<span className="text-grass">off</span>
-          </h1>
-          <p className="mt-3 animate-fade-up text-lg text-muted [animation-delay:60ms]">
-            {t("brand_subtitle")}
-          </p>
-          <div className="mt-6 animate-fade-up [animation-delay:90ms]">
-            <p className="mb-2 text-xs uppercase tracking-wide text-muted">
-              {t("home_kickoff_in")}
-            </p>
+          <div>
+            <p className="label mb-1.5">{t("home_kickoff_in")}</p>
             <Countdown
               targetUnix={KICKOFF_UNIX}
               passedLabel={t("home_kickoff_live")}
             />
           </div>
-          <div className="mt-6 flex animate-fade-up flex-wrap items-center gap-3 [animation-delay:120ms]">
-            {!fan?.hasFanId && (
-              <button
-                onClick={mintFanId}
-                disabled={isPending}
-                className="btn-primary"
-              >
-                {isPending ? t("wallet_connecting") : t("home_hero_cta_mint")}
-              </button>
-            )}
-            <Link href="/schedule" className="btn-ghost">
-              {t("home_hero_cta_schedule")}
-            </Link>
-          </div>
+        </div>
+        <div className="mt-5 flex flex-wrap items-center gap-3">
+          {!fan?.hasFanId && (
+            <button
+              onClick={mintFanId}
+              disabled={isPending}
+              className="btn-primary"
+            >
+              {isPending ? t("wallet_connecting") : t("home_hero_cta_mint")}
+            </button>
+          )}
+          <Link href="/schedule" className="btn-ghost">
+            {t("home_hero_cta_schedule")}
+          </Link>
         </div>
       </section>
 
       {/* Real tournament facts — derived from the fixtures dataset, not invented */}
       <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        {TOURNAMENT_FACTS.map((f, i) => (
-          <AnimatedStatCard
+        {TOURNAMENT_FACTS.map((f) => (
+          <StatTile
             key={f.labelKey}
             label={t(f.labelKey)}
-            target={f.value}
-            delayMs={160 + i * 60}
+            value={fmtInt(f.value)}
           />
         ))}
       </section>
 
       {/* Next matches */}
-      <section className="space-y-4">
-        <div className="flex items-end justify-between">
-          <h2 className="font-display text-2xl uppercase tracking-wide">
-            {t("home_next_matches")}
-          </h2>
-          <Link href="/schedule" className="text-sm text-grass hover:underline">
-            {t("home_full_schedule")} →
-          </Link>
-        </div>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {upcoming.map((fx, i) => (
-            <div
+      <section>
+        <SectionHeader
+          label={t("home_next_matches")}
+          action={{ href: "/schedule", label: t("home_full_schedule") }}
+        />
+        <Card className="divide-y divide-pitch-line p-0">
+          {upcoming.map((fx) => (
+            <MatchRow
               key={`${fx.kickoffUnix}-${fx.team1}-${fx.team2}`}
-              className="animate-fade-up"
-              style={{ animationDelay: `${120 + i * 50}ms` }}
-            >
-              <FixtureCard fixture={fx} />
-            </div>
+              fixture={fx}
+            />
           ))}
-        </div>
+        </Card>
       </section>
 
       {demo && (
@@ -223,17 +207,15 @@ export default function HomePage() {
         </p>
       )}
 
-      <div className="divider-classical" />
-
-      {/* My Fan ID */}
+      {/* Your Fan ID — compact summary */}
       <section>
-        <h2 className="mb-4 text-xl font-bold">{t("home_my_fan_id")}</h2>
+        <SectionHeader label={t("home_my_fan_id")} />
         {!isConnected ? (
-          <div className="card p-8 text-center text-sm text-muted">
+          <Card className="p-6 text-center text-sm text-muted">
             {t("common_connect_first")}
-          </div>
+          </Card>
         ) : !fan || !fan.hasFanId ? (
-          <div className="card flex flex-col items-center gap-3 p-8 text-center">
+          <Card className="flex flex-col items-center gap-3 p-6 text-center">
             <p className="font-semibold">{t("home_no_fan_id")}</p>
             <p className="max-w-md text-sm text-muted">
               {t("home_fan_id_mint_help")}
@@ -241,25 +223,23 @@ export default function HomePage() {
             <button onClick={mintFanId} className="btn-primary mt-1">
               {t("home_hero_cta_mint")}
             </button>
-          </div>
+          </Card>
         ) : (
-          <div className="card tabula grid grid-cols-2 gap-4 p-6 md:grid-cols-4">
-            <FanStat
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            <StatTile
               label={t("home_fan_id_minted", { id: fan.fanId.toString() })}
               value={shortAddr(address ?? "")}
-              mono
-              gold
             />
-            <FanStat
+            <StatTile
               label={t("home_total_xp")}
               value={fmtInt(fan.total)}
               accent
             />
-            <FanStat
+            <StatTile
               label={t("home_prediction_acc")}
               value={`${(Number(fan.predictionAccuracyBps) / 100).toFixed(1)}%`}
             />
-            <FanStat
+            <StatTile
               label={t("home_longevity")}
               value={fmtInt(fan.longevityDays)}
             />
@@ -267,35 +247,24 @@ export default function HomePage() {
         )}
       </section>
 
-      {/* How it works — 4-step entry flow */}
-      <HowItWorks />
-
-      {/* OKX X Cup tracks — three rich cards (Social / NFT / AI Agent).
-          Supersedes the previous compact Pillars section; the Pillar /
-          AnimatedStatCard / FanStat sub-components below are kept because
-          they're still referenced earlier in the page. */}
-      <Tracks />
-
       <div className="divider-classical" />
 
-      {/* Architecture diagram + per-contract glossary */}
-      <Architecture />
-
-      {/* Verifiable on-chain — six real tx receipts from this build */}
-      <OnChainProof />
-
-      {/* FAQ — native <details> accordion, no client JS */}
-      <FAQ />
-
-      {/* Final CTA before the bottom ticker */}
-      <CTASection />
+      {/* How it works / about — demoted, dense marketing area */}
+      <div className="space-y-8">
+        <HowItWorks />
+        <Tracks />
+        <Architecture />
+        <OnChainProof />
+        <FAQ />
+        <CTASection />
+      </div>
 
       <div className="divider-classical" />
 
       {/* Live on-chain ticker (existing, kept at the bottom) */}
       <section className="space-y-2">
         <p className="pill text-grass">
-          <span className="h-2 w-2 animate-pulse-dot rounded-full bg-grass-glow" />
+          <StatusDot tone="grass" pulse />
           Live on-chain · X Layer testnet
         </p>
         <TxTicker
@@ -303,56 +272,6 @@ export default function HomePage() {
           className="text-xs text-muted hover:text-grass"
         />
       </section>
-    </div>
-  );
-}
-
-function AnimatedStatCard({
-  label,
-  target,
-  delayMs,
-}: {
-  label: string;
-  target: number;
-  delayMs: number;
-}) {
-  const value = useCountUp(target, { durationMs: 1200 });
-  return (
-    <div
-      className="card relative animate-fade-up p-4 transition-colors hover:border-grass/40"
-      style={{ animationDelay: `${delayMs}ms` }}
-    >
-      <span className="absolute right-3 top-3 h-1.5 w-1.5 animate-pulse-dot rounded-full bg-grass-glow" />
-      <p className="text-xs uppercase tracking-wide text-muted">{label}</p>
-      <p className="mt-1 text-2xl font-extrabold text-white">
-        {fmtInt(Math.floor(value))}
-      </p>
-    </div>
-  );
-}
-
-function FanStat({
-  label,
-  value,
-  accent,
-  mono,
-  gold,
-}: {
-  label: string;
-  value: string;
-  accent?: boolean;
-  mono?: boolean;
-  gold?: boolean;
-}) {
-  const tone = gold ? "gold-ink" : accent ? "text-grass" : "text-white";
-  return (
-    <div>
-      <p className="text-xs text-muted">{label}</p>
-      <p
-        className={`mt-1 text-xl font-extrabold ${tone} ${mono ? "font-mono text-base" : ""}`}
-      >
-        {value}
-      </p>
     </div>
   );
 }

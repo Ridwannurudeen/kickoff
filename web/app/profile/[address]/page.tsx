@@ -7,8 +7,8 @@ import { isAddress } from "viem";
 import { useReadContracts } from "wagmi";
 import { useT } from "@/components/I18nProvider";
 import { Flag } from "@/components/Flag";
+import { Card, SectionHeader, StatTile, ListRow } from "@/components/ui";
 import { useFanScore } from "@/lib/v2-fan";
-import { useCountUp } from "@/lib/useCountUp";
 import { addressUrl } from "@/lib/config";
 import { fmtInt, shortAddr } from "@/lib/format";
 import { teamById } from "@/lib/teams";
@@ -77,9 +77,9 @@ export default function ProfilePage() {
   });
   if (!valid) {
     return (
-      <div className="card flex flex-col items-center gap-3 py-16 text-center text-sm text-muted">
+      <Card className="flex flex-col items-center gap-3 py-16 text-center text-sm text-muted">
         <p>{t("common_error")}</p>
-      </div>
+      </Card>
     );
   }
   const completedFlags =
@@ -138,7 +138,7 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex animate-fade-up flex-wrap items-end justify-between gap-3">
+      <header className="flex animate-fade-up flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="font-display text-3xl uppercase tracking-wide sm:text-4xl">
             {t("profile_title")}
@@ -155,54 +155,45 @@ export default function ProfilePage() {
         >
           {t("profile_view_on_explorer")} ↗
         </a>
-      </div>
+      </header>
 
       {!hasFanId ? (
-        <div className="card flex flex-col items-center gap-3 py-16 text-center text-sm text-muted">
+        <Card className="flex flex-col items-center gap-3 py-16 text-center text-sm text-muted">
           <p>{t("profile_no_fan_id")}</p>
-        </div>
+        </Card>
       ) : (
         <>
-          <div className="divider-classical" />
-
-          <section className="relative">
+          <section className="animate-fade-up">
             <div className="mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-muted">
               <span
                 className={`h-1.5 w-1.5 animate-pulse-dot rounded-full ${live ? "bg-grass-glow" : "bg-honor/60"}`}
               />
               Live on-chain
             </div>
-            <div className="tabula card grid grid-cols-2 gap-4 p-6 md:grid-cols-4">
-              <AnimatedStat
+            <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
+              <StatTile
                 label={t("home_total_xp")}
-                target={totalXp}
-                delayMs={160}
+                value={fmtInt(totalXp)}
                 accent
               />
-              <AnimatedStat
+              <StatTile
                 label={t("profile_dim_prediction")}
-                target={predAccBps}
-                delayMs={220}
-                format={(v) => `${(v / 100).toFixed(1)}%`}
+                value={`${(predAccBps / 100).toFixed(1)}%`}
               />
-              <AnimatedStat
+              <StatTile
                 label={t("profile_dim_engagement")}
-                target={breadth}
-                delayMs={280}
+                value={fmtInt(breadth)}
               />
-              <AnimatedStat
+              <StatTile
                 label={t("profile_dim_longevity")}
-                target={longevity}
-                delayMs={340}
+                value={fmtInt(longevity)}
               />
             </div>
           </section>
 
           {faves.length > 0 && (
             <section>
-              <h2 className="mb-3 text-sm font-bold text-muted">
-                {t("profile_favorite_teams")}
-              </h2>
+              <SectionHeader label={t("profile_favorite_teams")} />
               <div className="flex flex-wrap gap-2">
                 {faves.map((tid) => {
                   const tm = teamById(Number(tid));
@@ -228,15 +219,13 @@ export default function ProfilePage() {
           )}
 
           <section>
-            <h2 className="mb-3 text-sm font-bold text-muted">
-              {t("profile_xp_breakdown")}
-            </h2>
-            <div className="card space-y-4 p-5">
+            <SectionHeader label={t("profile_xp_breakdown")} />
+            <Card className="space-y-4 p-5">
               {xpBreakdown.map((row) => (
                 <div key={row.label}>
                   <div className="mb-1 flex items-center justify-between gap-3 text-xs">
                     <span className="text-muted">{row.label}</span>
-                    <span className="font-mono tabular-nums text-white">
+                    <span className="statnum text-white">
                       {fmtInt(row.value)}
                     </span>
                   </div>
@@ -253,62 +242,33 @@ export default function ProfilePage() {
                   </div>
                 </div>
               ))}
-            </div>
+            </Card>
           </section>
 
           <section>
-            <h2 className="mb-3 text-sm font-bold text-muted">
-              {t("profile_activity")}
-            </h2>
-            <div className="card divide-y divide-pitch-border/60 overflow-hidden">
-              {activity.length === 0 ? (
-                <p className="p-5 text-sm text-muted">
-                  {t("profile_activity_empty")}
-                </p>
-              ) : (
-                activity.map((item, i) => (
-                  <div
+            <SectionHeader label={t("profile_activity")} />
+            {activity.length === 0 ? (
+              <Card className="p-5 text-sm text-muted">
+                {t("profile_activity_empty")}
+              </Card>
+            ) : (
+              <Card className="overflow-hidden p-0">
+                {activity.map((item, i) => (
+                  <ListRow
                     key={`${item.title}-${i}`}
-                    className="flex items-center justify-between gap-4 p-4 text-sm"
-                  >
-                    <span className="text-white">{item.title}</span>
-                    <span className="font-mono text-xs tabular-nums text-muted">
-                      {item.detail}
-                    </span>
-                  </div>
-                ))
-              )}
-            </div>
+                    title={item.title}
+                    right={
+                      <span className="statnum text-xs text-muted">
+                        {item.detail}
+                      </span>
+                    }
+                  />
+                ))}
+              </Card>
+            )}
           </section>
         </>
       )}
-    </div>
-  );
-}
-
-function AnimatedStat({
-  label,
-  target,
-  delayMs,
-  accent,
-  format,
-}: {
-  label: string;
-  target: number;
-  delayMs: number;
-  accent?: boolean;
-  format?: (v: number) => string;
-}) {
-  const value = useCountUp(target, { durationMs: 1200 });
-  const rendered = format ? format(value) : fmtInt(Math.floor(value));
-  return (
-    <div className="animate-fade-up" style={{ animationDelay: `${delayMs}ms` }}>
-      <p className="text-xs text-muted">{label}</p>
-      <p
-        className={`mt-1 font-display text-xl tabular-nums ${accent ? "text-grass" : "text-white"}`}
-      >
-        {rendered}
-      </p>
     </div>
   );
 }
