@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useT } from "./I18nProvider";
 import { BuiltOnXLayerBadge } from "./BuiltOnXLayerBadge";
-import { ChampionshipMark } from "./ornaments";
 import type { TranslationKey } from "@/lib/i18n";
 
 const PRODUCT_LINKS: { href: string; key: TranslationKey }[] = [
@@ -42,8 +41,7 @@ export function Footer() {
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-4">
           {/* Logo column */}
           <div className="flex flex-col gap-3">
-            <ChampionshipMark size={40} className="text-honor/70" />
-            <span className="text-lg font-extrabold tracking-tight">
+            <span className="font-display text-xl uppercase tracking-wide">
               Kick<span className="text-grass">off</span>
             </span>
             <p className="max-w-[18ch] text-xs text-muted">

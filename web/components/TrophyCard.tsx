@@ -154,7 +154,7 @@ export function TrophyCard({
 
   return (
     <Card
-      className={`animate-fade-up flex flex-col gap-3 p-5 ${
+      className={`animate-fade-up flex h-full flex-col gap-3 p-5 ${
         isChampion
           ? "tabula ring-1 ring-honor/25"
           : isOwned

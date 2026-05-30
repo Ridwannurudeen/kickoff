@@ -77,15 +77,9 @@ export default function TeamPage() {
       {teamQuests.length > 0 && (
         <section>
           <SectionHeader label={t("team_quests_title")} />
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {teamQuests.map((q, i) => (
-              <div
-                key={q.id}
-                className="animate-fade-up"
-                style={{ animationDelay: `${160 + i * 60}ms` }}
-              >
-                <QuestCard quest={q} now={now} />
-              </div>
+          <div className="card overflow-hidden p-0">
+            {teamQuests.map((q) => (
+              <QuestCard key={q.id} quest={q} now={now} />
             ))}
           </div>
         </section>
