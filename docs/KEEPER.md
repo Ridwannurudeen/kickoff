@@ -59,18 +59,30 @@ keeper/timer is untouched. **OO bond = 0**, so no USDC is needed; OO liveness = 
 Setup (already staged on the VPS): `/opt/kickoff/demo/scripts` (keeper + `demo-fan.mjs`),
 `/opt/kickoff/demo/data` (isolated schedule), `/opt/kickoff/demo/gen-fixture.sh`.
 
+**IMPORTANT (keeper-v2.mjs:469):** `--simulate` reads the schedule from
+`data/keeper-v2-fixtures.json`; a plain run reads `worldcup-2026.json`. They must be the
+SAME file across register/propose/settle or the quest you register won't match the one you
+propose. So: put the demo match in **`keeper-v2-fixtures.json`** and run **every** keeper
+step with `--simulate`.
+
 Run, on the VPS (helper sources the env + adds FAN_REP; key never printed):
 ```sh
 run(){ sudo -u kickoff bash -c "set -a; . /etc/kickoff/keeper.env; export FAN_REP=0x133aD36f956A3550aee35D9126dE728FaF9d96C6; set +a; cd /opt/kickoff/demo/scripts && node $*"; }
-sudo -u kickoff bash /opt/kickoff/demo/gen-fixture.sh          # kickoff = now+8m, simScore [3,1] (Home wins)
-run keeper-v2.mjs --register-only --upcoming-days=1            # registers the demo quest; note the predictionQuestId it prints
-run demo-fan.mjs commit <predictionQuestId> 0                  # fan commits Home (slot 0) — mints a Fan ID first if needed
-#   …wait until kickoff passes (~8 min)…
-run keeper-v2.mjs --simulate --propose-only --upcoming-days=1  # proposes simScore → Home
-#   …wait 120s (OO liveness)…
-run keeper-v2.mjs --settle-only --upcoming-days=1              # OO settles → condition resolved
-run demo-fan.mjs reveal <predictionQuestId>                    # settlePrediction → +1000 XP; prints the new score
+# fixture (kickoff = now+3m, sim 3-1 Home) into keeper-v2-fixtures.json:
+D=$(date -u -d "+3 minutes" +%Y-%m-%d); T=$(date -u -d "+3 minutes" +%H:%M)
+printf '{"name":"sim","matches":[{"round":"Demo","date":"%s","time":"%s UTC+0","team1":"Demo United","team2":"Sim City FC","group":"Demo","simScore":[3,1]}]}' "$D" "$T" \
+  | sudo -u kickoff tee /opt/kickoff/demo/data/keeper-v2-fixtures.json >/dev/null
+QID=$(run -e "const{keccak256,toBytes}=require('viem');console.log(keccak256(toBytes('kickoff.v2.quest.prediction|'+process.argv[1]+'|Demo United|Sim City FC')))" "$D")
+run keeper-v2.mjs --simulate --register-only --upcoming-days=1   # register (reads keeper-v2-fixtures.json)
+run demo-fan.mjs commit "$QID" 0                                 # fan commits Home (slot 0); mints Fan ID if needed
+#   …wait until kickoff passes (~3 min)…
+run keeper-v2.mjs --simulate --propose-only --upcoming-days=1    # propose sim 3-1 → Home
+#   …wait 125s (OO liveness 120s)…
+run keeper-v2.mjs --simulate --settle-only --upcoming-days=1     # OO settles → condition resolved
+run demo-fan.mjs reveal "$QID"                                   # settlePrediction → +1000 XP; prints score
 ```
+Verified working 2026-05-30: fan `0x6988…` reached **1000 XP, #1** on the live board
+(commit `0x05a245…` → propose `0x66eed8…` → settle `0x65268c…` → reveal `0x9042cd…`).
 The demo fan wallet (the `ORACLE_PK` address) then appears on the global leaderboard with XP,
 and the commit/propose/settle/reveal txs are on OKLink — the submission artefact. The match
 is labeled "Demo United vs Sim City FC / group Demo" — say **"simulated match — demo only"**
