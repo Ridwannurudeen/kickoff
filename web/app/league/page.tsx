@@ -136,7 +136,7 @@ export default function LeaguePage() {
       push({
         kind: "info",
         title: t("league_register_cta"),
-        message: "Name is required.",
+        message: t("league_err_name_required"),
         ttl: 5000,
       });
       return;
@@ -153,7 +153,7 @@ export default function LeaguePage() {
       push({
         kind: "info",
         title: t("league_register_cta"),
-        message: "Agent wallet must be a valid address.",
+        message: t("league_err_wallet_invalid"),
         ttl: 5000,
       });
       return;
@@ -176,7 +176,7 @@ export default function LeaguePage() {
       })) as readonly [`0x${string}`, `0x${string}`, bigint, string, boolean];
       const exists = existing[4];
       if (exists && existing[0].toLowerCase() !== address.toLowerCase()) {
-        throw new Error("Agent ID is already owned by another wallet.");
+        throw new Error(t("league_err_id_owned"));
       }
       let hash: `0x${string}` | null = null;
       if (!exists) {
@@ -190,7 +190,9 @@ export default function LeaguePage() {
       }
       push({
         kind: exists ? "info" : "success",
-        title: exists ? "Agent already registered" : t("league_register_cta"),
+        title: exists
+          ? t("league_already_registered")
+          : t("league_register_cta"),
         href: hash ? txUrl(hash) : undefined,
         ttl: 9000,
       });
@@ -237,7 +239,7 @@ export default function LeaguePage() {
     }
     const id = push({
       kind: "pending",
-      title: "Enter Season",
+      title: t("league_enter_season"),
       ttl: 0,
     });
     setIsEntering(true);
@@ -247,7 +249,7 @@ export default function LeaguePage() {
         abi: agentLeagueAbi,
         functionName: "activeSeasonId",
       })) as bigint;
-      if (sid === 0n) throw new Error("No active Agent League season.");
+      if (sid === 0n) throw new Error(t("league_err_no_season"));
       const entry = (await publicClient().readContract({
         address: V2_ADDRESSES.agentLeague,
         abi: agentLeagueAbi,
@@ -257,7 +259,7 @@ export default function LeaguePage() {
       if (entry[0]) {
         push({
           kind: "info",
-          title: "Agent already entered",
+          title: t("league_already_entered"),
           ttl: 7000,
         });
         refetchStandings();
@@ -273,7 +275,7 @@ export default function LeaguePage() {
       await waitForTransactionAndRefresh(hash, queryClient);
       push({
         kind: "success",
-        title: "Agent entered season",
+        title: t("league_entered_season"),
         href: txUrl(hash),
         ttl: 9000,
       });
@@ -287,7 +289,7 @@ export default function LeaguePage() {
     } catch (e) {
       push({
         kind: "error",
-        title: "Could not enter season",
+        title: t("league_enter_failed"),
         message: e instanceof Error ? e.message.split("\n")[0] : undefined,
         ttl: 9000,
       });
@@ -358,7 +360,7 @@ export default function LeaguePage() {
               {/* Podium honor moment — top 3 */}
               <div className="tabula card mx-auto max-w-xl p-6 md:p-8">
                 <div className="mb-4 text-center text-[10px] font-bold uppercase tracking-[0.2em] text-muted">
-                  Season {seasonId} · Top 3
+                  {t("league_season_top3", { id: seasonId })}
                 </div>
                 <Podium topThree={topThree} className="mx-auto w-full" />
               </div>
@@ -447,10 +449,14 @@ export default function LeaguePage() {
         <section className="tabula h-fit animate-fade-up p-5 [animation-delay:300ms]">
           {pendingAgentId ? (
             <div className="space-y-3">
-              <h3 className="font-bold text-white">Your agent is registered</h3>
+              <h3 className="font-bold text-white">
+                {t("league_registered_heading")}
+              </h3>
               <div className="space-y-1 text-xs text-muted">
                 <div>
-                  <span className="text-muted/70">Agent ID:</span>{" "}
+                  <span className="text-muted/70">
+                    {t("league_agent_id_label")}
+                  </span>{" "}
                   <span className="font-mono text-white">
                     {pendingAgentId.slice(0, 10)}…
                   </span>
@@ -463,7 +469,7 @@ export default function LeaguePage() {
                       rel="noopener noreferrer"
                       className="font-mono text-grass hover:underline"
                     >
-                      View register tx ↗
+                      {t("league_view_register_tx")}
                     </a>
                   </div>
                 )}
@@ -471,10 +477,10 @@ export default function LeaguePage() {
               {!demoLeague && (!seasonOpen || liveSeasonId === 0n) ? (
                 <button
                   disabled
-                  title="The contract has no open season right now — an admin needs to call openSeason(). Your agent is registered and can be entered once a season opens."
+                  title={t("league_no_season_title")}
                   className="btn-primary w-full cursor-not-allowed opacity-60"
                 >
-                  No active season — try again later
+                  {t("league_no_season_btn")}
                 </button>
               ) : (
                 <button
@@ -484,14 +490,14 @@ export default function LeaguePage() {
                 >
                   {isEntering
                     ? t("wallet_connecting")
-                    : `Step 2 · Enter Season ${seasonId}`}
+                    : t("league_enter_season_step2", { id: seasonId })}
                 </button>
               )}
               <button
                 onClick={resetRegisterForm}
                 className="btn-ghost w-full text-xs"
               >
-                Register another
+                {t("league_register_another")}
               </button>
             </div>
           ) : (
@@ -501,39 +507,41 @@ export default function LeaguePage() {
               </h3>
               <div className="space-y-2.5">
                 <label className="block">
-                  <span className="mb-1 block text-xs text-muted">Name</span>
+                  <span className="mb-1 block text-xs text-muted">
+                    {t("league_field_name")}
+                  </span>
                   <input
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="alpha-striker-v1"
+                    placeholder={t("league_ph_name")}
                     className="input"
                   />
                 </label>
                 <label className="block">
                   <span className="mb-1 block text-xs text-muted">
-                    Agent wallet
+                    {t("league_field_wallet")}
                   </span>
                   <input
                     value={wallet}
                     onChange={(e) => setWallet(e.target.value)}
-                    placeholder="0x…"
+                    placeholder={t("league_ph_wallet")}
                     className="input font-mono text-xs"
                   />
                 </label>
                 <label className="block">
                   <span className="mb-1 block text-xs text-muted">
-                    Endpoint hint
+                    {t("league_field_endpoint")}
                   </span>
                   <input
                     value={endpoint}
                     onChange={(e) => setEndpoint(e.target.value)}
-                    placeholder="https://my-agent.example.com"
+                    placeholder={t("league_ph_endpoint")}
                     className="input text-xs"
                   />
                 </label>
                 <label className="block">
                   <span className="mb-1 block text-xs text-muted">
-                    Price per call (OKB)
+                    {t("league_field_price")}
                   </span>
                   <input
                     value={priceOkb}

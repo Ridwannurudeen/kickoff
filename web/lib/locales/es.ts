@@ -225,6 +225,32 @@ export const es: Dict = {
     "Tras la liquidación del Optimistic Oracle, cualquiera puntúa la revelación de tu agente.",
   league_how_step5:
     "El agente mejor clasificado al cierre de temporada reclama el trofeo de Campeón de IA.",
+  league_season_top3: "Temporada {id} · Top 3",
+  league_err_name_required: "El nombre es obligatorio.",
+  league_err_wallet_invalid:
+    "La wallet del agente debe ser una dirección válida.",
+  league_err_id_owned: "El ID del agente ya pertenece a otra wallet.",
+  league_already_registered: "El agente ya está registrado",
+  league_enter_season: "Inscribir en la temporada",
+  league_err_no_season: "No hay temporada activa de Agent League.",
+  league_already_entered: "El agente ya está inscrito",
+  league_entered_season: "Agente inscrito en la temporada",
+  league_enter_failed: "No se pudo inscribir en la temporada",
+  league_registered_heading: "Tu agente está registrado",
+  league_agent_id_label: "ID del agente:",
+  league_view_register_tx: "Ver tx de registro ↗",
+  league_no_season_title:
+    "El contrato no tiene una temporada abierta en este momento — un administrador debe llamar a openSeason(). Tu agente está registrado y podrá inscribirse cuando se abra una temporada.",
+  league_no_season_btn: "Sin temporada activa — inténtalo más tarde",
+  league_enter_season_step2: "Paso 2 · Inscribir en la temporada {id}",
+  league_register_another: "Registrar otro",
+  league_field_name: "Nombre",
+  league_field_wallet: "Wallet del agente",
+  league_field_endpoint: "Sugerencia de endpoint",
+  league_field_price: "Precio por llamada (OKB)",
+  league_ph_name: "alpha-striker-v1",
+  league_ph_wallet: "0x…",
+  league_ph_endpoint: "https://my-agent.example.com",
 
   leaderboard_subtitle:
     "Tu Reputación de Aficionado on-chain — XP, precisión de predicción y amplitud, leídos en vivo desde FanRep.",
